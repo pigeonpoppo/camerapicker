@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Picker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Rajdhani', sans-serif; 
+      text-align: center; 
+      padding: 1rem;
+      background: linear-gradient(135deg, #0c0c0c 0%, #1a0a1a 25%, #2d1b2d 50%, #1a0a1a 75%, #0c0c0c 100%);
+      min-height: 100vh;
+      color: #e0e0e0;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .container { max-width: 450px; margin: auto; position: relative; }
+    
+    h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 3s ease-in-out infinite;
+    }
+    
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .progress-bar { 
+      width: 100%; 
+      height: 6px; 
+      background: rgba(255, 255, 255, 0.1); 
+      border-radius: 3px; 
+      margin-bottom: 2rem; 
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-fill { 
+      height: 100%; 
+      background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+      border-radius: 3px; 
+      transition: width 0.5s ease;
+      position: relative;
+    }
+    
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: shimmer 2s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .card { 
+      background: rgba(20, 20, 20, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      border-radius: 20px; 
+      padding: 1.5rem; 
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      margin-top: 1rem; 
+      position: relative;
+      cursor: grab;
+      user-select: none;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #ff6b6b);
+      border-radius: 22px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .card:hover::before {
+      opacity: 0.7;
+    }
+    
+    .card img { 
+      width: 100%; 
+      height: 280px;
+      object-fit: cover;
+      border-radius: 15px; 
+      transition: all 0.3s ease; 
+      filter: contrast(1.1) saturate(1.2);
+    }
+    
+    .card h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.3rem;
+      margin: 1rem 0 0.5rem 0;
+      color: #ff6b6b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .card p {
+      color: #a0a0a0;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+    
+    .card.swipe-left { 
+      transform: translateX(-120vw) rotate(-45deg); 
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+      opacity: 0; 
+    }
+    
+    .card.swipe-right { 
+      transform: translateX(120vw) rotate(45deg); 
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+      opacity: 0; 
+    }
+    
+    .card.dragging { cursor: grabbing; }
+    
+    .buttons { 
+      margin-top: 1.5rem; 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 0.8rem; 
+      justify-content: center; 
+    }
+    
+    .buttons button, .results-btn {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.8rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .buttons button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .buttons button:hover::before {
+      left: 100%;
+    }
+    
+    .like { 
+      background: linear-gradient(135deg, #4caf50, #66bb6a); 
+      color: white; 
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+    
+    .like:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+    }
+    
+    .dislike { 
+      background: linear-gradient(135deg, #f44336, #ef5350); 
+      color: white; 
+      box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+    }
+    
+    .dislike:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+    }
+    
+    .body-like { 
+      background: linear-gradient(135deg, #2196f3, #42a5f5); 
+      color: white; 
+      box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+    }
+    
+    .body-like:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
+    }
+    
+    .lens-like { 
+      background: linear-gradient(135deg, #ff9800, #ffa726); 
+      color: white; 
+      box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+    }
+    
+    .lens-like:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+    }
+    
+    .skip { 
+      background: linear-gradient(135deg, #95a5a6, #bdc3c7); 
+      color: white; 
+      box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+    }
+    
+    .skip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(149, 165, 166, 0.4);
+    }
+    
+    .results-btn { 
+      background: linear-gradient(135deg, #2c3e50, #34495e); 
+      color: white; 
+      margin-top: 2rem; 
+      display: none; 
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      box-shadow: 0 6px 20px rgba(44, 62, 80, 0.4);
+    }
+    
+    .results-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(44, 62, 80, 0.6);
+    }
+    
+    .mission-counter {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 107, 107, 0.2);
+      border: 1px solid #ff6b6b;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem;
+      color: #ff6b6b;
+    }
+    
+    @media (max-width: 480px) {
+      .container { padding: 0 1rem; }
+      .card { padding: 1rem; }
+      .buttons button { padding: 0.6rem 1rem; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="mission-counter" id="mission-counter">読み込み中...</div>
+    <h1>カメラ選択</h1>
+    <div id="card-container" style="display:none">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+      <div class="card" id="camera-card">
+        <img id="camera-img" src="" alt="画像" loading="lazy">
+        <h2 id="camera-name"></h2>
+        <p id="camera-info"></p>
+        <div class="buttons" id="button-group"></div>
+        <button id="results-btn" class="results-btn" onclick="location.href='result.html'">📊 結果を見る</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let data = [];
+    let currentIndex = 0;
+    let mode = '';
+    let isDragging = false;
+    let startX = 0;
+    let currentX = 0;
+    const results = {
+      likes: [],
+      dislikes: [],
+      bodyLikes: [],
+      lensLikes: []
+    };
+
+    window.onload = async function () {
+      const params = new URLSearchParams(location.search);
+      mode = params.get("mode");
+      if (!mode) {
+        document.body.innerHTML = '<p>モードが指定されていません。</p>';
+        return;
+      }
+
+      document.getElementById('card-container').style.display = 'block';
+
+      if (mode === 'combo') {
+        const [camRes, lensRes] = await Promise.all([
+          fetch('camera.json'),
+          fetch('lenses.json')
+        ]);
+        const cameras = await camRes.json();
+        const lenses = await lensRes.json();
+
+        const pairs = [];
+        cameras.forEach(cam => {
+          lenses.forEach(lens => {
+            if (cam['Unnamed: 16'] && cam['Unnamed: 16'] === lens['基本使用']) {
+              pairs.push({ body: cam, lens: lens });
+            }
+          });
+        });
+        data = pairs;
+      } else {
+        const file = mode === 'body' ? 'camera.json' : 'lenses.json';
+        const res = await fetch(file);
+        data = await res.json();
+      }
+      showCard(currentIndex);
+      setupSwipeHandlers();
+    }
+
+    function showCard(index) {
+      const item = data[index];
+      const img = (mode === 'combo'
+        ? item.body.img_url || item.lens.img_url
+        : item.img_url) || 'https://via.placeholder.com/500x350?text=No+Image';
+
+      const name = mode === 'combo'
+        ? `${item.body['Unnamed: 2']} ＋ ${item.lens['Unnamed: 2']}`
+        : item['Unnamed: 2'] || item['Unnamed: 2'];
+
+      const info = mode === 'combo'
+        ? `${item.body['概要']} / ${item.body['Unnamed: 16']} / ${item.lens['Unnamed: 12']}`
+        : `${item['概要'] || ''} / ${item['Unnamed: 9'] || item['Unnamed: 12'] || ''} / ${item['Unnamed: 16'] || item['基本使用'] || ''}`;
+
+      const imgElement = document.getElementById('camera-img');
+      imgElement.style.opacity = '0.5';
+      imgElement.onload = () => { imgElement.style.opacity = '1'; };
+      imgElement.onerror = () => { 
+        imgElement.src = 'https://via.placeholder.com/500x350?text=No+Image'; 
+        imgElement.style.opacity = '1';
+      };
+      imgElement.src = img;
+      
+      document.getElementById('camera-name').textContent = name;
+      document.getElementById('camera-info').textContent = info;
+      
+      // Progress bar update
+      const progress = ((currentIndex + 1) / data.length) * 100;
+      document.getElementById('progress-fill').style.width = `${progress}%`;
+      
+      // Mission counter update
+      document.getElementById('mission-counter').textContent = `${currentIndex + 1}/${data.length}`;
+
+      const buttons = document.getElementById('button-group');
+      buttons.innerHTML = '';
+
+      if (mode === 'combo') {
+        buttons.innerHTML = `
+          <button class="like" onclick="vote('like')">👍 セットで好き</button>
+          <button class="dislike" onclick="vote('dislike')">👎 セットで苦手</button>
+          <button class="body-like" onclick="vote('body-like')">📷 本体だけ好き</button>
+          <button class="lens-like" onclick="vote('lens-like')">🔍 レンズだけ好き</button>
+          <button class="skip" onclick="vote('skip')">⏭️ スキップ</button>
+        `;
+      } else {
+        buttons.innerHTML = `
+          <button class="like" onclick="vote('like')">👍 好き</button>
+          <button class="dislike" onclick="vote('dislike')">👎 苦手</button>
+          <button class="skip" onclick="vote('skip')">⏭️ スキップ</button>
+        `;
+      }
+    }
+
+    function vote(type) {
+      const item = data[currentIndex];
+      const label = mode === 'combo'
+        ? `${item.body['Unnamed: 2']}＋${item.lens['Unnamed: 2']}`
+        : item['Unnamed: 2'] || item['Unnamed: 2'];
+
+      switch (type) {
+        case 'like': results.likes.push(label); break;
+        case 'dislike': results.dislikes.push(label); break;
+        case 'body-like': results.bodyLikes.push(item.body['Unnamed: 2']); break;
+        case 'lens-like': results.lensLikes.push(item.lens['Unnamed: 2']); break;
+        case 'skip': break;
+      }
+
+      currentIndex++;
+      if (currentIndex < data.length) {
+        showCard(currentIndex);
+      } else {
+        localStorage.setItem("cameraPickerResults", JSON.stringify(results));
+        document.getElementById("button-group").innerHTML = '';
+        document.getElementById("results-btn").style.display = 'inline-block';
+      }
+    }
+
+    function setupSwipeHandlers() {
+      const card = document.getElementById('camera-card');
+      
+      // Mouse events
+      card.addEventListener('mousedown', handleStart);
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('mouseup', handleEnd);
+      
+      // Touch events
+      card.addEventListener('touchstart', handleStart);
+      document.addEventListener('touchmove', handleMove);
+      document.addEventListener('touchend', handleEnd);
+      
+      function handleStart(e) {
+        isDragging = true;
+        startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+        card.classList.add('dragging');
+      }
+      
+      function handleMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+        const deltaX = currentX - startX;
+        const rotation = deltaX * 0.1;
+        
+        card.style.transform = `translateX(${deltaX}px) rotate(${rotation}deg)`;
+        card.style.opacity = Math.max(0.5, 1 - Math.abs(deltaX) / 300);
+      }
+      
+      function handleEnd(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        card.classList.remove('dragging');
+        
+        const deltaX = currentX - startX;
+        const threshold = 100;
+        
+        if (Math.abs(deltaX) > threshold) {
+          if (deltaX > 0) {
+            // Swipe right - like
+            card.classList.add('swipe-right');
+            setTimeout(() => {
+              card.classList.remove('swipe-right');
+              card.style.transform = '';
+              card.style.opacity = '';
+              vote('like');
+            }, 300);
+          } else {
+            // Swipe left - dislike
+            card.classList.add('swipe-left');
+            setTimeout(() => {
+              card.classList.remove('swipe-left');
+              card.style.transform = '';
+              card.style.opacity = '';
+              vote('dislike');
+            }, 300);
+          }
+        } else {
+          // Return to center
+          card.style.transform = '';
+          card.style.opacity = '';
+        }
+      }
+    }
+  </script>
+</body>
+</html>

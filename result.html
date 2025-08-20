@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Picker - 結果</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Rajdhani', sans-serif; 
+      text-align: center; 
+      padding: 2rem; 
+      background: linear-gradient(135deg, #0c0c0c 0%, #1a0a1a 25%, #2d1b2d 50%, #1a0a1a 75%, #0c0c0c 100%);
+      min-height: 100vh;
+      color: #e0e0e0;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    h1 { 
+      font-family: 'Orbitron', monospace;
+      font-size: 2.5rem; 
+      font-weight: 900;
+      margin-bottom: 1rem; 
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 3s ease-in-out infinite;
+      position: relative;
+    }
+    
+    h1::after {
+      content: 'CLASSIFIED';
+      position: absolute;
+      top: -0.5rem;
+      right: -2rem;
+      font-size: 0.4rem;
+      font-weight: 400;
+      color: #ff6b6b;
+      border: 1px solid #ff6b6b;
+      padding: 0.2rem 0.4rem;
+      background: rgba(255, 107, 107, 0.1);
+      transform: rotate(12deg);
+    }
+    
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .summary { 
+      margin: 1rem auto; 
+      max-width: 700px; 
+      background: rgba(20, 20, 20, 0.8); 
+      backdrop-filter: blur(20px);
+      padding: 2rem; 
+      border-radius: 20px; 
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .summary h2 { 
+      font-family: 'Orbitron', monospace;
+      margin: 2rem 0 1rem 0; 
+      color: #ff6b6b;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .summary h2:first-child {
+      margin-top: 0;
+    }
+    
+    .item-list { text-align: left; margin: 0 auto; max-width: 600px; }
+    
+    .item { 
+      padding: 0.8rem 1rem; 
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+      background: rgba(255, 255, 255, 0.05);
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+      font-weight: 300;
+      transition: all 0.2s ease;
+    }
+    
+    .item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+    
+    .item:last-child { border-bottom: none; }
+    
+    .back-btn, .ai-btn {
+      font-family: 'Rajdhani', sans-serif;
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: 2px solid transparent;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #2c2c54 0%, #40407a 50%, #2c2c54 100%);
+      color: #e0e0e0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .back-btn::before, .ai-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .back-btn:hover, .ai-btn:hover {
+      background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
+      transform: translateY(-3px);
+      box-shadow: 
+        0 10px 25px rgba(255, 107, 107, 0.3),
+        0 0 50px rgba(78, 205, 196, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .back-btn:hover::before, .ai-btn:hover::before {
+      left: 100%;
+    }
+    
+    .ai-result { 
+      margin-top: 1.5rem; 
+      white-space: pre-wrap; 
+      background: rgba(20, 20, 20, 0.8); 
+      backdrop-filter: blur(20px);
+      padding: 1.5rem; 
+      border-radius: 15px; 
+      max-width: 700px; 
+      margin-left: auto; 
+      margin-right: auto; 
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: left;
+    }
+    
+    #api-key { 
+      width: 350px; 
+      padding: 1rem; 
+      margin-top: 1rem; 
+      background: rgba(20, 20, 20, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: #e0e0e0;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+    }
+    
+    #api-key::placeholder {
+      color: #a0a0a0;
+    }
+    
+    #api-key:focus {
+      outline: none;
+      border-color: #ff6b6b;
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+    }
+    
+    .recommendations { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem; 
+      justify-content: center; 
+      margin-top: 2rem; 
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .rec-card { 
+      background: rgba(20, 20, 20, 0.8); 
+      backdrop-filter: blur(20px);
+      border-radius: 20px; 
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+      padding: 1.5rem; 
+      text-align: left; 
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .rec-card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #ff6b6b);
+      border-radius: 22px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .rec-card:hover::before {
+      opacity: 0.7;
+    }
+    
+    .rec-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .rec-card img { 
+      width: 100%; 
+      height: 200px; 
+      object-fit: cover; 
+      border-radius: 12px; 
+      margin-bottom: 1rem; 
+      filter: contrast(1.1) saturate(1.2);
+    }
+    
+    .rec-card h3 { 
+      font-family: 'Orbitron', monospace;
+      margin: 0.5rem 0; 
+      font-size: 1.2rem; 
+      color: #ff6b6b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .rec-card p { 
+      color: #a0a0a0; 
+      font-size: 0.95rem; 
+      margin: 0.5rem 0; 
+      font-weight: 300;
+    }
+    
+    .rec-reason { 
+      background: rgba(255, 107, 107, 0.1); 
+      padding: 1rem; 
+      border-radius: 10px; 
+      font-size: 0.9rem; 
+      color: #e0e0e0; 
+      margin-top: 1rem;
+      border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+    
+    .loading-spinner { 
+      display: none; 
+      width: 50px; 
+      height: 50px; 
+      border: 4px solid rgba(255, 255, 255, 0.1); 
+      border-top: 4px solid #ff6b6b; 
+      border-radius: 50%; 
+      animation: spin 1s linear infinite; 
+      margin: 2rem auto; 
+    }
+    
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+    
+    .ai-btn:disabled { 
+      background: linear-gradient(135deg, #95a5a6, #7f8c8d); 
+      cursor: not-allowed; 
+      transform: none;
+      box-shadow: none;
+    }
+    
+    @media (max-width: 768px) {
+      .recommendations {
+        grid-template-columns: 1fr;
+      }
+      
+      #api-key {
+        width: 90%;
+        max-width: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>あなたの好み結果</h1>
+  <div class="summary">
+    <h2>👍 好きと評価したアイテム</h2>
+    <div id="liked-items" class="item-list"></div>
+
+    <h2>👎 苦手と評価したアイテム</h2>
+    <div id="disliked-items" class="item-list"></div>
+
+    <h2>📷 本体だけ好き</h2>
+    <div id="body-liked-items" class="item-list"></div>
+
+    <h2>🔍 レンズだけ好き</h2>
+    <div id="lens-liked-items" class="item-list"></div>
+
+    <input id="api-key" type="password" placeholder="OpenAI APIキーを入力してください">
+    <button class="ai-btn" id="ai-btn" onclick="getAIRecommendation()">🤖 AIにおすすめしてもらう</button>
+    <div class="loading-spinner" id="loading-spinner"></div>
+    <div id="recommendations" class="recommendations"></div>
+    <div id="ai-result" class="ai-result"></div>
+
+    <button class="back-btn" onclick="location.href='index.html'">← トップに戻る</button>
+  </div>
+
+  <script>
+    function renderList(id, items) {
+      const container = document.getElementById(id);
+      if (!items || items.length === 0) {
+        container.innerHTML = '<p>該当なし</p>';
+        return;
+      }
+      container.innerHTML = items.map(item => `<div class="item">${item}</div>`).join('');
+    }
+
+    const results = JSON.parse(localStorage.getItem("cameraPickerResults")) || {
+      likes: [],
+      dislikes: [],
+      bodyLikes: [],
+      lensLikes: []
+    };
+
+    renderList("liked-items", results.likes);
+    renderList("disliked-items", results.dislikes);
+    renderList("body-liked-items", results.bodyLikes);
+    renderList("lens-liked-items", results.lensLikes);
+
+    async function getAIRecommendation() {
+      const apiKey = document.getElementById("api-key").value.trim();
+      if (!apiKey) return alert("APIキーを入力してください。");
+
+      // Show loading state
+      const aiBtn = document.getElementById("ai-btn");
+      const spinner = document.getElementById("loading-spinner");
+      const recommendations = document.getElementById("recommendations");
+      const aiResult = document.getElementById("ai-result");
+      
+      aiBtn.disabled = true;
+      aiBtn.textContent = "処理中...";
+      spinner.style.display = "block";
+      recommendations.innerHTML = "";
+      aiResult.textContent = "";
+
+      const prompt = `あなたはプロのカメラアドバイザーです。以下の評価結果から、ユーザーの好みに合う推薦機器を3つ選び、JSON形式で返してください。必ず以下の形式で回答してください：
+
+{
+  "recommendations": [
+    {
+      "name": "機器名",
+      "manufacturer": "メーカー名", 
+      "price_range": "価格帯",
+      "image_url": "https://via.placeholder.com/300x200?text=機器名",
+      "features": ["特徴1", "特徴2", "特徴3"],
+      "reason": "推薦理由"
+    }
+  ]
+}
+
+評価結果：
+好き：${results.likes.join("、")}
+苦手：${results.dislikes.join("、")}
+本体だけ好き：${results.bodyLikes.join("、")}
+レンズだけ好き：${results.lensLikes.join("、")}`;
+
+      try {
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4",
+            messages: [
+              { role: "system", content: "あなたはプロのカメラアドバイザーです。必ずJSON形式で回答してください。" },
+              { role: "user", content: prompt }
+            ],
+            temperature: 0.7
+          })
+        });
+
+        const json = await res.json();
+        const output = json.choices?.[0]?.message?.content || "AIの応答が得られませんでした。";
+        
+        try {
+          const recommendations = JSON.parse(output);
+          displayRecommendations(recommendations.recommendations || []);
+        } catch (e) {
+          aiResult.textContent = output;
+        }
+      } catch (error) {
+        aiResult.textContent = "エラーが発生しました。APIキーを確認してください。";
+      } finally {
+        // Hide loading state
+        aiBtn.disabled = false;
+        aiBtn.textContent = "🤖 AIにおすすめしてもらう";
+        spinner.style.display = "none";
+      }
+    }
+
+    function displayRecommendations(recommendations) {
+      const container = document.getElementById("recommendations");
+      container.innerHTML = recommendations.map(rec => `
+        <div class="rec-card">
+          <img src="${rec.image_url}" alt="${rec.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+          <h3>${rec.name}</h3>
+          <p><strong>${rec.manufacturer}</strong> • ${rec.price_range}</p>
+          <p><strong>特徴:</strong> ${rec.features.join(', ')}</p>
+          <div class="rec-reason"><strong>推薦理由:</strong> ${rec.reason}</div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

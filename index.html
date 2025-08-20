@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Picker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Rajdhani', sans-serif; 
+      text-align: center; 
+      padding: 2rem; 
+      background: linear-gradient(135deg, #0c0c0c 0%, #1a0a1a 25%, #2d1b2d 50%, #1a0a1a 75%, #0c0c0c 100%);
+      min-height: 100vh;
+      color: #e0e0e0;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    h1 { 
+      font-family: 'Orbitron', monospace;
+      font-size: 3.5rem; 
+      font-weight: 900;
+      margin-bottom: 3rem; 
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 4s ease-in-out infinite;
+      text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+      position: relative;
+    }
+    
+    h1::after {
+      content: 'CLASSIFIED';
+      position: absolute;
+      top: -0.5rem;
+      right: -2rem;
+      font-size: 0.5rem;
+      font-weight: 400;
+      color: #ff6b6b;
+      border: 1px solid #ff6b6b;
+      padding: 0.2rem 0.5rem;
+      background: rgba(255, 107, 107, 0.1);
+      transform: rotate(15deg);
+    }
+    
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .button-group { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 1.5rem; 
+      max-width: 400px; 
+      margin: auto; 
+    }
+    
+    button {
+      padding: 1.5rem 2rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      border: 2px solid transparent;
+      border-radius: 15px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #2c2c54 0%, #40407a 50%, #2c2c54 100%);
+      color: #e0e0e0;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    button:hover {
+      background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
+      transform: translateY(-3px);
+      box-shadow: 
+        0 10px 25px rgba(255, 107, 107, 0.3),
+        0 0 50px rgba(78, 205, 196, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    button:hover::before {
+      left: 100%;
+    }
+    
+    button:active {
+      transform: translateY(-1px);
+    }
+    
+    .subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: #a0a0a0;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+    
+    .subtitle::before { content: '[ '; color: #ff6b6b; }
+    .subtitle::after { content: ' ]'; color: #ff6b6b; }
+  </style>
+</head>
+<body>
+  <h1>Camera Picker</h1>
+  <p class="subtitle">なにを探したいですか？</p>
+  <div class="button-group">
+    <button onclick="location.href='pick.html?mode=body'">📷 カメラ本体</button>
+    <button onclick="location.href='pick.html?mode=lens'">🔍 レンズ</button>
+    <button onclick="location.href='pick.html?mode=combo'">📦 セット組み合わせ</button>
+  </div>
+</body>
+</html>
