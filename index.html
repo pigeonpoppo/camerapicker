@@ -1,147 +1,632 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <link rel="manifest" href="manifest.json">
+　<meta name="theme-color" content="#3b82f6">
+<link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camera Picker</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
     
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --color-gray-50: #fafafa;
+      --color-gray-100: #f5f5f5;
+      --color-gray-200: #e5e5e5;
+      --color-gray-300: #d4d4d4;
+      --color-gray-400: #a3a3a3;
+      --color-gray-500: #737373;
+      --color-gray-600: #525252;
+      --color-gray-700: #404040;
+      --color-gray-800: #262626;
+      --color-gray-900: #171717;
+      
+      --color-blue-500: #3b82f6;
+      --color-blue-600: #2563eb;
+      --color-green-500: #10b981;
+      --color-purple-500: #8b5cf6;
+      
+      --spacing-1: 0.25rem;
+      --spacing-2: 0.5rem;
+      --spacing-3: 0.75rem;
+      --spacing-4: 1rem;
+      --spacing-6: 1.5rem;
+      --spacing-8: 2rem;
+      --spacing-12: 3rem;
+      --spacing-16: 4rem;
+      
+      --border-radius-sm: 0.5rem;
+      --border-radius-md: 0.75rem;
+      --border-radius-lg: 1rem;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
     
-    body { 
-      font-family: 'Rajdhani', sans-serif; 
-      text-align: center; 
-      padding: 2rem; 
-      background: linear-gradient(135deg, #0c0c0c 0%, #1a0a1a 25%, #2d1b2d 50%, #1a0a1a 75%, #0c0c0c 100%);
-      min-height: 100vh;
-      color: #e0e0e0;
-      position: relative;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--color-gray-50);
+      color: var(--color-gray-900);
+      line-height: 1.6;
       overflow-x: hidden;
     }
     
-    body::before {
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--spacing-6);
+    }
+    
+    /* Header */
+    .header {
+      background: white;
+      border-bottom: 1px solid var(--color-gray-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      text-decoration: none;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: var(--spacing-8);
+    }
+    
+    .nav-link {
+      color: var(--color-gray-600);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+    
+    .nav-link:hover {
+      color: var(--color-gray-900);
+    }
+    
+    /* Hero Section */
+    .hero {
+      padding: var(--spacing-16) 0;
+      text-align: center;
+    }
+    
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: var(--spacing-6);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--color-gray-600);
+      margin-bottom: var(--spacing-12);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* Experience Level Selection */
+    .level-section {
+      margin-bottom: var(--spacing-16);
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: var(--spacing-8);
+      text-align: center;
+    }
+    
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--spacing-6);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .level-card {
+      background: white;
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-8);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .level-card:hover {
+      border-color: var(--color-blue-500);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    
+    .level-card.selected {
+      border-color: var(--color-blue-500);
+      background: linear-gradient(to bottom, white, #fafbff);
+    }
+    
+    .level-card.selected::before {
       content: '';
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.1) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: -1;
+      right: 0;
+      height: 3px;
+      background: var(--color-blue-500);
+      border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
     }
     
-    h1 { 
-      font-family: 'Orbitron', monospace;
-      font-size: 3.5rem; 
-      font-weight: 900;
-      margin-bottom: 3rem; 
-      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
-      background-size: 300% 300%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: gradientShift 4s ease-in-out infinite;
-      text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
-      position: relative;
+    .level-emoji {
+      font-size: 2.5rem;
+      margin-bottom: var(--spacing-4);
+      display: block;
     }
     
-    h1::after {
-      content: 'CLASSIFIED';
-      position: absolute;
-      top: -0.5rem;
-      right: -2rem;
-      font-size: 0.5rem;
-      font-weight: 400;
-      color: #ff6b6b;
-      border: 1px solid #ff6b6b;
-      padding: 0.2rem 0.5rem;
-      background: rgba(255, 107, 107, 0.1);
-      transform: rotate(15deg);
-    }
-    
-    @keyframes gradientShift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-    
-    .button-group { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 1.5rem; 
-      max-width: 400px; 
-      margin: auto; 
-    }
-    
-    button {
-      padding: 1.5rem 2rem;
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 1.4rem;
+    .level-title {
+      font-size: 1.125rem;
       font-weight: 600;
-      border: 2px solid transparent;
-      border-radius: 15px;
-      cursor: pointer;
-      background: linear-gradient(135deg, #2c2c54 0%, #40407a 50%, #2c2c54 100%);
-      color: #e0e0e0;
-      transition: all 0.3s ease;
+      color: var(--color-gray-900);
+      margin-bottom: var(--spacing-2);
+    }
+    
+    .level-description {
+      color: var(--color-gray-600);
+      font-size: 0.875rem;
+    }
+    
+    /* Action Buttons */
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-6);
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .action-card {
+      background: white;
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-8);
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
-      text-transform: uppercase;
-      letter-spacing: 1px;
     }
     
-    button::before {
+    .action-card::before {
       content: '';
       position: absolute;
       top: 0;
-      left: -100%;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--color-blue-500), var(--color-purple-500));
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .action-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+      border-color: var(--color-blue-500);
+    }
+    
+    .action-card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .action-emoji {
+      font-size: 3rem;
+      margin-bottom: var(--spacing-4);
+      display: block;
+    }
+    
+    .action-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: var(--spacing-3);
+    }
+    
+    .action-description {
+      color: var(--color-gray-600);
+      margin-bottom: var(--spacing-6);
+    }
+    
+    .action-features {
+      list-style: none;
+    }
+    
+    .action-features li {
+      color: var(--color-gray-500);
+      font-size: 0.875rem;
+      margin-bottom: var(--spacing-1);
+      padding-left: var(--spacing-4);
+      position: relative;
+    }
+    
+    .action-features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--color-green-500);
+      font-weight: 600;
+    }
+    
+    /* Start Button */
+    .start-button {
+      background: var(--color-blue-500);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-4) var(--spacing-8);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: var(--spacing-8);
       width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
     }
     
-    button:hover {
-      background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
-      transform: translateY(-3px);
-      box-shadow: 
-        0 10px 25px rgba(255, 107, 107, 0.3),
-        0 0 50px rgba(78, 205, 196, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-    
-    button:hover::before {
-      left: 100%;
-    }
-    
-    button:active {
+    .start-button:hover {
+      background: var(--color-blue-600);
       transform: translateY(-1px);
     }
     
-    .subtitle {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-      color: #a0a0a0;
-      font-weight: 300;
-      letter-spacing: 2px;
+    .start-button:disabled {
+      background: var(--color-gray-300);
+      cursor: not-allowed;
+      transform: none;
     }
     
-    .subtitle::before { content: '[ '; color: #ff6b6b; }
-    .subtitle::after { content: ' ]'; color: #ff6b6b; }
+    /* Statistics Section */
+    .stats-section {
+      background: white;
+      border-top: 1px solid var(--color-gray-200);
+      padding: var(--spacing-16) 0;
+      margin-top: var(--spacing-16);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-8);
+      text-align: center;
+    }
+    
+    .stat-item {
+      color: var(--color-gray-600);
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      display: block;
+      margin-bottom: var(--spacing-2);
+    }
+    
+    .stat-label {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      
+      .level-grid,
+      .actions {
+        grid-template-columns: 1fr;
+      }
+      
+      .nav-links {
+        display: none;
+      }
+      
+      .container {
+        padding: 0 var(--spacing-4);
+      }
+    }
+    
+    /* Loading state */
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .animate-in {
+      animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .animate-in-delay {
+      animation: fadeInUp 0.6s ease-out 0.2s both;
+    }
   </style>
 </head>
 <body>
-  <h1>Camera Picker</h1>
-  <p class="subtitle">なにを探したいですか？</p>
-  <div class="button-group">
-    <button onclick="location.href='pick.html?mode=body'">📷 カメラ本体</button>
-    <button onclick="location.href='pick.html?mode=lens'">🔍 レンズ</button>
-    <button onclick="location.href='pick.html?mode=combo'">📦 セット組み合わせ</button>
-  </div>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo">Camera Picker</a>
+        <nav class="nav-links">
+          <a href="#" class="nav-link">使い方</a>
+          <a href="#" class="nav-link">ランキング</a>
+          <a href="#" class="nav-link">コミュニティ</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1 class="hero-title animate-in">あなたにぴったりの<br>カメラを見つけよう</h1>
+        <p class="hero-subtitle animate-in-delay">
+          数千台のカメラの中から、あなたの撮影スタイルと予算に最適な1台を見つけるお手伝いをします。
+        </p>
+      </div>
+    </section>
+
+    <section class="level-section">
+      <div class="container">
+        <h2 class="section-title">まずは、あなたの撮影経験を教えてください</h2>
+        <div class="level-grid">
+          <div class="level-card" data-level="beginner" onclick="selectLevel('beginner')">
+            <span class="level-emoji">🌱</span>
+            <h3 class="level-title">はじめて</h3>
+            <p class="level-description">カメラを初めて購入する方向け。操作の簡単さと価格を重視した提案をします。</p>
+          </div>
+          
+          <div class="level-card" data-level="intermediate" onclick="selectLevel('intermediate')">
+            <span class="level-emoji">📷</span>
+            <h3 class="level-title">慣れてきた</h3>
+            <p class="level-description">基本操作を理解している方向け。機能と価格のバランスを考慮した提案をします。</p>
+          </div>
+          
+          <div class="level-card" data-level="advanced" onclick="selectLevel('advanced')">
+            <span class="level-emoji">🎯</span>
+            <h3 class="level-title">こだわりたい</h3>
+            <p class="level-description">専門的な撮影を行う方向け。性能を重視したプロ仕様の機材を提案します。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="actions">
+          <a href="#" class="action-card" onclick="startPicking('body')">
+            <span class="action-emoji">📸</span>
+            <h3 class="action-title">カメラ本体</h3>
+            <p class="action-description">メインとなるカメラボディを選びます</p>
+            <ul class="action-features">
+              <li>画質・性能重視の選択</li>
+              <li>予算に応じた最適化</li>
+              <li>用途別の推薦</li>
+            </ul>
+          </a>
+          
+          <a href="#" class="action-card" onclick="startPicking('lens')">
+            <span class="action-emoji">🔍</span>
+            <h3 class="action-title">レンズ</h3>
+            <p class="action-description">撮影スタイルに合わせたレンズを選びます</p>
+            <ul class="action-features">
+              <li>撮影シーン別提案</li>
+              <li>焦点距離の最適化</li>
+              <li>F値・画質重視</li>
+            </ul>
+          </a>
+          
+          <a href="#" class="action-card" onclick="startPicking('combo')">
+            <span class="action-emoji">🎁</span>
+            <h3 class="action-title">セット組み合わせ</h3>
+            <p class="action-description">本体とレンズの最適な組み合わせを提案</p>
+            <ul class="action-features">
+              <li>相性を考慮した組み合わせ</li>
+              <li>トータル予算での最適化</li>
+              <li>初心者にも安心</li>
+            </ul>
+          </a>
+        </div>
+        
+        <button class="start-button" id="start-button" onclick="startDiagnosis()" disabled>
+          診断を始める
+        </button>
+      </div>
+    </section>
+
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-number">1,247</span>
+            <span class="stat-label">カメラ機種</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">2,891</span>
+            <span class="stat-label">レンズ</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">15,432</span>
+            <span class="stat-label">マッチング数</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">98%</span>
+            <span class="stat-label">満足度</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let selectedLevel = null;
+    let selectedMode = null;
+    
+    function selectLevel(level) {
+      selectedLevel = level;
+      
+      // Remove previous selection
+      document.querySelectorAll('.level-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      // Add selection to clicked card
+      document.querySelector(`[data-level="${level}"]`).classList.add('selected');
+      
+      updateStartButton();
+      
+      // Store in localStorage
+      localStorage.setItem('cameraPickerLevel', level);
+    }
+    
+    function startPicking(mode) {
+      selectedMode = mode;
+      
+      // Remove previous selection
+      document.querySelectorAll('.action-card').forEach(card => {
+        card.style.borderColor = 'var(--color-gray-200)';
+      });
+      
+      // Highlight selected mode
+      event.currentTarget.style.borderColor = 'var(--color-blue-500)';
+      
+      updateStartButton();
+      
+      // Store in localStorage  
+      localStorage.setItem('cameraPickerMode', mode);
+    }
+    
+    function updateStartButton() {
+      const button = document.getElementById('start-button');
+      
+      if (selectedLevel && selectedMode) {
+        button.disabled = false;
+        button.textContent = '診断を始める';
+      } else if (selectedLevel) {
+        button.textContent = '撮影したいものを選んでください';
+      } else if (selectedMode) {
+        button.textContent = '経験レベルを選んでください';
+      } else {
+        button.textContent = '診断を始める';
+      }
+    }
+    
+    function startDiagnosis() {
+      if (!selectedLevel || !selectedMode) {
+        return;
+      }
+      
+      // Add loading state
+      document.body.classList.add('loading');
+      
+      // Save selections
+      localStorage.setItem('cameraPickerLevel', selectedLevel);
+      localStorage.setItem('cameraPickerMode', selectedMode);
+      
+      // Navigate to context questions or direct to picking
+      const useContext = Math.random() > 0.5; // A/B test context questions
+      
+      if (useContext) {
+        window.location.href = `context.html?mode=${selectedMode}&level=${selectedLevel}`;
+      } else {
+        window.location.href = `pick.html?mode=${selectedMode}&level=${selectedLevel}`;
+      }
+    }
+    
+    // Initialize page
+    function init() {
+      // Restore previous selections
+      const savedLevel = localStorage.getItem('cameraPickerLevel');
+      const savedMode = localStorage.getItem('cameraPickerMode');
+      
+      if (savedLevel) {
+        selectLevel(savedLevel);
+      }
+      
+      if (savedMode) {
+        // Simulate click on saved mode
+        const modeButtons = {
+          'body': 0,
+          'lens': 1, 
+          'combo': 2
+        };
+        const index = modeButtons[savedMode];
+        if (index !== undefined) {
+          document.querySelectorAll('.action-card')[index].click();
+        }
+      }
+      
+      // Animate elements on load
+      const animateElements = document.querySelectorAll('.animate-in, .animate-in-delay');
+      animateElements.forEach((el, index) => {
+        setTimeout(() => {
+          el.style.opacity = '1';
+        }, index * 100);
+      });
+    }
+    
+    // Run initialization when page loads
+    document.addEventListener('DOMContentLoaded', init);
+    // Service Worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('SW registered: ', registration);
+      })
+      .catch(registrationError => {
+        console.log('SW registration failed: ', registrationError);
+      });
+  });
+}
+  </script>
 </body>
 </html>

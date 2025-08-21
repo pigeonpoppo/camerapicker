@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3b82f6">
+<link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Picker - 撮影スタイル診断</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --color-gray-50: #fafafa;
+      --color-gray-100: #f5f5f5;
+      --color-gray-200: #e5e5e5;
+      --color-gray-300: #d4d4d4;
+      --color-gray-400: #a3a3a3;
+      --color-gray-500: #737373;
+      --color-gray-600: #525252;
+      --color-gray-700: #404040;
+      --color-gray-800: #262626;
+      --color-gray-900: #171717;
+      
+      --color-blue-500: #3b82f6;
+      --color-blue-600: #2563eb;
+      --color-green-500: #10b981;
+      --color-purple-500: #8b5cf6;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--color-gray-50);
+      color: var(--color-gray-900);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    
+    /* Header */
+    .header {
+      background: white;
+      border-bottom: 1px solid var(--color-gray-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      text-decoration: none;
+    }
+    
+    .skip-button {
+      background: none;
+      border: 1px solid var(--color-gray-300);
+      color: var(--color-gray-600);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+    }
+    
+    .skip-button:hover {
+      background: var(--color-gray-100);
+      color: var(--color-gray-900);
+    }
+    
+    /* Main Content */
+    .main {
+      padding: 3rem 0;
+    }
+    
+    .intro {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .intro-title {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+    
+    .intro-subtitle {
+      font-size: 1.125rem;
+      color: var(--color-gray-600);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Progress Indicator */
+    .progress-indicator {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .progress-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-gray-300);
+      transition: all 0.3s ease;
+    }
+    
+    .progress-dot.active {
+      background: var(--color-blue-500);
+      transform: scale(1.25);
+    }
+    
+    .progress-dot.completed {
+      background: var(--color-green-500);
+    }
+    
+    .progress-text {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+    }
+    
+    /* Question Card */
+    .question-card {
+      background: white;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+    
+    .question-card.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .question-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 1.5rem;
+      line-height: 1.3;
+    }
+    
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .option-card {
+      background: var(--color-gray-50);
+      border: 2px solid var(--color-gray-200);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      position: relative;
+    }
+    
+    .option-card:hover {
+      border-color: var(--color-blue-500);
+      background: white;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .option-card.selected {
+      border-color: var(--color-blue-500);
+      background: white;
+      box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.15);
+    }
+    
+    .option-card.selected::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--color-blue-500);
+      border-radius: 0.75rem 0.75rem 0 0;
+    }
+    
+    .option-emoji {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    
+    .option-title {
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 0.5rem;
+    }
+    
+    .option-description {
+      font-size: 0.875rem;
+      color: var(--color-gray-600);
+      line-height: 1.4;
+    }
+    
+    /* Navigation */
+    .navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+    }
+    
+    .nav-button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 100px;
+    }
+    
+    .nav-button.secondary {
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+    }
+    
+    .nav-button.secondary:hover:not(:disabled) {
+      background: var(--color-gray-200);
+    }
+    
+    .nav-button.primary {
+      background: var(--color-blue-500);
+      color: white;
+    }
+    
+    .nav-button.primary:hover:not(:disabled) {
+      background: var(--color-blue-600);
+    }
+    
+    .nav-button:disabled {
+      background: var(--color-gray-200);
+      color: var(--color-gray-400);
+      cursor: not-allowed;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1rem;
+      }
+      
+      .intro-title {
+        font-size: 1.875rem;
+      }
+      
+      .question-card {
+        padding: 1.5rem;
+      }
+      
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .navigation {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .nav-button {
+        width: 100%;
+      }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .animate-in {
+      animation: fadeInUp 0.6s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">Camera Picker</a>
+        <button class="skip-button" onclick="skipQuestions()">スキップ</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="intro animate-in">
+        <h1 class="intro-title">撮影スタイル診断</h1>
+        <p class="intro-subtitle">
+          いくつかの質問に答えて、あなたの撮影スタイルを分析します。より精度の高いおすすめができるようになります。
+        </p>
+      </div>
+      
+      <div class="progress-indicator">
+        <div class="progress-dots" id="progress-dots"></div>
+        <div class="progress-text" id="progress-text">質問 1 / 5</div>
+      </div>
+      
+      <div id="questions-container"></div>
+      
+      <div class="navigation">
+        <button class="nav-button secondary" id="prev-button" onclick="previousQuestion()" disabled>
+          戻る
+        </button>
+        <button class="nav-button primary" id="next-button" onclick="nextQuestion()" disabled>
+          次へ
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const questions = [
+      {
+        id: 'shooting_scenes',
+        title: 'どんなシーンで撮影することが多いですか？',
+        type: 'multiple',
+        options: [
+          { value: 'portrait', emoji: '👤', title: 'ポートレート', description: '人物撮影がメイン' },
+          { value: 'landscape', emoji: '🏔️', title: '風景', description: '自然や街並みを撮影' },
+          { value: 'travel', emoji: '✈️', title: '旅行', description: '旅先での記録撮影' },
+          { value: 'daily', emoji: '📷', title: '日常', description: '家族や友人との日常' },
+          { value: 'sports', emoji: '⚽', title: 'スポーツ', description: '動きのある被写体' },
+          { value: 'macro', emoji: '🔬', title: 'マクロ', description: '花や昆虫の接写' }
+        ]
+      },
+      {
+        id: 'budget',
+        title: '予算はどのくらいを考えていますか？',
+        type: 'single',
+        options: [
+          { value: 'entry', emoji: '💰', title: '〜10万円', description: 'エントリーモデル' },
+          { value: 'middle', emoji: '💰💰', title: '10〜30万円', description: 'ミドルレンジ' },
+          { value: 'high', emoji: '💰💰💰', title: '30万円〜', description: 'ハイエンドモデル' },
+          { value: 'unlimited', emoji: '👑', title: '予算なし', description: '最高のものを' }
+        ]
+      },
+      {
+        id: 'portability',
+        title: '持ち運びやすさはどの程度重要ですか？',
+        type: 'single',
+        options: [
+          { value: 'very_important', emoji: '🎒', title: '非常に重要', description: '軽量・コンパクト重視' },
+          { value: 'somewhat', emoji: '⚖️', title: 'まあまあ重要', description: 'バランス重視' },
+          { value: 'not_important', emoji: '💪', title: '重要でない', description: '性能重視で重くてもOK' }
+        ]
+      },
+      {
+        id: 'video_importance',
+        title: '動画撮影の重要度は？',
+        type: 'single',
+        options: [
+          { value: 'very_important', emoji: '🎬', title: '非常に重要', description: '4K/高品質動画が必要' },
+          { value: 'somewhat', emoji: '📹', title: 'まあまあ重要', description: 'たまに動画も撮る' },
+          { value: 'not_important', emoji: '📸', title: '重要でない', description: '静止画がメイン' }
+        ]
+      },
+      {
+        id: 'experience_level',
+        title: 'カメラの操作経験は？',
+        type: 'single',
+        options: [
+          { value: 'beginner', emoji: '🌱', title: '初心者', description: 'オートモードメイン' },
+          { value: 'intermediate', emoji: '📚', title: '中級者', description: '基本設定は理解している' },
+          { value: 'advanced', emoji: '🎓', title: '上級者', description: 'マニュアル操作も自在' }
+        ]
+      }
+    ];
+
+    let currentQuestion = 0;
+    let answers = {};
+    
+    function initializeQuestions() {
+      createProgressDots();
+      showQuestion(currentQuestion);
+    }
+    
+    function createProgressDots() {
+      const dotsContainer = document.getElementById('progress-dots');
+      dotsContainer.innerHTML = questions.map((_, index) => 
+        `<div class="progress-dot" data-index="${index}"></div>`
+      ).join('');
+    }
+    
+    function showQuestion(index) {
+      const question = questions[index];
+      const container = document.getElementById('questions-container');
+      
+      container.innerHTML = `
+        <div class="question-card active">
+          <h2 class="question-title">${question.title}</h2>
+          <div class="options-grid">
+            ${question.options.map(option => `
+              <div class="option-card" data-value="${option.value}" onclick="selectOption('${question.id}', '${option.value}', '${question.type}')">
+                <span class="option-emoji">${option.emoji}</span>
+                <div class="option-title">${option.title}</div>
+                <div class="option-description">${option.description}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+      // Restore previous answers
+      if (answers[question.id]) {
+        const selectedValues = Array.isArray(answers[question.id]) ? answers[question.id] : [answers[question.id]];
+        selectedValues.forEach(value => {
+          const option = document.querySelector(`[data-value="${value}"]`);
+          if (option) option.classList.add('selected');
+        });
+      }
+      
+      updateProgressDots();
+      updateNavigation();
+      updateProgressText();
+    }
+    
+    function selectOption(questionId, value, type) {
+      const option = document.querySelector(`[data-value="${value}"]`);
+      
+      if (type === 'single') {
+        // Clear all selections for single choice
+        document.querySelectorAll('.option-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        option.classList.add('selected');
+        answers[questionId] = value;
+      } else {
+        // Multiple choice
+        if (!answers[questionId]) answers[questionId] = [];
+        
+        if (option.classList.contains('selected')) {
+          option.classList.remove('selected');
+          answers[questionId] = answers[questionId].filter(v => v !== value);
+        } else {
+          option.classList.add('selected');
+          answers[questionId].push(value);
+        }
+        
+        if (answers[questionId].length === 0) {
+          delete answers[questionId];
+        }
+      }
+      
+      updateNavigation();
+    }
+    
+    function updateProgressDots() {
+      const dots = document.querySelectorAll('.progress-dot');
+      dots.forEach((dot, index) => {
+        dot.classList.remove('active', 'completed');
+        if (index < currentQuestion) {
+          dot.classList.add('completed');
+        } else if (index === currentQuestion) {
+          dot.classList.add('active');
+        }
+      });
+    }
+    
+    function updateProgressText() {
+      const progressText = document.getElementById('progress-text');
+      progressText.textContent = `質問 ${currentQuestion + 1} / ${questions.length}`;
+    }
+    
+    function updateNavigation() {
+      const prevBtn = document.getElementById('prev-button');
+      const nextBtn = document.getElementById('next-button');
+      
+      prevBtn.disabled = currentQuestion === 0;
+      
+      const currentQuestionId = questions[currentQuestion].id;
+      const hasAnswer = answers[currentQuestionId] && 
+        (Array.isArray(answers[currentQuestionId]) ? answers[currentQuestionId].length > 0 : true);
+      
+      nextBtn.disabled = !hasAnswer;
+      nextBtn.textContent = currentQuestion === questions.length - 1 ? '完了' : '次へ';
+    }
+    
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+      } else {
+        completeQuestionnaire();
+      }
+    }
+    
+    function previousQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+      }
+    }
+    
+    function completeQuestionnaire() {
+      // Save answers
+      localStorage.setItem('cameraPickerContext', JSON.stringify(answers));
+      
+      // Get URL parameters to maintain mode and level
+      const urlParams = new URLSearchParams(window.location.search);
+      const mode = urlParams.get('mode') || 'body';
+      const level = urlParams.get('level') || 'intermediate';
+      
+      // Redirect to pick page
+      window.location.href = `pick.html?mode=${mode}&level=${level}&context=true`;
+    }
+    
+    function skipQuestions() {
+      if (confirm('質問をスキップしますか？より精度の高いおすすめのためには回答をお勧めします。')) {
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode') || 'body';
+        const level = urlParams.get('level') || 'intermediate';
+        
+        // Go directly to pick page
+        window.location.href = `pick.html?mode=${mode}&level=${level}`;
+      }
+    }
+    
+    // Initialize
+    window.onload = initializeQuestions;
+    // Service Worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('SW registered: ', registration);
+      })
+      .catch(registrationError => {
+        console.log('SW registration failed: ', registrationError);
+      });
+  });
+}
+  </script>
+</body>
+</html>
