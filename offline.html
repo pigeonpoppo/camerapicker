@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link rel="manifest" href="manifest.json">
+　<meta name="theme-color" content="#3b82f6">
+　<link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>オフライン - Camera Picker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --color-gray-50: #fafafa;
+      --color-gray-100: #f5f5f5;
+      --color-gray-200: #e5e5e5;
+      --color-gray-400: #a3a3a3;
+      --color-gray-500: #737373;
+      --color-gray-600: #525252;
+      --color-gray-900: #171717;
+      --color-blue-500: #3b82f6;
+      --color-blue-600: #2563eb;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--color-gray-50);
+      color: var(--color-gray-900);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    
+    .container {
+      max-width: 400px;
+      text-align: center;
+      background: white;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 1rem;
+      padding: 3rem 2rem;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+    
+    .offline-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 2rem;
+      background: var(--color-gray-100);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--color-gray-500);
+    }
+    
+    .offline-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 1rem;
+    }
+    
+    .offline-description {
+      color: var(--color-gray-600);
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+    
+    .connection-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      padding: 0.75rem;
+      background: var(--color-gray-100);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--color-gray-600);
+    }
+    
+    .connection-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-gray-400);
+    }
+    
+    .connection-indicator.online {
+      background: #10b981;
+    }
+    
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    
+    .button.primary {
+      background: var(--color-blue-500);
+      color: white;
+    }
+    
+    .button.primary:hover {
+      background: var(--color-blue-600);
+    }
+    
+    .button.secondary {
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+      border: 1px solid var(--color-gray-200);
+    }
+    
+    .button.secondary:hover {
+      background: var(--color-gray-200);
+    }
+    
+    .cached-info {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: var(--color-gray-50);
+      border-radius: 0.5rem;
+      border: 1px solid var(--color-gray-200);
+    }
+    
+    .cached-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 0.5rem;
+    }
+    
+    .cached-description {
+      font-size: 0.75rem;
+      color: var(--color-gray-600);
+      line-height: 1.4;
+    }
+    
+    /* Animation for connection checking */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .checking {
+      animation: pulse 1.5s infinite;
+    }
+    
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container {
+        padding: 2rem 1.5rem;
+      }
+      
+      .offline-title {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="offline-icon">
+      📡
+    </div>
+    
+    <h1 class="offline-title">インターネット接続がありません</h1>
+    
+    <p class="offline-description">
+      現在オフラインです。インターネット接続を確認してから、もう一度お試しください。
+    </p>
+    
+    <div class="connection-status" id="connection-status">
+      <div class="connection-indicator" id="connection-indicator"></div>
+      <span id="connection-text">オフライン</span>
+    </div>
+    
+    <div class="actions">
+      <button class="button primary" onclick="checkConnectionAndReload()">
+        接続を確認して再読み込み
+      </button>
+      
+      <a href="index.html" class="button secondary">
+        ホームに戻る
+      </a>
+    </div>
+    
+    <div class="cached-info">
+      <div class="cached-title">オフラインでも利用可能</div>
+      <div class="cached-description">
+        一部の機能は保存されたデータを使用してオフラインでも利用できます。完全な機能を利用するにはインターネット接続が必要です。
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isCheckingConnection = false;
+    
+    function updateConnectionStatus() {
+      const indicator = document.getElementById('connection-indicator');
+      const text = document.getElementById('connection-text');
+      const status = document.getElementById('connection-status');
+      
+      if (navigator.onLine) {
+        indicator.classList.add('online');
+        text.textContent = 'オンライン';
+        status.style.background = '#ecfdf5';
+        status.style.color = '#059669';
+      } else {
+        indicator.classList.remove('online');
+        text.textContent = 'オフライン';
+        status.style.background = 'var(--color-gray-100)';
+        status.style.color = 'var(--color-gray-600)';
+      }
+    }
+    
+    function checkConnectionAndReload() {
+      if (isCheckingConnection) return;
+      
+      isCheckingConnection = true;
+      const button = event.target;
+      const originalText = button.textContent;
+      
+      button.textContent = '接続を確認中...';
+      button.classList.add('checking');
+      button.disabled = true;
+      
+      // Test connection by trying to fetch a small resource
+      fetch('/', { 
+        method: 'HEAD',
+        cache: 'no-cache'
+      })
+      .then(response => {
+        if (response.ok) {
+          // Connection restored
+          button.textContent = '接続復旧！リロードします...';
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } else {
+          throw new Error('Connection failed');
+        }
+      })
+      .catch(() => {
+        // Still offline
+        button.textContent = 'まだオフラインです';
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove('checking');
+          button.disabled = false;
+          isCheckingConnection = false;
+        }, 2000);
+      });
+    }
+    
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+      updateConnectionStatus();
+      
+      // Auto-reload when connection is restored
+      setTimeout(() => {
+        if (navigator.onLine) {
+          window.location.reload();
+        }
+      }, 1000);
+    });
+    
+    window.addEventListener('offline', updateConnectionStatus);
+    
+    // Check connection status on load
+    updateConnectionStatus();
+    
+    // Periodic connection check
+    setInterval(() => {
+      if (!isCheckingConnection) {
+        updateConnectionStatus();
+      }
+    }, 5000);
+    
+    // Show helpful tips based on time offline
+    setTimeout(() => {
+      if (!navigator.onLine) {
+        const tips = document.createElement('div');
+        tips.innerHTML = `
+          <div style="margin-top: 1rem; padding: 1rem; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 0.5rem; font-size: 0.875rem; color: #92400e;">
+            <strong>ヒント:</strong> Wi-Fi設定を確認するか、モバイルデータ通信を有効にしてください。
+          </div>
+        `;
+        document.querySelector('.container').appendChild(tips);
+      }
+    }, 10000);
+    // Service Worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('SW registered: ', registration);
+      })
+      .catch(registrationError => {
+        console.log('SW registration failed: ', registrationError);
+      });
+  });
+}
+  </script>
+</body>
+</html>

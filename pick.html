@@ -1,74 +1,113 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <link rel="manifest" href="manifest.json">
+　<meta name="theme-color" content="#3b82f6">
+　<link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Camera Picker</title>
+  <title>Camera Picker - ギア選択</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
     
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    body { 
-      font-family: 'Rajdhani', sans-serif; 
-      text-align: center; 
-      padding: 1rem;
-      background: linear-gradient(135deg, #0c0c0c 0%, #1a0a1a 25%, #2d1b2d 50%, #1a0a1a 75%, #0c0c0c 100%);
-      min-height: 100vh;
-      color: #e0e0e0;
-      position: relative;
-      overflow-x: hidden;
+    :root {
+      --color-gray-50: #fafafa;
+      --color-gray-100: #f5f5f5;
+      --color-gray-200: #e5e5e5;
+      --color-gray-300: #d4d4d4;
+      --color-gray-400: #a3a3a3;
+      --color-gray-500: #737373;
+      --color-gray-600: #525252;
+      --color-gray-700: #404040;
+      --color-gray-800: #262626;
+      --color-gray-900: #171717;
+      
+      --color-blue-500: #3b82f6;
+      --color-blue-600: #2563eb;
+      --color-green-500: #10b981;
+      --color-red-500: #ef4444;
+      --color-orange-500: #f97316;
+      --color-purple-500: #8b5cf6;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
     }
     
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--color-gray-50);
+      color: var(--color-gray-900);
+      line-height: 1.6;
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    .app-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header */
+    .header {
+      background: white;
+      border-bottom: 1px solid var(--color-gray-200);
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      z-index: 100;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .back-button {
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      color: var(--color-gray-600);
+      transition: all 0.2s ease;
+    }
+    
+    .back-button:hover {
+      background: var(--color-gray-100);
+      color: var(--color-gray-900);
+    }
+    
+    .progress-container {
+      flex: 1;
+      max-width: 300px;
+      margin: 0 1rem;
+    }
+    
+    .progress-bar {
       width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: -1;
-    }
-    
-    .container { max-width: 450px; margin: auto; position: relative; }
-    
-    h1 {
-      font-family: 'Orbitron', monospace;
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 2rem;
-      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
-      background-size: 200% 200%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: gradientShift 3s ease-in-out infinite;
-    }
-    
-    @keyframes gradientShift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-    
-    .progress-bar { 
-      width: 100%; 
-      height: 6px; 
-      background: rgba(255, 255, 255, 0.1); 
-      border-radius: 3px; 
-      margin-bottom: 2rem; 
-      position: relative;
+      height: 6px;
+      background: var(--color-gray-200);
+      border-radius: 3px;
       overflow: hidden;
     }
     
-    .progress-fill { 
-      height: 100%; 
-      background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
-      border-radius: 3px; 
-      transition: width 0.5s ease;
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-blue-500), var(--color-purple-500));
+      border-radius: 3px;
+      transition: width 0.3s ease;
       position: relative;
     }
     
@@ -77,9 +116,9 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
       animation: shimmer 2s ease-in-out infinite;
     }
     
@@ -88,417 +127,737 @@
       100% { transform: translateX(100%); }
     }
     
-    .card { 
-      background: rgba(20, 20, 20, 0.8);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1); 
-      border-radius: 20px; 
-      padding: 1.5rem; 
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      margin-top: 1rem; 
+    .progress-text {
+      font-size: 0.75rem;
+      color: var(--color-gray-500);
+      margin-top: 0.25rem;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .stats {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.875rem;
+      color: var(--color-gray-600);
+    }
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .stat-value {
+      font-weight: 600;
+      color: var(--color-gray-900);
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
       position: relative;
+    }
+    
+    .card-stack {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 3/4;
+    }
+    
+    .camera-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid var(--color-gray-200);
+      box-shadow: var(--shadow-xl);
       cursor: grab;
       user-select: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      overflow: hidden;
     }
     
-    .card::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #ff6b6b);
-      border-radius: 22px;
-      z-index: -1;
+    .camera-card:active {
+      cursor: grabbing;
+    }
+    
+    .camera-card.dragging {
+      transition: none;
+      z-index: 10;
+    }
+    
+    .camera-card.swipe-left {
+      transform: translateX(-100vw) rotate(-30deg);
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
     
-    .card:hover::before {
-      opacity: 0.7;
+    .camera-card.swipe-right {
+      transform: translateX(100vw) rotate(30deg);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
     
-    .card img { 
-      width: 100%; 
-      height: 280px;
+    .card-image {
+      width: 100%;
+      height: 50%;
       object-fit: cover;
-      border-radius: 15px; 
-      transition: all 0.3s ease; 
-      filter: contrast(1.1) saturate(1.2);
+      background: var(--color-gray-100);
+      border-bottom: 1px solid var(--color-gray-200);
     }
     
-    .card h2 {
-      font-family: 'Orbitron', monospace;
-      font-size: 1.3rem;
-      margin: 1rem 0 0.5rem 0;
-      color: #ff6b6b;
+    .card-content {
+      padding: 1.5rem;
+      height: 50%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .card-header {
+      flex-shrink: 0;
+    }
+    
+    .card-brand {
+      font-size: 0.75rem;
+      color: var(--color-gray-500);
       text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    
-    .card p {
-      color: #a0a0a0;
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-      font-weight: 300;
-    }
-    
-    .card.swipe-left { 
-      transform: translateX(-120vw) rotate(-45deg); 
-      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
-      opacity: 0; 
-    }
-    
-    .card.swipe-right { 
-      transform: translateX(120vw) rotate(45deg); 
-      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
-      opacity: 0; 
-    }
-    
-    .card.dragging { cursor: grabbing; }
-    
-    .buttons { 
-      margin-top: 1.5rem; 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 0.8rem; 
-      justify-content: center; 
-    }
-    
-    .buttons button, .results-btn {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.9rem;
+      letter-spacing: 0.1em;
       font-weight: 600;
-      padding: 0.8rem 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 25px;
+      margin-bottom: 0.25rem;
+    }
+    
+    .card-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
+    }
+    
+    .card-price {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--color-blue-500);
+    }
+    
+    .card-features {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .feature-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .feature-tag {
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .feature-tag.highlight {
+      background: var(--color-blue-100);
+      color: var(--color-blue-700);
+    }
+    
+    .card-specs {
+      font-size: 0.875rem;
+      color: var(--color-gray-600);
+      line-height: 1.5;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .action-button {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
       cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
     }
     
-    .buttons button::before {
+    .action-button::before {
       content: '';
       position: absolute;
       top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: currentColor;
+      opacity: 0;
+      transition: opacity 0.2s ease;
     }
     
-    .buttons button:hover::before {
-      left: 100%;
+    .action-button:hover::before {
+      opacity: 0.1;
     }
     
-    .like { 
-      background: linear-gradient(135deg, #4caf50, #66bb6a); 
-      color: white; 
-      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    .action-button:active {
+      transform: scale(0.95);
     }
     
-    .like:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+    .dislike-button {
+      background: white;
+      color: var(--color-red-500);
+      border: 2px solid var(--color-red-500);
     }
     
-    .dislike { 
-      background: linear-gradient(135deg, #f44336, #ef5350); 
-      color: white; 
-      box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+    .like-button {
+      background: var(--color-green-500);
+      color: white;
+      border: 2px solid var(--color-green-500);
     }
     
-    .dislike:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+    .super-like-button {
+      background: white;
+      color: var(--color-blue-500);
+      border: 2px solid var(--color-blue-500);
     }
     
-    .body-like { 
-      background: linear-gradient(135deg, #2196f3, #42a5f5); 
-      color: white; 
-      box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
-    }
-    
-    .body-like:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
-    }
-    
-    .lens-like { 
-      background: linear-gradient(135deg, #ff9800, #ffa726); 
-      color: white; 
-      box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-    }
-    
-    .lens-like:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
-    }
-    
-    .skip { 
-      background: linear-gradient(135deg, #95a5a6, #bdc3c7); 
-      color: white; 
-      box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
-    }
-    
-    .skip:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(149, 165, 166, 0.4);
-    }
-    
-    .results-btn { 
-      background: linear-gradient(135deg, #2c3e50, #34495e); 
-      color: white; 
-      margin-top: 2rem; 
-      display: none; 
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
-      box-shadow: 0 6px 20px rgba(44, 62, 80, 0.4);
-    }
-    
-    .results-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(44, 62, 80, 0.6);
-    }
-    
-    .mission-counter {
+    /* Swipe Indicators */
+    .swipe-indicator {
       position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: rgba(255, 107, 107, 0.2);
-      border: 1px solid #ff6b6b;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-family: 'Orbitron', monospace;
-      font-size: 0.8rem;
-      color: #ff6b6b;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+      z-index: 5;
     }
     
-    @media (max-width: 480px) {
-      .container { padding: 0 1rem; }
-      .card { padding: 1rem; }
-      .buttons button { padding: 0.6rem 1rem; font-size: 0.8rem; }
+    .swipe-indicator.like {
+      right: 1rem;
+      background: var(--color-green-500);
+      color: white;
+      transform: translateY(-50%) rotate(20deg);
+    }
+    
+    .swipe-indicator.dislike {
+      left: 1rem;
+      background: var(--color-red-500);
+      color: white;
+      transform: translateY(-50%) rotate(-20deg);
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      color: var(--color-gray-500);
+      display: none;
+    }
+    
+    .empty-state.show {
+      display: block;
+    }
+    
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    
+    .empty-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 0.5rem;
+    }
+    
+    .empty-description {
+      margin-bottom: 2rem;
+    }
+    
+    .results-button {
+      background: var(--color-blue-500);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .results-button:hover {
+      background: var(--color-blue-600);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header {
+        padding: 0.5rem 1rem;
+      }
+      
+      .stats {
+        display: none;
+      }
+      
+      .main-content {
+        padding: 1rem;
+      }
+      
+      .card-stack {
+        max-width: 350px;
+      }
+      
+      .action-buttons {
+        bottom: 1rem;
+      }
+      
+      .action-button {
+        width: 48px;
+        height: 48px;
+        font-size: 1rem;
+      }
+    }
+    
+    /* Loading States */
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    
+    .loading .card-image {
+      background: linear-gradient(90deg, var(--color-gray-200), var(--color-gray-300), var(--color-gray-200));
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+    
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="mission-counter" id="mission-counter">読み込み中...</div>
-    <h1>カメラ選択</h1>
-    <div id="card-container" style="display:none">
-      <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+  <div class="app-container">
+    <header class="header">
+      <div class="header-left">
+        <button class="back-button" onclick="goBack()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+          </div>
+          <div class="progress-text" id="progress-text">0 / 20</div>
+        </div>
       </div>
-      <div class="card" id="camera-card">
-        <img id="camera-img" src="" alt="画像" loading="lazy">
-        <h2 id="camera-name"></h2>
-        <p id="camera-info"></p>
-        <div class="buttons" id="button-group"></div>
-        <button id="results-btn" class="results-btn" onclick="location.href='result.html'">📊 結果を見る</button>
+      <div class="header-right">
+        <div class="stats">
+          <div class="stat-item">
+            <span>💗</span>
+            <span class="stat-value" id="likes-count">0</span>
+          </div>
+          <div class="stat-item">
+            <span>⭐</span>
+            <span class="stat-value" id="points">0</span>
+          </div>
+        </div>
       </div>
-    </div>
+    </header>
+
+    <main class="main-content">
+      <div class="card-stack" id="card-stack">
+        <!-- Cards will be dynamically inserted here -->
+      </div>
+      
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">🎉</div>
+        <h2 class="empty-title">診断完了！</h2>
+        <p class="empty-description">あなたの撮影スタイルを分析しています...</p>
+        <button class="results-button" onclick="showResults()">結果を見る</button>
+      </div>
+      
+      <div class="action-buttons">
+        <button class="action-button dislike-button" onclick="swipeCard('dislike')">
+          ✕
+        </button>
+        <button class="action-button super-like-button" onclick="swipeCard('superlike')">
+          ⭐
+        </button>
+        <button class="action-button like-button" onclick="swipeCard('like')">
+          ♡
+        </button>
+      </div>
+    </main>
   </div>
 
   <script>
-    let data = [];
+    // Sample data - would be loaded from API in production
+    const sampleData = [
+      {
+        id: 1,
+        brand: "Sony",
+        name: "α7 IV",
+        price: "¥298,000",
+        image: "https://via.placeholder.com/400x300?text=Sony+α7+IV",
+        features: ["フルサイズ", "手ブレ補正", "4K動画"],
+        specs: "有効約3300万画素、ISO 100-51200、ボディ内手ブレ補正5軸",
+        rarity: "common"
+      },
+      {
+        id: 2,
+        brand: "Canon",
+        name: "EOS R6 Mark II",
+        price: "¥348,000",
+        image: "https://via.placeholder.com/400x300?text=Canon+EOS+R6+Mark+II",
+        features: ["高感度", "連写", "デュアルピクセルAF"],
+        specs: "有効約2420万画素、ISO 100-102400、最高約40コマ/秒",
+        rarity: "rare"
+      },
+      {
+        id: 3,
+        brand: "Fujifilm",
+        name: "X-T5",
+        price: "¥248,000",
+        image: "https://via.placeholder.com/400x300?text=Fujifilm+X-T5",
+        features: ["高解像度", "フィルムシミュレーション", "クラシックデザイン"],
+        specs: "有効約4020万画素、ISO 125-12800、5軸手ブレ補正",
+        rarity: "uncommon"
+      }
+    ];
+    
     let currentIndex = 0;
-    let mode = '';
+    let gameStats = {
+      likes: 0,
+      dislikes: 0,
+      superlikes: 0,
+      points: 0,
+      streak: 0
+    };
+    
     let isDragging = false;
     let startX = 0;
     let currentX = 0;
-    const results = {
-      likes: [],
-      dislikes: [],
-      bodyLikes: [],
-      lensLikes: []
-    };
-
-    window.onload = async function () {
-      const params = new URLSearchParams(location.search);
-      mode = params.get("mode");
-      if (!mode) {
-        document.body.innerHTML = '<p>モードが指定されていません。</p>';
-        return;
+    let currentCard = null;
+    
+    function initializeApp() {
+      // Load saved progress if any
+      const saved = localStorage.getItem('cameraPickerProgress');
+      if (saved) {
+        const progress = JSON.parse(saved);
+        currentIndex = progress.currentIndex || 0;
+        gameStats = { ...gameStats, ...progress.gameStats };
       }
-
-      document.getElementById('card-container').style.display = 'block';
-
-      if (mode === 'combo') {
-        const [camRes, lensRes] = await Promise.all([
-          fetch('camera.json'),
-          fetch('lenses.json')
-        ]);
-        const cameras = await camRes.json();
-        const lenses = await lensRes.json();
-
-        const pairs = [];
-        cameras.forEach(cam => {
-          lenses.forEach(lens => {
-            if (cam['Unnamed: 16'] && cam['Unnamed: 16'] === lens['基本使用']) {
-              pairs.push({ body: cam, lens: lens });
-            }
-          });
-        });
-        data = pairs;
-      } else {
-        const file = mode === 'body' ? 'camera.json' : 'lenses.json';
-        const res = await fetch(file);
-        data = await res.json();
-      }
-      showCard(currentIndex);
+      
+      updateStats();
+      showCurrentCard();
       setupSwipeHandlers();
     }
-
-    function showCard(index) {
-      const item = data[index];
-      const img = (mode === 'combo'
-        ? item.body.img_url || item.lens.img_url
-        : item.img_url) || 'https://via.placeholder.com/500x350?text=No+Image';
-
-      const name = mode === 'combo'
-        ? `${item.body['Unnamed: 2']} ＋ ${item.lens['Unnamed: 2']}`
-        : item['Unnamed: 2'] || item['Unnamed: 2'];
-
-      const info = mode === 'combo'
-        ? `${item.body['概要']} / ${item.body['Unnamed: 16']} / ${item.lens['Unnamed: 12']}`
-        : `${item['概要'] || ''} / ${item['Unnamed: 9'] || item['Unnamed: 12'] || ''} / ${item['Unnamed: 16'] || item['基本使用'] || ''}`;
-
-      const imgElement = document.getElementById('camera-img');
-      imgElement.style.opacity = '0.5';
-      imgElement.onload = () => { imgElement.style.opacity = '1'; };
-      imgElement.onerror = () => { 
-        imgElement.src = 'https://via.placeholder.com/500x350?text=No+Image'; 
-        imgElement.style.opacity = '1';
-      };
-      imgElement.src = img;
+    
+    function showCurrentCard() {
+      const cardStack = document.getElementById('card-stack');
       
-      document.getElementById('camera-name').textContent = name;
-      document.getElementById('camera-info').textContent = info;
+      if (currentIndex >= sampleData.length) {
+        showEmptyState();
+        return;
+      }
       
-      // Progress bar update
-      const progress = ((currentIndex + 1) / data.length) * 100;
+      const item = sampleData[currentIndex];
+      
+      // Create card element
+      const card = document.createElement('div');
+      card.className = 'camera-card';
+      card.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" class="card-image" loading="lazy">
+        <div class="card-content">
+          <div class="card-header">
+            <div class="card-brand">${item.brand}</div>
+            <h2 class="card-name">${item.name}</h2>
+            <div class="card-price">${item.price}</div>
+          </div>
+          <div class="card-features">
+            <div class="feature-tags">
+              ${item.features.map(feature => 
+                `<span class="feature-tag ${Math.random() > 0.7 ? 'highlight' : ''}">${feature}</span>`
+              ).join('')}
+            </div>
+            <div class="card-specs">${item.specs}</div>
+          </div>
+        </div>
+        <div class="swipe-indicator like">LIKE</div>
+        <div class="swipe-indicator dislike">NOPE</div>
+      `;
+      
+      // Clear existing cards and add new one
+      cardStack.innerHTML = '';
+      cardStack.appendChild(card);
+      currentCard = card;
+      
+      // Update progress
+      updateProgress();
+    }
+    
+    function updateProgress() {
+      const progress = ((currentIndex + 1) / sampleData.length) * 100;
       document.getElementById('progress-fill').style.width = `${progress}%`;
+      document.getElementById('progress-text').textContent = `${currentIndex + 1} / ${sampleData.length}`;
+    }
+    
+    function updateStats() {
+      document.getElementById('likes-count').textContent = gameStats.likes + gameStats.superlikes;
+      document.getElementById('points').textContent = gameStats.points;
+    }
+    
+    function swipeCard(action) {
+      if (!currentCard || currentIndex >= sampleData.length) return;
       
-      // Mission counter update
-      document.getElementById('mission-counter').textContent = `${currentIndex + 1}/${data.length}`;
-
-      const buttons = document.getElementById('button-group');
-      buttons.innerHTML = '';
-
-      if (mode === 'combo') {
-        buttons.innerHTML = `
-          <button class="like" onclick="vote('like')">👍 セットで好き</button>
-          <button class="dislike" onclick="vote('dislike')">👎 セットで苦手</button>
-          <button class="body-like" onclick="vote('body-like')">📷 本体だけ好き</button>
-          <button class="lens-like" onclick="vote('lens-like')">🔍 レンズだけ好き</button>
-          <button class="skip" onclick="vote('skip')">⏭️ スキップ</button>
-        `;
-      } else {
-        buttons.innerHTML = `
-          <button class="like" onclick="vote('like')">👍 好き</button>
-          <button class="dislike" onclick="vote('dislike')">👎 苦手</button>
-          <button class="skip" onclick="vote('skip')">⏭️ スキップ</button>
-        `;
+      const item = sampleData[currentIndex];
+      
+      // Calculate points based on action and rarity
+      let points = 0;
+      switch (action) {
+        case 'like':
+          gameStats.likes++;
+          gameStats.streak++;
+          points = item.rarity === 'rare' ? 20 : item.rarity === 'uncommon' ? 15 : 10;
+          currentCard.classList.add('swipe-right');
+          break;
+        case 'dislike':
+          gameStats.dislikes++;
+          gameStats.streak = 0;
+          points = 2;
+          currentCard.classList.add('swipe-left');
+          break;
+        case 'superlike':
+          gameStats.superlikes++;
+          gameStats.streak++;
+          points = item.rarity === 'rare' ? 50 : item.rarity === 'uncommon' ? 35 : 25;
+          // Super like animation
+          currentCard.style.transform = 'translateY(-100vh) scale(0.8)';
+          currentCard.style.opacity = '0';
+          break;
       }
+      
+      // Add streak bonus
+      if (gameStats.streak >= 3) {
+        points += Math.floor(gameStats.streak / 3) * 5;
+      }
+      
+      gameStats.points += points;
+      
+      // Show points animation
+      if (points > 10) {
+        showPointsAnimation(points);
+      }
+      
+      updateStats();
+      saveProgress();
+      
+      // Move to next card
+      setTimeout(() => {
+        currentIndex++;
+        showCurrentCard();
+      }, 300);
     }
-
-    function vote(type) {
-      const item = data[currentIndex];
-      const label = mode === 'combo'
-        ? `${item.body['Unnamed: 2']}＋${item.lens['Unnamed: 2']}`
-        : item['Unnamed: 2'] || item['Unnamed: 2'];
-
-      switch (type) {
-        case 'like': results.likes.push(label); break;
-        case 'dislike': results.dislikes.push(label); break;
-        case 'body-like': results.bodyLikes.push(item.body['Unnamed: 2']); break;
-        case 'lens-like': results.lensLikes.push(item.lens['Unnamed: 2']); break;
-        case 'skip': break;
-      }
-
-      currentIndex++;
-      if (currentIndex < data.length) {
-        showCard(currentIndex);
-      } else {
-        localStorage.setItem("cameraPickerResults", JSON.stringify(results));
-        document.getElementById("button-group").innerHTML = '';
-        document.getElementById("results-btn").style.display = 'inline-block';
-      }
+    
+    function showPointsAnimation(points) {
+      const animation = document.createElement('div');
+      animation.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--color-green-500);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        z-index: 1000;
+        pointer-events: none;
+        animation: pointsAnimation 2s ease-out forwards;
+      `;
+      animation.textContent = `+${points}pt`;
+      document.body.appendChild(animation);
+      
+      setTimeout(() => {
+        document.body.removeChild(animation);
+      }, 2000);
     }
-
+    
     function setupSwipeHandlers() {
-      const card = document.getElementById('camera-card');
-      
-      // Mouse events
-      card.addEventListener('mousedown', handleStart);
-      document.addEventListener('mousemove', handleMove);
-      document.addEventListener('mouseup', handleEnd);
-      
-      // Touch events
-      card.addEventListener('touchstart', handleStart);
-      document.addEventListener('touchmove', handleMove);
-      document.addEventListener('touchend', handleEnd);
+      const cardStack = document.getElementById('card-stack');
       
       function handleStart(e) {
+        if (!currentCard) return;
+        
         isDragging = true;
         startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
-        card.classList.add('dragging');
+        currentCard.classList.add('dragging');
+        
+        e.preventDefault();
       }
       
       function handleMove(e) {
-        if (!isDragging) return;
-        e.preventDefault();
+        if (!isDragging || !currentCard) return;
+        
         currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
         const deltaX = currentX - startX;
         const rotation = deltaX * 0.1;
         
-        card.style.transform = `translateX(${deltaX}px) rotate(${rotation}deg)`;
-        card.style.opacity = Math.max(0.5, 1 - Math.abs(deltaX) / 300);
+        currentCard.style.transform = `translateX(${deltaX}px) rotate(${rotation}deg)`;
+        
+        // Show/hide swipe indicators
+        const likeIndicator = currentCard.querySelector('.swipe-indicator.like');
+        const dislikeIndicator = currentCard.querySelector('.swipe-indicator.dislike');
+        
+        if (deltaX > 50) {
+          likeIndicator.style.opacity = Math.min(1, (deltaX - 50) / 100);
+          dislikeIndicator.style.opacity = 0;
+        } else if (deltaX < -50) {
+          dislikeIndicator.style.opacity = Math.min(1, (Math.abs(deltaX) - 50) / 100);
+          likeIndicator.style.opacity = 0;
+        } else {
+          likeIndicator.style.opacity = 0;
+          dislikeIndicator.style.opacity = 0;
+        }
+        
+        e.preventDefault();
       }
       
       function handleEnd(e) {
-        if (!isDragging) return;
+        if (!isDragging || !currentCard) return;
+        
         isDragging = false;
-        card.classList.remove('dragging');
+        currentCard.classList.remove('dragging');
         
         const deltaX = currentX - startX;
-        const threshold = 100;
+        const threshold = 80;
         
         if (Math.abs(deltaX) > threshold) {
           if (deltaX > 0) {
-            // Swipe right - like
-            card.classList.add('swipe-right');
-            setTimeout(() => {
-              card.classList.remove('swipe-right');
-              card.style.transform = '';
-              card.style.opacity = '';
-              vote('like');
-            }, 300);
+            swipeCard('like');
           } else {
-            // Swipe left - dislike
-            card.classList.add('swipe-left');
-            setTimeout(() => {
-              card.classList.remove('swipe-left');
-              card.style.transform = '';
-              card.style.opacity = '';
-              vote('dislike');
-            }, 300);
+            swipeCard('dislike');
           }
         } else {
-          // Return to center
-          card.style.transform = '';
-          card.style.opacity = '';
+          // Snap back to center
+          currentCard.style.transform = '';
+          currentCard.querySelector('.swipe-indicator.like').style.opacity = 0;
+          currentCard.querySelector('.swipe-indicator.dislike').style.opacity = 0;
         }
       }
+      
+      // Mouse events
+      cardStack.addEventListener('mousedown', handleStart);
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('mouseup', handleEnd);
+      
+      // Touch events
+      cardStack.addEventListener('touchstart', handleStart, { passive: false });
+      document.addEventListener('touchmove', handleMove, { passive: false });
+      document.addEventListener('touchend', handleEnd);
     }
+    
+    function showEmptyState() {
+      document.getElementById('card-stack').style.display = 'none';
+      document.getElementById('empty-state').classList.add('show');
+      document.querySelector('.action-buttons').style.display = 'none';
+    }
+    
+    function saveProgress() {
+      const progress = {
+        currentIndex,
+        gameStats,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('cameraPickerProgress', JSON.stringify(progress));
+    }
+    
+    function goBack() {
+      if (confirm('診断を中断しますか？進行状況は保存されます。')) {
+        window.history.back();
+      }
+    }
+    
+    function showResults() {
+      // Save final results
+      localStorage.setItem('cameraPickerResults', JSON.stringify({
+        gameStats,
+        completedAt: new Date().toISOString()
+      }));
+      
+      window.location.href = 'result.html';
+    }
+    
+    // Add CSS for points animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pointsAnimation {
+        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+        100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Initialize app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initializeApp);
+    
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        saveProgress();
+      }
+    });
+    
+    // Save progress before page unload
+    window.addEventListener('beforeunload', saveProgress);
+  // Service Worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('SW registered: ', registration);
+      })
+      .catch(registrationError => {
+        console.log('SW registration failed: ', registrationError);
+      });
+  });
+}
   </script>
 </body>
 </html>

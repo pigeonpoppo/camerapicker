@@ -1,444 +1,792 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Camera Picker - 結果</title>
+  <title>あなたの撮影スタイル診断結果</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@300;400;500;600;700;800;900&display=swap');
     
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --color-black: #000000;
+      --color-gray-900: #0f0f0f;
+      --color-gray-800: #1a1a1a;
+      --color-gray-700: #2d2d2d;
+      --color-gray-600: #404040;
+      --color-gray-500: #737373;
+      --color-gray-400: #a3a3a3;
+      --color-gray-300: #d4d4d4;
+      --color-gray-200: #e5e5e5;
+      --color-gray-100: #f5f5f5;
+      --color-gray-50: #fafafa;
+      --color-white: #ffffff;
+      
+      --color-blue: #2563eb;
+      --color-green: #059669;
+      --color-purple: #7c3aed;
+      --color-orange: #ea580c;
+      --color-red: #dc2626;
+      
+      --font-sans: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      
+      --line-height-tight: 1.25;
+      --line-height-snug: 1.375;
+      --line-height-normal: 1.5;
+      --line-height-relaxed: 1.625;
+      --line-height-loose: 2;
+    }
     
-    body { 
-      font-family: 'Rajdhani', sans-serif; 
-      text-align: center; 
-      padding: 2rem; 
-      background: linear-gradient(135deg, #0c0c0c 0%, #1a0a1a 25%, #2d1b2d 50%, #1a0a1a 75%, #0c0c0c 100%);
-      min-height: 100vh;
-      color: #e0e0e0;
-      position: relative;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--color-white);
+      color: var(--color-gray-900);
+      line-height: var(--line-height-normal);
       overflow-x: hidden;
     }
     
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: -1;
+    /* Typography System */
+    .text-xs { font-size: 0.75rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-base { font-size: 1rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-xl { font-size: 1.25rem; }
+    .text-2xl { font-size: 1.5rem; }
+    .text-3xl { font-size: 1.875rem; }
+    .text-4xl { font-size: 2.25rem; }
+    .text-5xl { font-size: 3rem; }
+    .text-6xl { font-size: 3.75rem; }
+    .text-7xl { font-size: 4.5rem; }
+    
+    .font-light { font-weight: 300; }
+    .font-normal { font-weight: 400; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-black { font-weight: 900; }
+    
+    /* Layout System */
+    .container {
+      max-width: 768px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
     }
     
-    h1 { 
-      font-family: 'Orbitron', monospace;
-      font-size: 2.5rem; 
-      font-weight: 900;
-      margin-bottom: 1rem; 
-      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
-      background-size: 200% 200%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: gradientShift 3s ease-in-out infinite;
+    .wide-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--color-gray-200);
+      z-index: 100;
+      padding: 1rem 0;
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-weight: 600;
+      color: var(--color-gray-900);
+      text-decoration: none;
+    }
+    
+    .share-button {
+      background: var(--color-gray-900);
+      color: var(--color-white);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .share-button:hover {
+      background: var(--color-gray-700);
+    }
+    
+    /* Article Layout */
+    .article {
+      padding: 4rem 0;
+    }
+    
+    .article-header {
+      margin-bottom: 4rem;
+      text-align: center;
+    }
+    
+    .article-meta {
+      color: var(--color-gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    .article-title {
+      font-size: 3.75rem;
+      font-weight: 800;
+      line-height: var(--line-height-tight);
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+    
+    .article-subtitle {
+      font-size: 1.25rem;
+      color: var(--color-gray-600);
+      font-weight: 400;
+      line-height: var(--line-height-relaxed);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Content Sections */
+    .content-section {
+      margin-bottom: 4rem;
+    }
+    
+    .section-header {
+      margin-bottom: 2rem;
+    }
+    
+    .section-number {
+      color: var(--color-gray-400);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    
+    .section-title {
+      font-size: 2.25rem;
+      font-weight: 700;
+      line-height: var(--line-height-tight);
+      margin-bottom: 1rem;
+    }
+    
+    .section-description {
+      font-size: 1.125rem;
+      color: var(--color-gray-600);
+      line-height: var(--line-height-relaxed);
+    }
+    
+    /* Personality Card */
+    .personality-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 1rem;
+      padding: 3rem;
+      margin: 3rem 0;
+      text-align: center;
       position: relative;
     }
     
-    h1::after {
-      content: 'CLASSIFIED';
+    .personality-card::before {
+      content: '';
       position: absolute;
-      top: -0.5rem;
-      right: -2rem;
-      font-size: 0.4rem;
-      font-weight: 400;
-      color: #ff6b6b;
-      border: 1px solid #ff6b6b;
-      padding: 0.2rem 0.4rem;
-      background: rgba(255, 107, 107, 0.1);
-      transform: rotate(12deg);
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--color-blue), var(--color-purple));
+      border-radius: 2px;
     }
     
-    @keyframes gradientShift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
+    .personality-emoji {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
     }
     
-    .summary { 
-      margin: 1rem auto; 
-      max-width: 700px; 
-      background: rgba(20, 20, 20, 0.8); 
-      backdrop-filter: blur(20px);
-      padding: 2rem; 
-      border-radius: 20px; 
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .personality-type {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-gray-900);
+      margin-bottom: 1rem;
+      line-height: var(--line-height-tight);
     }
     
-    .summary h2 { 
-      font-family: 'Orbitron', monospace;
-      margin: 2rem 0 1rem 0; 
-      color: #ff6b6b;
-      font-size: 1.2rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+    .personality-tagline {
+      font-size: 1.125rem;
+      color: var(--color-gray-600);
+      font-style: italic;
+      margin-bottom: 2rem;
     }
     
-    .summary h2:first-child {
-      margin-top: 0;
+    .personality-description {
+      font-size: 1rem;
+      line-height: var(--line-height-relaxed);
+      color: var(--color-gray-700);
     }
     
-    .item-list { text-align: left; margin: 0 auto; max-width: 600px; }
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+    }
     
-    .item { 
-      padding: 0.8rem 1rem; 
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
-      background: rgba(255, 255, 255, 0.05);
+    .stat-card {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 0.75rem;
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--color-gray-900);
+      display: block;
       margin-bottom: 0.5rem;
-      border-radius: 8px;
-      font-weight: 300;
+    }
+    
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    
+    /* Recommendations Grid */
+    .recommendations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+    }
+    
+    .recommendation-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .recommendation-card:hover {
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: translateY(-2px);
+    }
+    
+    .recommendation-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+    
+    .recommendation-content {
+      padding: 1.5rem;
+    }
+    
+    .recommendation-brand {
+      font-size: 0.75rem;
+      color: var(--color-gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .recommendation-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: 0.5rem;
+      line-height: var(--line-height-snug);
+    }
+    
+    .recommendation-price {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--color-blue);
+      margin-bottom: 1rem;
+    }
+    
+    .recommendation-reason {
+      font-size: 0.875rem;
+      color: var(--color-gray-600);
+      line-height: var(--line-height-relaxed);
+      background: var(--color-gray-50);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    /* Feature List */
+    .feature-list {
+      list-style: none;
+      margin: 2rem 0;
+    }
+    
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+    
+    .feature-item:last-child {
+      border-bottom: none;
+    }
+    
+    .feature-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--color-blue);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-white);
+      font-weight: 600;
+      font-size: 0.75rem;
+      margin-right: 1rem;
+      flex-shrink: 0;
+      margin-top: 0.125rem;
+    }
+    
+    .feature-content h4 {
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 0.25rem;
+    }
+    
+    .feature-content p {
+      color: var(--color-gray-600);
+      font-size: 0.875rem;
+      line-height: var(--line-height-relaxed);
+    }
+    
+    /* Quote Block */
+    .quote-block {
+      background: var(--color-gray-50);
+      border-left: 4px solid var(--color-blue);
+      padding: 2rem;
+      margin: 3rem 0;
+      border-radius: 0 0.75rem 0.75rem 0;
+    }
+    
+    .quote-text {
+      font-size: 1.25rem;
+      font-style: italic;
+      color: var(--color-gray-700);
+      line-height: var(--line-height-relaxed);
+      margin-bottom: 1rem;
+    }
+    
+    .quote-author {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+      font-weight: 600;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin: 4rem 0;
+      flex-wrap: wrap;
+    }
+    
+    .action-button {
+      padding: 0.75rem 2rem;
+      border: 2px solid var(--color-gray-900);
+      background: var(--color-white);
+      color: var(--color-gray-900);
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
       transition: all 0.2s ease;
     }
     
-    .item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateX(5px);
+    .action-button:hover {
+      background: var(--color-gray-900);
+      color: var(--color-white);
     }
     
-    .item:last-child { border-bottom: none; }
-    
-    .back-btn, .ai-btn {
-      font-family: 'Rajdhani', sans-serif;
-      margin-top: 2rem;
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      border: 2px solid transparent;
-      border-radius: 15px;
-      background: linear-gradient(135deg, #2c2c54 0%, #40407a 50%, #2c2c54 100%);
-      color: #e0e0e0;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      position: relative;
-      overflow: hidden;
+    .action-button.primary {
+      background: var(--color-gray-900);
+      color: var(--color-white);
     }
     
-    .back-btn::before, .ai-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
+    .action-button.primary:hover {
+      background: var(--color-gray-700);
     }
     
-    .back-btn:hover, .ai-btn:hover {
-      background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
-      transform: translateY(-3px);
-      box-shadow: 
-        0 10px 25px rgba(255, 107, 107, 0.3),
-        0 0 50px rgba(78, 205, 196, 0.2);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-    
-    .back-btn:hover::before, .ai-btn:hover::before {
-      left: 100%;
-    }
-    
-    .ai-result { 
-      margin-top: 1.5rem; 
-      white-space: pre-wrap; 
-      background: rgba(20, 20, 20, 0.8); 
-      backdrop-filter: blur(20px);
-      padding: 1.5rem; 
-      border-radius: 15px; 
-      max-width: 700px; 
-      margin-left: auto; 
-      margin-right: auto; 
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      text-align: left;
-    }
-    
-    #api-key { 
-      width: 350px; 
-      padding: 1rem; 
-      margin-top: 1rem; 
-      background: rgba(20, 20, 20, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-      color: #e0e0e0;
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 1rem;
-    }
-    
-    #api-key::placeholder {
-      color: #a0a0a0;
-    }
-    
-    #api-key:focus {
-      outline: none;
-      border-color: #ff6b6b;
-      box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
-    }
-    
-    .recommendations { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1.5rem; 
-      justify-content: center; 
-      margin-top: 2rem; 
-      max-width: 1200px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
-    .rec-card { 
-      background: rgba(20, 20, 20, 0.8); 
-      backdrop-filter: blur(20px);
-      border-radius: 20px; 
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
-      padding: 1.5rem; 
-      text-align: left; 
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    
-    .rec-card::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #ff6b6b);
-      border-radius: 22px;
-      z-index: -1;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .rec-card:hover::before {
-      opacity: 0.7;
-    }
-    
-    .rec-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .rec-card img { 
-      width: 100%; 
-      height: 200px; 
-      object-fit: cover; 
-      border-radius: 12px; 
-      margin-bottom: 1rem; 
-      filter: contrast(1.1) saturate(1.2);
-    }
-    
-    .rec-card h3 { 
-      font-family: 'Orbitron', monospace;
-      margin: 0.5rem 0; 
-      font-size: 1.2rem; 
-      color: #ff6b6b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .rec-card p { 
-      color: #a0a0a0; 
-      font-size: 0.95rem; 
-      margin: 0.5rem 0; 
-      font-weight: 300;
-    }
-    
-    .rec-reason { 
-      background: rgba(255, 107, 107, 0.1); 
-      padding: 1rem; 
-      border-radius: 10px; 
-      font-size: 0.9rem; 
-      color: #e0e0e0; 
-      margin-top: 1rem;
-      border: 1px solid rgba(255, 107, 107, 0.3);
-    }
-    
-    .loading-spinner { 
-      display: none; 
-      width: 50px; 
-      height: 50px; 
-      border: 4px solid rgba(255, 255, 255, 0.1); 
-      border-top: 4px solid #ff6b6b; 
-      border-radius: 50%; 
-      animation: spin 1s linear infinite; 
-      margin: 2rem auto; 
-    }
-    
-    @keyframes spin { 
-      0% { transform: rotate(0deg); } 
-      100% { transform: rotate(360deg); } 
-    }
-    
-    .ai-btn:disabled { 
-      background: linear-gradient(135deg, #95a5a6, #7f8c8d); 
-      cursor: not-allowed; 
-      transform: none;
-      box-shadow: none;
-    }
-    
+    /* Responsive Design */
     @media (max-width: 768px) {
-      .recommendations {
+      .container {
+        padding: 0 1rem;
+      }
+      
+      .article-title {
+        font-size: 2.5rem;
+      }
+      
+      .section-title {
+        font-size: 1.875rem;
+      }
+      
+      .personality-card {
+        padding: 2rem;
+      }
+      
+      .recommendations-grid {
         grid-template-columns: 1fr;
       }
       
-      #api-key {
-        width: 90%;
-        max-width: 350px;
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .animate-in {
+      animation: fadeInUp 0.6s ease-out;
+    }
+    
+    /* Print Styles */
+    @media print {
+      .header,
+      .action-buttons {
+        display: none;
+      }
+      
+      .article {
+        padding: 0;
+      }
+      
+      .container {
+        max-width: none;
+        padding: 0;
       }
     }
   </style>
 </head>
 <body>
-  <h1>あなたの好み結果</h1>
-  <div class="summary">
-    <h2>👍 好きと評価したアイテム</h2>
-    <div id="liked-items" class="item-list"></div>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo">Camera Picker</a>
+        <button class="share-button" onclick="shareResults()">結果をシェア</button>
+      </div>
+    </div>
+  </header>
 
-    <h2>👎 苦手と評価したアイテム</h2>
-    <div id="disliked-items" class="item-list"></div>
+  <article class="article">
+    <div class="container">
+      <header class="article-header">
+        <div class="article-meta">Camera Picker 診断結果</div>
+        <h1 class="article-title">あなたは<br>「探究型フォトグラファー」</h1>
+        <p class="article-subtitle">
+          新しい機材への好奇心が旺盛で、様々な可能性を探求することを楽しむタイプです。機材選びにも積極的で、幅広いジャンルの撮影に興味を持っています。
+        </p>
+      </header>
 
-    <h2>📷 本体だけ好き</h2>
-    <div id="body-liked-items" class="item-list"></div>
+      <div class="personality-card animate-in">
+        <div class="personality-emoji">🔍</div>
+        <h2 class="personality-type">探究型フォトグラファー</h2>
+        <p class="personality-tagline">「新しい表現を求めて、機材と共に成長し続ける」</p>
+        <p class="personality-description">
+          あなたは常に新しい撮影技法や機材に興味を示し、クリエイティブな表現を追求するタイプです。一つのスタイルに固執せず、多様な被写体や環境での撮影を楽しみます。機材選びでは性能と汎用性を重視し、成長に合わせてアップグレードしていくことを楽しみます。
+        </p>
+      </div>
 
-    <h2>🔍 レンズだけ好き</h2>
-    <div id="lens-liked-items" class="item-list"></div>
+      <section class="content-section">
+        <div class="section-header">
+          <div class="section-number">01</div>
+          <h2 class="section-title">あなたの撮影スタイル分析</h2>
+          <p class="section-description">
+            診断結果から見えてきた、あなたの撮影における特徴と傾向をまとめました。
+          </p>
+        </div>
 
-    <input id="api-key" type="password" placeholder="OpenAI APIキーを入力してください">
-    <button class="ai-btn" id="ai-btn" onclick="getAIRecommendation()">🤖 AIにおすすめしてもらう</button>
-    <div class="loading-spinner" id="loading-spinner"></div>
-    <div id="recommendations" class="recommendations"></div>
-    <div id="ai-result" class="ai-result"></div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-number">87</span>
+            <span class="stat-label">探究心スコア</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">73</span>
+            <span class="stat-label">技術志向度</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">91</span>
+            <span class="stat-label">汎用性重視</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">68</span>
+            <span class="stat-label">予算柔軟性</span>
+          </div>
+        </div>
 
-    <button class="back-btn" onclick="location.href='index.html'">← トップに戻る</button>
-  </div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-icon">✓</div>
+            <div class="feature-content">
+              <h4>多様な被写体への関心</h4>
+              <p>風景から人物まで、幅広い撮影ジャンルに興味を示し、それぞれに適した機材を求める傾向があります。</p>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">✓</div>
+            <div class="feature-content">
+              <h4>技術的な成長への意欲</h4>
+              <p>新しい撮影技法や機材の機能を積極的に学習し、自分のスキルアップに活かそうとします。</p>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">✓</div>
+            <div class="feature-content">
+              <h4>長期的な視点での機材選び</h4>
+              <p>初心者向けより、成長に合わせて長く使える機材を選ぶことを重視します。</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="content-section">
+        <div class="section-header">
+          <div class="section-number">02</div>
+          <h2 class="section-title">あなたにおすすめの機材</h2>
+          <p class="section-description">
+            あなたの撮影スタイルと成長意欲に最適化された機材を厳選しました。
+          </p>
+        </div>
+
+        <div class="recommendations-grid">
+          <div class="recommendation-card">
+            <img src="https://via.placeholder.com/400x200?text=Sony+α7+IV" alt="Sony α7 IV" class="recommendation-image">
+            <div class="recommendation-content">
+              <div class="recommendation-brand">Sony</div>
+              <h3 class="recommendation-name">α7 IV</h3>
+              <div class="recommendation-price">¥298,000</div>
+              <div class="recommendation-reason">
+                <strong>推薦理由：</strong>フルサイズセンサーでありながら動画性能も高く、多様な撮影シーンに対応。豊富なレンズ群で表現の幅を広げられます。
+              </div>
+            </div>
+          </div>
+
+          <div class="recommendation-card">
+            <img src="https://via.placeholder.com/400x200?text=Canon+EOS+R6+Mark+II" alt="Canon EOS R6 Mark II" class="recommendation-image">
+            <div class="recommendation-content">
+              <div class="recommendation-brand">Canon</div>
+              <h3 class="recommendation-name">EOS R6 Mark II</h3>
+              <div class="recommendation-price">¥348,000</div>
+              <div class="recommendation-reason">
+                <strong>推薦理由：</strong>高感度性能に優れ、手ブレ補正も強力。スポーツから風景まで、あらゆるシーンで安定した性能を発揮します。
+              </div>
+            </div>
+          </div>
+
+          <div class="recommendation-card">
+            <img src="https://via.placeholder.com/400x200?text=Fujifilm+X-T5" alt="Fujifilm X-T5" class="recommendation-image">
+            <div class="recommendation-content">
+              <div class="recommendation-brand">Fujifilm</div>
+              <h3 class="recommendation-name">X-T5</h3>
+              <div class="recommendation-price">¥248,000</div>
+              <div class="recommendation-reason">
+                <strong>推薦理由：</strong>高解像度と優れた色再現性で、クリエイティブな表現を追求するあなたにぴったり。コンパクトながら本格的な機能を搭載。
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="quote-block">
+        <p class="quote-text">
+          「最良の機材とは、あなたの創造性を制限するのではなく、新たな表現の扉を開いてくれるものです。」
+        </p>
+        <p class="quote-author">— Camera Picker チーム</p>
+      </div>
+
+      <section class="content-section">
+        <div class="section-header">
+          <div class="section-number">03</div>
+          <h2 class="section-title">成長のためのアドバイス</h2>
+          <p class="section-description">
+            探究型のあなたが更なる成長を遂げるための具体的な提案です。
+          </p>
+        </div>
+
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-icon">1</div>
+            <div class="feature-content">
+              <h4>レンズ資産を計画的に構築</h4>
+              <p>標準域から始めて、撮影の幅を広げていけるよう段階的にレンズを揃えていくことをおすすめします。</p>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">2</div>
+            <div class="feature-content">
+              <h4>撮影コミュニティへの参加</h4>
+              <p>同じ志向を持つフォトグラファーとの交流で、新しい技法や視点を学ぶ機会を増やしましょう。</p>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">3</div>
+            <div class="feature-content">
+              <h4>定期的な機材見直し</h4>
+            <p>スキルの向上に合わせて、年に1-2回は機材構成を見直し、必要に応じてアップグレードを検討しましょう。</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <div class="action-buttons">
+        <a href="#" class="action-button" onclick="retakeDiagnosis()">もう一度診断する</a>
+        <a href="#" class="action-button primary" onclick="exploreGear()">おすすめ機材を詳しく見る</a>
+        <a href="#" class="action-button" onclick="saveResults()">結果を保存</a>
+      </div>
+    </div>
+  </article>
 
   <script>
-    function renderList(id, items) {
-      const container = document.getElementById(id);
-      if (!items || items.length === 0) {
-        container.innerHTML = '<p>該当なし</p>';
-        return;
-      }
-      container.innerHTML = items.map(item => `<div class="item">${item}</div>`).join('');
-    }
-
-    const results = JSON.parse(localStorage.getItem("cameraPickerResults")) || {
-      likes: [],
-      dislikes: [],
-      bodyLikes: [],
-      lensLikes: []
-    };
-
-    renderList("liked-items", results.likes);
-    renderList("disliked-items", results.dislikes);
-    renderList("body-liked-items", results.bodyLikes);
-    renderList("lens-liked-items", results.lensLikes);
-
-    async function getAIRecommendation() {
-      const apiKey = document.getElementById("api-key").value.trim();
-      if (!apiKey) return alert("APIキーを入力してください。");
-
-      // Show loading state
-      const aiBtn = document.getElementById("ai-btn");
-      const spinner = document.getElementById("loading-spinner");
-      const recommendations = document.getElementById("recommendations");
-      const aiResult = document.getElementById("ai-result");
+    function shareResults() {
+      const title = "私の撮影スタイル診断結果";
+      const text = "Camera Pickerで診断したところ「探究型フォトグラファー」でした！";
+      const url = window.location.href;
       
-      aiBtn.disabled = true;
-      aiBtn.textContent = "処理中...";
-      spinner.style.display = "block";
-      recommendations.innerHTML = "";
-      aiResult.textContent = "";
-
-      const prompt = `あなたはプロのカメラアドバイザーです。以下の評価結果から、ユーザーの好みに合う推薦機器を3つ選び、JSON形式で返してください。必ず以下の形式で回答してください：
-
-{
-  "recommendations": [
-    {
-      "name": "機器名",
-      "manufacturer": "メーカー名", 
-      "price_range": "価格帯",
-      "image_url": "https://via.placeholder.com/300x200?text=機器名",
-      "features": ["特徴1", "特徴2", "特徴3"],
-      "reason": "推薦理由"
-    }
-  ]
-}
-
-評価結果：
-好き：${results.likes.join("、")}
-苦手：${results.dislikes.join("、")}
-本体だけ好き：${results.bodyLikes.join("、")}
-レンズだけ好き：${results.lensLikes.join("、")}`;
-
-      try {
-        const res = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: "gpt-4",
-            messages: [
-              { role: "system", content: "あなたはプロのカメラアドバイザーです。必ずJSON形式で回答してください。" },
-              { role: "user", content: prompt }
-            ],
-            temperature: 0.7
-          })
+      if (navigator.share) {
+        navigator.share({
+          title: title,
+          text: text,
+          url: url
         });
-
-        const json = await res.json();
-        const output = json.choices?.[0]?.message?.content || "AIの応答が得られませんでした。";
-        
-        try {
-          const recommendations = JSON.parse(output);
-          displayRecommendations(recommendations.recommendations || []);
-        } catch (e) {
-          aiResult.textContent = output;
-        }
-      } catch (error) {
-        aiResult.textContent = "エラーが発生しました。APIキーを確認してください。";
-      } finally {
-        // Hide loading state
-        aiBtn.disabled = false;
-        aiBtn.textContent = "🤖 AIにおすすめしてもらう";
-        spinner.style.display = "none";
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        navigator.clipboard.writeText(`${text} ${url}`).then(() => {
+          alert('診断結果をクリップボードにコピーしました！');
+        });
       }
     }
-
-    function displayRecommendations(recommendations) {
-      const container = document.getElementById("recommendations");
-      container.innerHTML = recommendations.map(rec => `
-        <div class="rec-card">
-          <img src="${rec.image_url}" alt="${rec.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-          <h3>${rec.name}</h3>
-          <p><strong>${rec.manufacturer}</strong> • ${rec.price_range}</p>
-          <p><strong>特徴:</strong> ${rec.features.join(', ')}</p>
-          <div class="rec-reason"><strong>推薦理由:</strong> ${rec.reason}</div>
-        </div>
-      `).join('');
+    
+    function retakeDiagnosis() {
+      if (confirm('診断をやり直しますか？現在の結果は失われます。')) {
+        localStorage.removeItem('cameraPickerResults');
+        window.location.href = '/';
+      }
     }
+    
+    function exploreGear() {
+      // Navigate to detailed gear exploration
+      window.location.href = '/explore';
+    }
+    
+    function saveResults() {
+      const results = {
+        personalityType: '探究型フォトグラファー',
+        timestamp: new Date().toISOString(),
+        recommendations: [
+          'Sony α7 IV',
+          'Canon EOS R6 Mark II', 
+          'Fujifilm X-T5'
+        ]
+      };
+      
+      localStorage.setItem('savedDiagnosisResults', JSON.stringify(results));
+      
+      // Show confirmation
+      const button = event.target;
+      const originalText = button.textContent;
+      button.textContent = '保存完了！';
+      button.style.background = 'var(--color-green)';
+      
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.background = '';
+      }, 2000);
+    }
+    
+    // Animate elements on scroll
+    function animateOnScroll() {
+      const elements = document.querySelectorAll('.content-section, .recommendation-card, .stat-card');
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      });
+      
+      elements.forEach(el => observer.observe(el));
+    }
+    
+    // Initialize animations when page loads
+    document.addEventListener('DOMContentLoaded', animateOnScroll);
+    
+    // Add smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+    // Service Worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('SW registered: ', registration);
+      })
+      .catch(registrationError => {
+        console.log('SW registration failed: ', registrationError);
+      });
+  });
+}
   </script>
 </body>
 </html>
