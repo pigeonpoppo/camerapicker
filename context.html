@@ -242,12 +242,6 @@
       margin-top: 2rem;
     }
     
-    .nav-buttons-right {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-    
     .nav-button {
       padding: 0.75rem 1.5rem;
       font-size: 1rem;
@@ -358,14 +352,9 @@
         <button class="nav-button secondary" id="prev-button" onclick="previousQuestion()" disabled>
           戻る
         </button>
-        <div class="nav-buttons-right">
-          <button class="nav-button secondary" id="skip-button" onclick="skipToResults()" style="display: none;">
-            これ以上の質問はスキップ
-          </button>
-          <button class="nav-button primary" id="next-button" onclick="nextQuestion()" disabled>
-            次へ
-          </button>
-        </div>
+        <button class="nav-button primary" id="next-button" onclick="nextQuestion()" disabled>
+          次へ
+        </button>
       </div>
     </div>
   </main>
@@ -526,7 +515,6 @@
     function updateNavigation() {
       const prevBtn = document.getElementById('prev-button');
       const nextBtn = document.getElementById('next-button');
-      const skipBtn = document.getElementById('skip-button');
       
       prevBtn.disabled = currentQuestion === 0;
       
@@ -536,13 +524,6 @@
       
       nextBtn.disabled = !hasAnswer;
       nextBtn.textContent = currentQuestion === questions.length - 1 ? '完了' : '次へ';
-      
-      // Show skip button after 3 questions
-      if (currentQuestion >= 2 && currentQuestion < questions.length - 1) {
-        skipBtn.style.display = 'block';
-      } else {
-        skipBtn.style.display = 'none';
-      }
     }
     
     function nextQuestion() {
@@ -586,27 +567,12 @@
       }
     }
     
-    function skipToResults() {
-      if (confirm('ここまでの回答で診断を開始しますか？')) {
-        // Save current answers
-        localStorage.setItem('cameraPickerContext', JSON.stringify(answers));
-        
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const mode = urlParams.get('mode') || 'body';
-        const level = urlParams.get('level') || 'intermediate';
-        
-        // Go to pick page
-        window.location.href = `pick.html?mode=${mode}&level=${level}&context=true`;
-      }
-    }
-    
     // Initialize
     window.onload = initializeQuestions;
     // Service Worker registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js')
+    navigator.serviceWorker.register('/service-worker.js')
       .then(registration => {
         console.log('SW registered: ', registration);
       })
