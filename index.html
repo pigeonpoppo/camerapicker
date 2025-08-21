@@ -145,8 +145,8 @@
     
     .level-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--spacing-6);
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-4);
       max-width: 900px;
       margin: 0 auto;
     }
@@ -155,7 +155,7 @@
       background: white;
       border: 1px solid var(--color-gray-200);
       border-radius: var(--border-radius-lg);
-      padding: var(--spacing-8);
+      padding: var(--spacing-6);
       cursor: pointer;
       transition: all 0.2s ease;
       position: relative;
@@ -204,8 +204,8 @@
     /* Action Buttons */
     .actions {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: var(--spacing-6);
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-4);
       max-width: 1000px;
       margin: 0 auto;
     }
@@ -214,7 +214,7 @@
       background: white;
       border: 1px solid var(--color-gray-200);
       border-radius: var(--border-radius-lg);
-      padding: var(--spacing-8);
+      padding: var(--spacing-6);
       text-decoration: none;
       color: inherit;
       transition: all 0.2s ease;
@@ -346,12 +346,46 @@
     /* Responsive */
     @media (max-width: 768px) {
       .hero-title {
-        font-size: 2.5rem;
+        font-size: 1.75rem;
+        line-height: 1.2;
+      }
+      
+      .hero-subtitle {
+        font-size: 0.9rem;
+      }
+      
+      .section-title {
+        font-size: 1.25rem;
       }
       
       .level-grid,
       .actions {
         grid-template-columns: 1fr;
+        gap: var(--spacing-3);
+      }
+      
+      .level-card,
+      .action-card {
+        padding: var(--spacing-4);
+      }
+      
+      .level-emoji,
+      .action-emoji {
+        font-size: 1.75rem;
+      }
+      
+      .level-title,
+      .action-title {
+        font-size: 0.95rem;
+      }
+      
+      .level-description,
+      .action-description {
+        font-size: 0.75rem;
+      }
+      
+      .action-features {
+        display: none;
       }
       
       .nav-links {
@@ -360,6 +394,14 @@
       
       .container {
         padding: 0 var(--spacing-4);
+      }
+      
+      .hero {
+        padding: var(--spacing-8) 0;
+      }
+      
+      .level-section {
+        margin-bottom: var(--spacing-8);
       }
     }
     
@@ -396,9 +438,9 @@
       <div class="header-content">
         <a href="/" class="logo">Camera Picker</a>
         <nav class="nav-links">
+          <a href="favorites.html" class="nav-link">お気に入り</a>
           <a href="#" class="nav-link">使い方</a>
           <a href="#" class="nav-link">ランキング</a>
-          <a href="#" class="nav-link">コミュニティ</a>
         </nav>
       </div>
     </div>
@@ -407,7 +449,7 @@
   <main>
     <section class="hero">
       <div class="container">
-        <h1 class="hero-title animate-in">あなたにぴったりの<br>カメラを見つけよう</h1>
+        <h1 class="hero-title animate-in">まずは、あなたの撮影経験と<br>探したいものをおしえてください</h1>
         <p class="hero-subtitle animate-in-delay">
           数千台のカメラの中から、あなたの撮影スタイルと予算に最適な1台を見つけるお手伝いをします。
         </p>
@@ -416,7 +458,7 @@
 
     <section class="level-section">
       <div class="container">
-        <h2 class="section-title">まずは、あなたの撮影経験を教えてください</h2>
+        <h2 class="section-title">撮影経験を教えてください</h2>
         <div class="level-grid">
           <div class="level-card" data-level="beginner" onclick="selectLevel('beginner')">
             <span class="level-emoji">🌱</span>
@@ -439,8 +481,9 @@
       </div>
     </section>
 
-    <section>
+    <section id="action-section" style="display: none;">
       <div class="container">
+        <h2 class="section-title">探したいものを選んでください</h2>
         <div class="actions">
           <a href="#" class="action-card" onclick="startPicking('body')">
             <span class="action-emoji">📸</span>
@@ -520,6 +563,18 @@
       
       // Add selection to clicked card
       document.querySelector(`[data-level="${level}"]`).classList.add('selected');
+      
+      // Show action section and scroll to it
+      const actionSection = document.getElementById('action-section');
+      actionSection.style.display = 'block';
+      
+      // Smooth scroll to action section
+      setTimeout(() => {
+        actionSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 300);
       
       updateStartButton();
       

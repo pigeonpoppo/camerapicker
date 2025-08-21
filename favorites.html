@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Picker - お気に入り</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --color-gray-50: #fafafa;
+      --color-gray-100: #f5f5f5;
+      --color-gray-200: #e5e5e5;
+      --color-gray-300: #d4d4d4;
+      --color-gray-400: #a3a3a3;
+      --color-gray-500: #737373;
+      --color-gray-600: #525252;
+      --color-gray-700: #404040;
+      --color-gray-800: #262626;
+      --color-gray-900: #171717;
+      
+      --color-blue-500: #3b82f6;
+      --color-blue-600: #2563eb;
+      --color-green-500: #10b981;
+      --color-red-500: #ef4444;
+      --color-purple-500: #8b5cf6;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--color-gray-50);
+      color: var(--color-gray-900);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    
+    /* Header */
+    .header {
+      background: white;
+      border-bottom: 1px solid var(--color-gray-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      text-decoration: none;
+    }
+    
+    .back-button {
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      color: var(--color-gray-600);
+      transition: all 0.2s ease;
+    }
+    
+    .back-button:hover {
+      background: var(--color-gray-100);
+      color: var(--color-gray-900);
+    }
+    
+    /* Main Content */
+    .main {
+      padding: 2rem 0;
+    }
+    
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .page-subtitle {
+      font-size: 1rem;
+      color: var(--color-gray-600);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    /* Favorites Grid */
+    .favorites-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .favorite-card {
+      background: white;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .favorite-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    
+    .favorite-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: var(--color-gray-100);
+    }
+    
+    .favorite-content {
+      padding: 1.5rem;
+    }
+    
+    .favorite-brand {
+      font-size: 0.75rem;
+      color: var(--color-gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .favorite-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: 0.5rem;
+    }
+    
+    .favorite-price {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--color-blue-500);
+      margin-bottom: 1rem;
+    }
+    
+    .favorite-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .favorite-feature {
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .favorite-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .action-btn {
+      flex: 1;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .remove-btn {
+      background: var(--color-red-500);
+      color: white;
+    }
+    
+    .remove-btn:hover {
+      background: #dc2626;
+    }
+    
+    .view-btn {
+      background: var(--color-blue-500);
+      color: white;
+    }
+    
+    .view-btn:hover {
+      background: var(--color-blue-600);
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--color-gray-500);
+    }
+    
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    
+    .empty-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 0.5rem;
+    }
+    
+    .empty-description {
+      margin-bottom: 2rem;
+    }
+    
+    .start-button {
+      background: var(--color-blue-500);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .start-button:hover {
+      background: var(--color-blue-600);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .page-title {
+        font-size: 1.5rem;
+      }
+      
+      .favorites-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .favorite-content {
+        padding: 1rem;
+      }
+      
+      .favorite-name {
+        font-size: 1.1rem;
+      }
+      
+      .favorite-price {
+        font-size: 1rem;
+      }
+      
+      .favorite-features {
+        gap: 0.25rem;
+      }
+      
+      .favorite-feature {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">Camera Picker</a>
+        <button class="back-button" onclick="goBack()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <h1 class="page-title">お気に入り一覧</h1>
+      <p class="page-subtitle">あなたがお気に入りに登録したカメラ・レンズ</p>
+      
+      <div id="favorites-container">
+        <!-- Favorites will be loaded here -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Sample data - would be loaded from API in production
+    const sampleData = [
+      {
+        id: 1,
+        brand: "Sony",
+        name: "α7 IV",
+        price: "¥298,000",
+        image: "https://via.placeholder.com/400x300?text=Sony+α7+IV",
+        features: ["フルサイズ", "手ブレ補正", "4K動画"]
+      },
+      {
+        id: 2,
+        brand: "Canon",
+        name: "EOS R6 Mark II",
+        price: "¥348,000",
+        image: "https://via.placeholder.com/400x300?text=Canon+EOS+R6+Mark+II",
+        features: ["高感度", "連写", "デュアルピクセルAF"]
+      },
+      {
+        id: 3,
+        brand: "Fujifilm",
+        name: "X-T5",
+        price: "¥248,000",
+        image: "https://via.placeholder.com/400x300?text=Fujifilm+X-T5",
+        features: ["高解像度", "フィルムシミュレーション", "クラシックデザイン"]
+      }
+    ];
+    
+    function loadFavorites() {
+      const favorites = JSON.parse(localStorage.getItem('cameraPickerFavorites') || '[]');
+      const container = document.getElementById('favorites-container');
+      
+      if (favorites.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🤍</div>
+            <h2 class="empty-title">お気に入りがありません</h2>
+            <p class="empty-description">カメラ診断でお気に入りに登録したカメラ・レンズがここに表示されます。</p>
+            <a href="index.html" class="start-button">診断を始める</a>
+          </div>
+        `;
+        return;
+      }
+      
+      const favoriteItems = sampleData.filter(item => favorites.includes(item.id));
+      
+      container.innerHTML = `
+        <div class="favorites-grid">
+          ${favoriteItems.map(item => `
+            <div class="favorite-card" onclick="viewItem(${item.id})">
+              <img src="${item.image}" alt="${item.name}" class="favorite-image" loading="lazy">
+              <div class="favorite-content">
+                <div class="favorite-brand">${item.brand}</div>
+                <h3 class="favorite-name">${item.name}</h3>
+                <div class="favorite-price">${item.price}</div>
+                <div class="favorite-features">
+                  ${item.features.map(feature => 
+                    `<span class="favorite-feature">${feature}</span>`
+                  ).join('')}
+                </div>
+                <div class="favorite-actions">
+                  <button class="action-btn remove-btn" onclick="removeFavorite(${item.id}, event)">
+                    削除
+                  </button>
+                  <button class="action-btn view-btn" onclick="viewItem(${item.id}, event)">
+                    詳細
+                  </button>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    
+    function removeFavorite(itemId, event) {
+      event.stopPropagation();
+      
+      if (confirm('お気に入りから削除しますか？')) {
+        const favorites = JSON.parse(localStorage.getItem('cameraPickerFavorites') || '[]');
+        const index = favorites.indexOf(itemId);
+        
+        if (index > -1) {
+          favorites.splice(index, 1);
+          localStorage.setItem('cameraPickerFavorites', JSON.stringify(favorites));
+          loadFavorites();
+        }
+      }
+    }
+    
+    function viewItem(itemId, event) {
+      if (event) {
+        event.stopPropagation();
+      }
+      
+      // Navigate to item detail page or show modal
+      alert(`商品ID ${itemId} の詳細ページに移動します`);
+    }
+    
+    function goBack() {
+      window.history.back();
+    }
+    
+    // Load favorites when page loads
+    document.addEventListener('DOMContentLoaded', loadFavorites);
+    
+    // Service Worker registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('SW registered: ', registration);
+          })
+          .catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
