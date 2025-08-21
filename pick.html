@@ -6,7 +6,7 @@
 　<link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
 
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Camera Picker - ギア選択</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
@@ -286,15 +286,21 @@
       line-height: 1.5;
     }
     
-    /* Action Buttons */
-    .action-buttons {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 1rem;
-    }
+         /* Action Buttons */
+     .action-buttons {
+       position: fixed;
+       bottom: 2rem;
+       left: 50%;
+       transform: translateX(-50%);
+       display: flex;
+       gap: 1rem;
+       z-index: 1000;
+       background: rgba(255, 255, 255, 0.9);
+       backdrop-filter: blur(10px);
+       padding: 1rem;
+       border-radius: 2rem;
+       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+     }
     
     .action-button {
       width: 56px;
@@ -422,34 +428,51 @@
       background: var(--color-blue-600);
     }
     
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .header {
-        padding: 0.5rem 1rem;
-      }
-      
-      .stats {
-        display: none;
-      }
-      
-      .main-content {
-        padding: 1rem;
-      }
-      
-      .card-stack {
-        max-width: 350px;
-      }
-      
-      .action-buttons {
-        bottom: 1rem;
-      }
-      
-      .action-button {
-        width: 48px;
-        height: 48px;
-        font-size: 1rem;
-      }
-    }
+         /* Responsive Design */
+     @media (max-width: 768px) {
+       .header {
+         padding: 0.5rem 1rem;
+       }
+       
+       .stats {
+         display: none;
+       }
+       
+       .main-content {
+         padding: 1rem;
+         padding-bottom: 6rem; /* アクションボタンのための余白を追加 */
+       }
+       
+       .card-stack {
+         max-width: 350px;
+       }
+       
+       .action-buttons {
+         bottom: 2rem; /* より下に配置 */
+         padding-bottom: env(safe-area-inset-bottom); /* iOS Safari対応 */
+       }
+       
+       .action-button {
+         width: 48px;
+         height: 48px;
+         font-size: 1rem;
+       }
+       
+       /* スマホでの高さ調整 */
+       .app-container {
+         min-height: 100vh;
+         min-height: 100dvh; /* dynamic viewport height */
+       }
+       
+       /* 空の状態でのボタン位置調整 */
+       .empty-state {
+         padding-bottom: 4rem;
+       }
+       
+       .results-button {
+         margin-bottom: 2rem;
+       }
+     }
     
     /* Loading States */
     .loading {
