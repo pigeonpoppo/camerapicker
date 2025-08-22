@@ -510,15 +510,12 @@
           portability: userPreferences.portability_importance
         });
         
-                const url = `pick.html?${params.toString()}`;
-        
-        // 現在のスクロール位置を保存
+                // ページ遷移を避けて、同じページ内でコンテンツを切り替え
         const currentScrollY = window.scrollY;
-        sessionStorage.setItem('scrollPosition', currentScrollY.toString());
-        console.log('スクロール位置を保存:', currentScrollY);
+        console.log('現在のスクロール位置を保持:', currentScrollY);
         
-        // 直接遷移
-        window.location.href = url;
+        // pick.htmlのコンテンツを動的に読み込み
+        loadPickPageContent(params, currentScrollY);
       }
     
     // 統計情報を読み込む
@@ -601,10 +598,60 @@
     
 
     
-    // ページ離脱時にスクロール位置を保存
-    window.addEventListener('beforeunload', () => {
-      sessionStorage.setItem('currentScrollPosition', window.scrollY.toString());
-    });
+    // pick.htmlのコンテンツを動的に読み込む関数
+    async function loadPickPageContent(params, scrollY) {
+      try {
+        // ローディング状態を表示
+        document.body.innerHTML = `
+          <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 1.2rem;">
+            読み込み中...
+          </div>
+        `;
+        
+        // pick.htmlのコンテンツをfetchで取得
+        const response = await fetch('pick.html');
+        const html = await response.text();
+        
+        // HTMLをパースしてbodyの内容を抽出
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const pickContent = doc.body.innerHTML;
+        
+        // 現在のページのコンテンツを置き換え
+        document.body.innerHTML = pickContent;
+        
+        // URLを更新（履歴に追加）
+        const newUrl = `pick.html?${params.toString()}`;
+        window.history.pushState({}, '', newUrl);
+        
+        // スクロール位置を保持
+        window.scrollTo(0, scrollY);
+        
+        // pick.htmlのスクリプトを実行
+        const scripts = doc.querySelectorAll('script');
+        for (const script of scripts) {
+          if (script.src) {
+            // 外部スクリプトの場合は再読み込み
+            const newScript = document.createElement('script');
+            newScript.src = script.src;
+            document.head.appendChild(newScript);
+          } else if (script.textContent.trim()) {
+            // インラインスクリプトの場合は実行
+            try {
+              eval(script.textContent);
+            } catch (e) {
+              console.error('スクリプト実行エラー:', e);
+            }
+          }
+        }
+        
+        console.log('pick.htmlのコンテンツを読み込み完了');
+      } catch (error) {
+        console.error('コンテンツ読み込みエラー:', error);
+        // フォールバック: 通常の遷移
+        window.location.href = `pick.html?${params.toString()}`;
+      }
+    }
   </script>
   <script src="js/common.js"></script>
   <script>

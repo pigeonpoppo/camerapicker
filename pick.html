@@ -162,19 +162,22 @@
     .main-content {
       flex: 1;
       display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 1rem 2rem 12rem 2rem; /* 下のパディングをさらに増やしてボタンとの重なりを完全に防ぐ */
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1rem 2rem 0 2rem; /* 下のパディングを削除 */
       position: relative;
-      padding-top: 2rem; /* 上に余白を追加 */
+      padding-top: 2rem;
+      min-height: calc(100vh - 200px); /* ボタン用のスペースを確保 */
     }
     
     .card-stack {
       position: relative;
       width: 100%;
       max-width: 400px;
-      height: 600px; /* 固定の高さを設定 */
-      margin-top: 1rem; /* カードを少し下に */
+      height: 500px; /* 高さを調整してボタンとの重なりを防ぐ */
+      margin-top: 1rem;
+      margin-bottom: 2rem; /* ボタンとの間隔を確保 */
     }
     
     .camera-card {
@@ -462,10 +465,7 @@
     
          /* Action Buttons */
      .action-buttons {
-       position: fixed;
-       bottom: 2rem;
-       left: 50%;
-       transform: translateX(-50%);
+       position: relative; /* fixedからrelativeに変更 */
        display: flex;
        gap: 1rem;
        z-index: 1000;
@@ -474,6 +474,8 @@
        padding: 1rem;
        border-radius: 2rem;
        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+       margin-top: auto; /* 下部に配置 */
+       margin-bottom: 2rem;
      }
     
     .action-button {
@@ -732,6 +734,8 @@
           ♡
         </button>
       </div>
+    </main>
+  </div>
     </main>
   </div>
 
