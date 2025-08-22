@@ -132,27 +132,27 @@
     
     /* Experience Level Selection */
     .level-section {
-      margin-bottom: var(--spacing-16);
+      margin-bottom: var(--spacing-12);
     }
     
     /* Gear Selection */
     .gear-section {
-      margin-bottom: var(--spacing-16);
+      margin-bottom: var(--spacing-12);
     }
     
     .section-title {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 600;
       color: var(--color-gray-900);
-      margin-bottom: var(--spacing-8);
+      margin-bottom: var(--spacing-6);
       text-align: center;
     }
     
     .level-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--spacing-6);
-      max-width: 900px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-4);
+      max-width: 800px;
       margin: 0 auto;
     }
     
@@ -160,10 +160,11 @@
       background: white;
       border: 1px solid var(--color-gray-200);
       border-radius: var(--border-radius-lg);
-      padding: var(--spacing-8);
+      padding: var(--spacing-6);
       cursor: pointer;
       transition: all 0.2s ease;
       position: relative;
+      text-align: center;
     }
     
     .level-card:hover {
@@ -189,16 +190,15 @@
     }
     
     .level-emoji {
-      font-size: 2.5rem;
-      margin-bottom: var(--spacing-4);
+      font-size: 2rem;
+      margin-bottom: var(--spacing-3);
       display: block;
     }
     
     .level-title {
-      font-size: 1.125rem;
+      font-size: 1rem;
       font-weight: 600;
       color: var(--color-gray-900);
-      margin-bottom: var(--spacing-2);
     }
     
     .level-description {
@@ -209,9 +209,9 @@
     /* Action Buttons */
     .actions {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: var(--spacing-6);
-      max-width: 1000px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-4);
+      max-width: 800px;
       margin: 0 auto;
     }
     
@@ -219,12 +219,13 @@
       background: white;
       border: 1px solid var(--color-gray-200);
       border-radius: var(--border-radius-lg);
-      padding: var(--spacing-8);
+      padding: var(--spacing-6);
       text-decoration: none;
       color: inherit;
       transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
+      text-align: center;
     }
     
     .action-card::before {
@@ -250,16 +251,15 @@
     }
     
     .action-emoji {
-      font-size: 3rem;
-      margin-bottom: var(--spacing-4);
+      font-size: 2.5rem;
+      margin-bottom: var(--spacing-3);
       display: block;
     }
     
     .action-title {
-      font-size: 1.5rem;
+      font-size: 1.125rem;
       font-weight: 600;
       color: var(--color-gray-900);
-      margin-bottom: var(--spacing-3);
     }
     
     .action-description {
@@ -427,19 +427,16 @@
           <div class="level-card" data-level="beginner" onclick="selectLevel('beginner')">
             <span class="level-emoji">🌱</span>
             <h3 class="level-title">はじめて</h3>
-            <p class="level-description">カメラを初めて購入する方向け。操作の簡単さと価格を重視した提案をします。</p>
           </div>
           
           <div class="level-card" data-level="intermediate" onclick="selectLevel('intermediate')">
             <span class="level-emoji">📷</span>
             <h3 class="level-title">慣れてきた</h3>
-            <p class="level-description">基本操作を理解している方向け。機能と価格のバランスを考慮した提案をします。</p>
           </div>
           
           <div class="level-card" data-level="advanced" onclick="selectLevel('advanced')">
             <span class="level-emoji">🎯</span>
             <h3 class="level-title">こだわりたい</h3>
-            <p class="level-description">専門的な撮影を行う方向け。性能を重視したプロ仕様の機材を提案します。</p>
           </div>
         </div>
       </div>
@@ -452,34 +449,16 @@
           <a href="#" class="action-card" onclick="startPicking('body')">
             <span class="action-emoji">📸</span>
             <h3 class="action-title">カメラ本体</h3>
-            <p class="action-description">メインとなるカメラボディを選びます</p>
-            <ul class="action-features">
-              <li>画質・性能重視の選択</li>
-              <li>予算に応じた最適化</li>
-              <li>用途別の推薦</li>
-            </ul>
           </a>
           
           <a href="#" class="action-card" onclick="startPicking('lens')">
             <span class="action-emoji">🔍</span>
             <h3 class="action-title">レンズ</h3>
-            <p class="action-description">撮影スタイルに合わせたレンズを選びます</p>
-            <ul class="action-features">
-              <li>撮影シーン別提案</li>
-              <li>焦点距離の最適化</li>
-              <li>F値・画質重視</li>
-            </ul>
           </a>
           
           <a href="#" class="action-card" onclick="startPicking('combo')">
             <span class="action-emoji">🎁</span>
             <h3 class="action-title">セット組み合わせ</h3>
-            <p class="action-description">本体とレンズの最適な組み合わせを提案</p>
-            <ul class="action-features">
-              <li>相性を考慮した組み合わせ</li>
-              <li>トータル予算での最適化</li>
-              <li>初心者にも安心</li>
-            </ul>
           </a>
         </div>
         
@@ -525,12 +504,13 @@
       // Store in localStorage
       localStorage.setItem('cameraPickerLevel', level);
       
-      // 自動スクロールでギア選択セクションに移動
+      // 自動スクロールでギア選択セクションのタイトルが見えるように移動
       setTimeout(() => {
-        const actionsSection = document.querySelector('.actions').closest('section');
-        actionsSection.scrollIntoView({ 
+        const gearSection = document.querySelector('.gear-section');
+        const sectionTitle = gearSection.querySelector('.section-title');
+        sectionTitle.scrollIntoView({ 
           behavior: 'smooth', 
-          block: 'start' 
+          block: 'center' 
         });
       }, 300);
     }
@@ -554,13 +534,19 @@
       // Store in localStorage  
       localStorage.setItem('cameraPickerMode', mode);
       
-      // 診断開始ボタンにスクロール
+      // 診断開始ボタンにスクロール（現在位置から下に）
       setTimeout(() => {
         const startButton = document.getElementById('start-button');
-        startButton.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
-        });
+        const currentScroll = window.pageYOffset;
+        const buttonPosition = startButton.offsetTop;
+        
+        // 現在位置から下にスクロール
+        if (buttonPosition > currentScroll) {
+          startButton.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
       }, 200);
     }
     
