@@ -165,19 +165,19 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding: 1rem 2rem 0 2rem; /* 下のパディングを削除 */
+      padding: 1rem 2rem 0 2rem;
       position: relative;
       padding-top: 2rem;
-      min-height: calc(100vh - 200px); /* ボタン用のスペースを確保 */
+      min-height: calc(100vh - 250px); /* ボタン用のスペースをさらに確保 */
     }
     
     .card-stack {
       position: relative;
       width: 100%;
       max-width: 400px;
-      height: 500px; /* 高さを調整してボタンとの重なりを防ぐ */
+      height: 450px; /* 高さをさらに調整 */
       margin-top: 1rem;
-      margin-bottom: 2rem; /* ボタンとの間隔を確保 */
+      margin-bottom: 3rem; /* ボタンとの間隔をさらに確保 */
     }
     
     .camera-card {
@@ -1257,6 +1257,12 @@
          const scrollY = parseInt(savedScrollPosition);
          console.log('スクロール位置を復元:', scrollY);
          
+         // ページの固定状態を解除
+         document.documentElement.style.position = '';
+         document.documentElement.style.top = '';
+         document.documentElement.style.width = '';
+         document.documentElement.style.overflow = '';
+         
          // 即座にスクロール位置を復元
          window.scrollTo(0, scrollY);
          sessionStorage.removeItem('scrollPosition');
@@ -1266,6 +1272,7 @@
          setTimeout(() => window.scrollTo(0, scrollY), 50);
          setTimeout(() => window.scrollTo(0, scrollY), 100);
          setTimeout(() => window.scrollTo(0, scrollY), 200);
+         setTimeout(() => window.scrollTo(0, scrollY), 500);
        }
        
        initializeApp();
