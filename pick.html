@@ -571,14 +571,17 @@
         portability_importance: urlParams.get('portability') || 'medium'
       };
 
-      // GPTクライアントの初期化
-      if (window.gptClient) {
-        const savedServerUrl = localStorage.getItem('server_url');
-        if (savedServerUrl) {
-          window.gptClient.serverURL = savedServerUrl;
-          window.gptClient.checkServerHealth();
-        }
-      }
+             // GPTクライアントの初期化
+       if (window.gptClient) {
+         // GitHub Pages環境では設定を変更しない
+         if (!window.location.hostname.includes('github.io')) {
+           const savedServerUrl = localStorage.getItem('server_url');
+           if (savedServerUrl) {
+             window.gptClient.serverURL = savedServerUrl;
+             window.gptClient.checkServerHealth();
+           }
+         }
+       }
 
            // AIからカメラデータを取得
       let sampleData = [];
