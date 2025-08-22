@@ -540,16 +540,18 @@
       // Store in localStorage  
       localStorage.setItem('cameraPickerMode', mode);
       
-      // 診断開始ボタンにスクロール（現在位置から下に）
+      // 診断開始ボタンが中央に来るように自動スクロール
       setTimeout(() => {
         const startButton = document.getElementById('start-button');
         const currentScroll = window.pageYOffset;
         const buttonPosition = startButton.offsetTop;
+        const windowHeight = window.innerHeight;
         
-        // 現在位置から下にスクロール
+        // 現在位置から下にスクロールしてボタンを中央に
         if (buttonPosition > currentScroll) {
+          const targetScroll = buttonPosition - (windowHeight / 2) + (startButton.offsetHeight / 2);
           window.scrollTo({
-            top: buttonPosition - 50, // ボタンの少し上に
+            top: targetScroll,
             behavior: 'smooth'
           });
         }

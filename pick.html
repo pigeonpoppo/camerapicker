@@ -191,21 +191,26 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       overflow: hidden;
       z-index: 1;
+      /* レイヤー風配置のための調整 */
+      margin: 0 auto;
+      width: calc(100% - 32px); /* 後ろのカードが見えるように幅を調整 */
     }
     
-    /* 後ろのカード用のスタイル */
+    /* 後ろのカード用のスタイル - レイヤー風配置 */
     .camera-card.card-behind-1 {
-      transform: scale(0.95) translateY(8px);
+      transform: translateX(-8px) translateY(8px);
       z-index: 0;
-      opacity: 0.8;
+      opacity: 1;
       box-shadow: var(--shadow-md);
+      width: calc(100% - 16px); /* 少し小さくしてレイヤー感を強調 */
     }
     
     .camera-card.card-behind-2 {
-      transform: scale(0.9) translateY(16px);
+      transform: translateX(-16px) translateY(16px);
       z-index: -1;
-      opacity: 0.6;
+      opacity: 1;
       box-shadow: var(--shadow-sm);
+      width: calc(100% - 32px); /* さらに小さく */
     }
     
     .camera-card:active {
@@ -550,6 +555,8 @@
        .card-stack {
          max-width: 350px;
          margin-top: 0.5rem; /* モバイルでは余白を小さく */
+         /* モバイルでのレイヤー風配置調整 */
+         padding-left: 16px; /* 後ろのカードが見えるように左側に余白 */
        }
        
        .action-buttons {
