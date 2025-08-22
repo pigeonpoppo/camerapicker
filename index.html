@@ -508,10 +508,16 @@
       setTimeout(() => {
         const gearSection = document.querySelector('.gear-section');
         const sectionTitle = gearSection.querySelector('.section-title');
-        sectionTitle.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
-        });
+        const currentScroll = window.pageYOffset;
+        const titlePosition = sectionTitle.offsetTop;
+        
+        // 現在位置から下にスクロール（タイトルが見える位置まで）
+        if (titlePosition > currentScroll) {
+          window.scrollTo({
+            top: titlePosition - 100, // タイトルの少し上に
+            behavior: 'smooth'
+          });
+        }
       }, 300);
     }
     
@@ -542,9 +548,9 @@
         
         // 現在位置から下にスクロール
         if (buttonPosition > currentScroll) {
-          startButton.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
+          window.scrollTo({
+            top: buttonPosition - 50, // ボタンの少し上に
+            behavior: 'smooth'
           });
         }
       }, 200);
@@ -634,31 +640,40 @@
       }
     }
 
+    // スクロールなしで選択を復元する関数
+    function restoreSelectionWithoutScroll(level, mode) {
+      if (level) {
+        selectedLevel = level;
+        document.querySelectorAll('.level-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        document.querySelector(`[data-level="${level}"]`).classList.add('selected');
+      }
+      
+      if (mode) {
+        selectedMode = mode;
+        document.querySelectorAll('.action-card').forEach(card => {
+          card.style.borderColor = 'var(--color-gray-200)';
+        });
+        const selectedCard = document.querySelector(`[onclick="startPicking('${mode}')"]`);
+        if (selectedCard) {
+          selectedCard.style.borderColor = 'var(--color-blue-500)';
+        }
+      }
+      
+      updateStartButton();
+    }
+
     // Initialize page
     function init() {
       // 統計情報を読み込み
       loadStats();
       
-      // Restore previous selections
+      // Restore previous selections without scrolling
       const savedLevel = localStorage.getItem('cameraPickerLevel');
       const savedMode = localStorage.getItem('cameraPickerMode');
       
-      if (savedLevel) {
-        selectLevel(savedLevel);
-      }
-      
-      if (savedMode) {
-        // Simulate click on saved mode
-        const modeButtons = {
-          'body': 0,
-          'lens': 1, 
-          'combo': 2
-        };
-        const index = modeButtons[savedMode];
-        if (index !== undefined) {
-          document.querySelectorAll('.action-card')[index].click();
-        }
-      }
+      restoreSelectionWithoutScroll(savedLevel, savedMode);
       
       // Animate elements on load
       const animateElements = document.querySelectorAll('.animate-in, .animate-in-delay');

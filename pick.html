@@ -161,10 +161,11 @@
     .main-content {
       flex: 1;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: 2rem;
+      padding: 1rem 2rem 8rem 2rem; /* 下のパディングを増やしてボタンとの重なりを防ぐ */
       position: relative;
+      padding-top: 2rem; /* 上に余白を追加 */
     }
     
     .card-stack {
@@ -172,6 +173,7 @@
       width: 100%;
       max-width: 400px;
       aspect-ratio: 3/4;
+      margin-top: 1rem; /* カードを少し下に */
     }
     
     .camera-card {
@@ -188,6 +190,22 @@
       user-select: none;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       overflow: hidden;
+      z-index: 1;
+    }
+    
+    /* 後ろのカード用のスタイル */
+    .camera-card.card-behind-1 {
+      transform: scale(0.95) translateY(8px);
+      z-index: 0;
+      opacity: 0.8;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .camera-card.card-behind-2 {
+      transform: scale(0.9) translateY(16px);
+      z-index: -1;
+      opacity: 0.6;
+      box-shadow: var(--shadow-sm);
     }
     
     .camera-card:active {
@@ -225,6 +243,13 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      overflow-y: auto;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+    
+    .card-content::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
     }
     
     .card-header {
@@ -284,6 +309,84 @@
       font-size: 0.875rem;
       color: var(--color-gray-600);
       line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+    
+    /* 詳細情報セクション */
+    .card-details {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-gray-200);
+    }
+    
+    .detail-section {
+      margin-bottom: 1rem;
+    }
+    
+    .detail-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .detail-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      font-size: 0.875rem;
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+    
+    .detail-item:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-label {
+      color: var(--color-gray-600);
+      font-weight: 500;
+    }
+    
+    .detail-value {
+      color: var(--color-gray-900);
+      font-weight: 600;
+      text-align: right;
+    }
+    
+    /* スクロールヒント */
+    .scroll-hint {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      opacity: 0.8;
+      animation: bounceHint 2s ease-in-out infinite;
+      z-index: 2;
+    }
+    
+    @keyframes bounceHint {
+      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+      40% { transform: translateX(-50%) translateY(-5px); }
+      60% { transform: translateX(-50%) translateY(-3px); }
     }
     
          /* Action Buttons */
@@ -440,11 +543,13 @@
        
        .main-content {
          padding: 1rem;
-         padding-bottom: 6rem; /* アクションボタンのための余白を追加 */
+         padding-bottom: 8rem; /* アクションボタンのための余白を追加 */
+         padding-top: 1rem; /* 上の余白を調整 */
        }
        
        .card-stack {
          max-width: 350px;
+         margin-top: 0.5rem; /* モバイルでは余白を小さく */
        }
        
        .action-buttons {
@@ -471,6 +576,12 @@
        
        .results-button {
          margin-bottom: 2rem;
+       }
+       
+       /* スクロールヒントをモバイルでは小さく */
+       .scroll-hint {
+         font-size: 0.6rem;
+         padding: 0.4rem 0.8rem;
        }
      }
     
@@ -668,39 +779,117 @@
          return;
        }
        
-       const item = sampleData[currentIndex];
+       // Clear existing cards
+       cardStack.innerHTML = '';
+       
+       // Show multiple cards (current + next 2)
+       for (let i = 0; i < 3; i++) {
+         const cardIndex = currentIndex + i;
+         if (cardIndex >= sampleData.length) break;
+         
+         const item = sampleData[cardIndex];
+         const card = createCardElement(item, i);
+         cardStack.appendChild(card);
+         
+         if (i === 0) {
+           currentCard = card;
+         }
+       }
       
-      // Create card element
+      // Update progress
+      updateProgress();
+    }
+    
+    function createCardElement(item, stackIndex) {
       const card = document.createElement('div');
-      card.className = 'camera-card';
+      card.className = `camera-card ${stackIndex === 1 ? 'card-behind-1' : stackIndex === 2 ? 'card-behind-2' : ''}`;
+      
       card.innerHTML = `
         <img src="${item.image}" alt="${item.name}" class="card-image" loading="lazy">
         <div class="card-content">
           <div class="card-header">
             <div class="card-brand">${item.brand}</div>
             <h2 class="card-name">${item.name}</h2>
-            <div class="card-price">${item.price}</div>
+            <div class="card-price">¥${item.price?.toLocaleString() || 'お問い合わせ'}</div>
           </div>
           <div class="card-features">
             <div class="feature-tags">
-              ${item.features.map(feature => 
+              ${item.features?.map(feature => 
                 `<span class="feature-tag ${Math.random() > 0.7 ? 'highlight' : ''}">${feature}</span>`
-              ).join('')}
+              ).join('') || ''}
             </div>
-            <div class="card-specs">${item.specs}</div>
+            <div class="card-specs">${item.specs || ''}</div>
           </div>
+          ${stackIndex === 0 ? createCardDetails(item) : ''}
         </div>
-        <div class="swipe-indicator like">LIKE</div>
-        <div class="swipe-indicator dislike">NOPE</div>
+        ${stackIndex === 0 ? `
+          <div class="swipe-indicator like">LIKE</div>
+          <div class="swipe-indicator dislike">NOPE</div>
+          <div class="scroll-hint">
+            <span>↓</span>
+            <span>詳細をスクロールで確認</span>
+          </div>
+        ` : ''}
       `;
       
-      // Clear existing cards and add new one
-      cardStack.innerHTML = '';
-      cardStack.appendChild(card);
-      currentCard = card;
-      
-      // Update progress
-      updateProgress();
+      return card;
+    }
+    
+    function createCardDetails(item) {
+      return `
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-title">
+              <span>📷</span>
+              <span>基本仕様</span>
+            </div>
+            <ul class="detail-list">
+              <li class="detail-item">
+                <span class="detail-label">センサーサイズ</span>
+                <span class="detail-value">${item.sensor_size || '-'}</span>
+              </li>
+              <li class="detail-item">
+                <span class="detail-label">画素数</span>
+                <span class="detail-value">${item.megapixels ? item.megapixels + 'MP' : '-'}</span>
+              </li>
+              <li class="detail-item">
+                <span class="detail-label">価格帯</span>
+                <span class="detail-value">${item.price_range || '-'}</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="detail-section">
+            <div class="detail-title">
+              <span>⭐</span>
+              <span>強み</span>
+            </div>
+            <ul class="detail-list">
+              ${item.strengths?.map(strength => 
+                `<li class="detail-item">
+                  <span class="detail-label">${strength}</span>
+                  <span class="detail-value">✓</span>
+                </li>`
+              ).join('') || '<li class="detail-item"><span class="detail-label">情報なし</span></li>'}
+            </ul>
+          </div>
+          
+          <div class="detail-section">
+            <div class="detail-title">
+              <span>🎯</span>
+              <span>適用シーン</span>
+            </div>
+            <ul class="detail-list">
+              ${item.best_for?.map(scene => 
+                `<li class="detail-item">
+                  <span class="detail-label">${scene}</span>
+                  <span class="detail-value">◎</span>
+                </li>`
+              ).join('') || '<li class="detail-item"><span class="detail-label">情報なし</span></li>'}
+            </ul>
+          </div>
+        </div>
+      `;
     }
     
     function updateProgress() {
@@ -797,8 +986,31 @@
       }, 2000);
     }
     
+    // スクロールヒントを管理
+    let hasScrolledOnce = false;
+    
+    function hideScrollHint() {
+      if (!hasScrolledOnce) {
+        hasScrolledOnce = true;
+        const scrollHint = document.querySelector('.scroll-hint');
+        if (scrollHint) {
+          scrollHint.style.opacity = '0';
+          setTimeout(() => {
+            scrollHint.style.display = 'none';
+          }, 300);
+        }
+      }
+    }
+    
     function setupSwipeHandlers() {
       const cardStack = document.getElementById('card-stack');
+      
+      // カード内のスクロールを検出（イベント委譲を使用）
+      cardStack.addEventListener('scroll', (e) => {
+        if (e.target.classList.contains('card-content')) {
+          hideScrollHint();
+        }
+      }, { passive: true });
       
       function handleStart(e) {
         if (!currentCard) return;
@@ -956,7 +1168,7 @@
   // Service Worker registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('service-worker.js')
       .then(registration => {
         console.log('SW registered: ', registration);
       })
