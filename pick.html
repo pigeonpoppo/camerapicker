@@ -598,7 +598,10 @@
     let currentX = 0;
     let currentCard = null;
     
-                   async function initializeApp() {
+                                       async function initializeApp() {
+        // ローディング状態を開始
+        document.body.classList.add('loading');
+        
         // Clear any previous progress and results to ensure fresh start
         localStorage.removeItem('cameraPickerProgress');
         localStorage.removeItem('cameraPickerResults');
@@ -616,10 +619,15 @@
         
         // AIからカメラデータを取得
         if (window.cameraPickerAI) {
-          sampleData = window.cameraPickerAI.selectCamerasForUser(userPreferences);
-          console.log('AI診断システムからカメラデータを取得:', sampleData.length, '台');
+          try {
+            sampleData = await window.cameraPickerAI.selectCamerasForUser(userPreferences);
+            console.log('AI診断システムからカメラデータを取得:', sampleData.length, '台');
+          } catch (error) {
+            console.error('❌ カメラデータ取得エラー:', error);
+            sampleData = [];
+          }
         } else {
-          console.error('AI診断システムが読み込まれていません');
+          console.error('❌ AI診断システムが読み込まれていません');
           sampleData = [];
         }
         
@@ -627,6 +635,9 @@
         document.getElementById('empty-state').classList.remove('show');
         document.getElementById('card-stack').style.display = 'block';
         document.querySelector('.action-buttons').style.display = 'flex';
+        
+        // ローディング状態を解除
+        document.body.classList.remove('loading');
         
         updateStats();
         showCurrentCard();
@@ -636,8 +647,10 @@
         
         // カメラデータが空の場合はエラー表示
         if (sampleData.length === 0) {
-          console.error('カメラデータが取得できませんでした');
-          alert('カメラデータの読み込みに失敗しました。ページを再読み込みしてください。');
+          console.error('❌ カメラデータが取得できませんでした');
+          const errorMessage = 'カメラデータの読み込みに失敗しました。\n\n考えられる原因：\n• インターネット接続の問題\n• データベースファイルの読み込みエラー\n\nページを再読み込みするか、しばらく時間をおいてから再度お試しください。';
+          alert(errorMessage);
+          return; // 初期化を停止
         }
       }
     
