@@ -507,8 +507,7 @@ class CameraPickerAI {
   generateAdvice(userType, scores, userPreferences) {
     const advice = {
       immediate: [],
-      long_term: [],
-      technique: []
+      long_term: []
     };
 
     // 即座に実践できるアドバイス（最大2個）
@@ -535,12 +534,9 @@ class CameraPickerAI {
       advice.long_term.push('撮影技術を向上させるために、定期的に練習を重ねましょう');
     }
 
-    // アドバイス数を制限（合計3個まで）
-    const allAdvice = [...advice.immediate, ...advice.long_term];
-    if (allAdvice.length > 3) {
-      advice.immediate = advice.immediate.slice(0, 2);
-      advice.long_term = advice.long_term.slice(0, 1);
-    }
+    // アドバイス数を厳格に制限（合計3個まで）
+    advice.immediate = advice.immediate.slice(0, 2);
+    advice.long_term = advice.long_term.slice(0, 1);
 
     return advice;
   }

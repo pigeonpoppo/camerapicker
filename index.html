@@ -512,17 +512,6 @@
         
                 const url = `pick.html?${params.toString()}`;
         
-        // 現在のスクロール位置を保存
-        const currentScrollY = window.scrollY;
-        sessionStorage.setItem('scrollPosition', currentScrollY.toString());
-        console.log('スクロール位置を保存:', currentScrollY);
-        
-        // ページの状態を完全に固定してから遷移
-        document.documentElement.style.position = 'fixed';
-        document.documentElement.style.top = `-${currentScrollY}px`;
-        document.documentElement.style.width = '100%';
-        document.documentElement.style.overflow = 'hidden';
-        
         // 遷移
         window.location.href = url;
       }
@@ -605,12 +594,7 @@
     // Run initialization when page loads
     document.addEventListener('DOMContentLoaded', init);
     
-    // ページ離脱時にスクロール位置を保存
-    window.addEventListener('beforeunload', () => {
-      const currentScrollY = window.scrollY;
-      sessionStorage.setItem('scrollPosition', currentScrollY.toString());
-      console.log('beforeunload: スクロール位置を保存:', currentScrollY);
-    });
+
     
 
     
