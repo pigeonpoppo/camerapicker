@@ -514,26 +514,11 @@
         
         // 現在のスクロール位置を保存
         const currentScrollY = window.scrollY;
-        sessionStorage.setItem('currentScrollPosition', currentScrollY.toString());
-        console.log('現在のスクロール位置を保存:', currentScrollY);
+        sessionStorage.setItem('scrollPosition', currentScrollY.toString());
+        console.log('スクロール位置を保存:', currentScrollY);
         
-        // ページの状態を完全に固定
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${currentScrollY}px`;
-        document.body.style.left = '0';
-        document.body.style.width = '100%';
-        document.body.style.overflow = 'hidden';
-        
-        // HTML要素も固定
-        document.documentElement.style.overflow = 'hidden';
-        document.documentElement.style.position = 'fixed';
-        document.documentElement.style.top = `-${currentScrollY}px`;
-        document.documentElement.style.width = '100%';
-        
-        // 遷移を非同期で実行
-        requestAnimationFrame(() => {
-          window.location.replace(url);
-        });
+        // 直接遷移
+        window.location.href = url;
       }
     
     // 統計情報を読み込む
@@ -613,6 +598,8 @@
     
     // Run initialization when page loads
     document.addEventListener('DOMContentLoaded', init);
+    
+
     
     // ページ離脱時にスクロール位置を保存
     window.addEventListener('beforeunload', () => {

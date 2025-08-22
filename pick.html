@@ -164,7 +164,7 @@
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      padding: 1rem 2rem 8rem 2rem; /* 下のパディングを増やしてボタンとの重なりを防ぐ */
+      padding: 1rem 2rem 12rem 2rem; /* 下のパディングをさらに増やしてボタンとの重なりを完全に防ぐ */
       position: relative;
       padding-top: 2rem; /* 上に余白を追加 */
     }
@@ -173,7 +173,7 @@
       position: relative;
       width: 100%;
       max-width: 400px;
-      aspect-ratio: 3/4;
+      height: 600px; /* 固定の高さを設定 */
       margin-top: 1rem; /* カードを少し下に */
     }
     
@@ -237,7 +237,7 @@
     
     .card-image {
       width: 100%;
-      height: 50%;
+      height: 40%;
       object-fit: cover;
       background: var(--color-gray-100);
       border-bottom: 1px solid var(--color-gray-200);
@@ -245,18 +245,32 @@
     
     .card-content {
       padding: 1.5rem;
-      height: 50%;
+      height: 60%;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      overflow-y: auto;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE/Edge */
+      overflow-y: auto; /* スクロールを有効化 */
+      scrollbar-width: thin; /* Firefox用 */
+      scrollbar-color: var(--color-gray-300) transparent; /* Firefox用 */
     }
     
+    /* Webkit用のスクロールバースタイル */
     .card-content::-webkit-scrollbar {
-      display: none; /* Chrome/Safari */
+      width: 6px;
     }
+    
+    .card-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .card-content::-webkit-scrollbar-thumb {
+      background: var(--color-gray-300);
+      border-radius: 3px;
+    }
+    
+    .card-content::-webkit-scrollbar-thumb:hover {
+      background: var(--color-gray-400);
+    }
+      gap: 1rem;
     
     .card-header {
       flex-shrink: 0;
@@ -288,6 +302,56 @@
     .card-features {
       flex: 1;
       overflow-y: auto;
+    }
+    
+    .card-details {
+      margin-top: 1rem;
+      border-top: 1px solid var(--color-gray-200);
+      padding-top: 1rem;
+    }
+    
+    .detail-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .detail-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+    
+    .detail-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--color-gray-100);
+      font-size: 0.85rem;
+    }
+    
+    .detail-item:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-label {
+      color: var(--color-gray-600);
+      flex: 1;
+    }
+    
+    .detail-value {
+      color: var(--color-gray-900);
+      font-weight: 500;
+      text-align: right;
     }
     
     .feature-tags {
@@ -376,8 +440,9 @@
       left: 50%;
       transform: translateX(-50%);
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.25rem;
       background: rgba(0, 0, 0, 0.7);
       color: white;
       padding: 0.5rem 1rem;
@@ -1177,33 +1242,26 @@
     `;
     document.head.appendChild(style);
     
-                  // Initialize app when DOM is loaded
+                           // Initialize app when DOM is loaded
      document.addEventListener('DOMContentLoaded', () => {
        console.log('pick.html DOM読み込み完了');
        console.log('ユーザー設定:', userPreferences);
        
        // 保存されたスクロール位置を即座に復元
-       const savedScrollPosition = sessionStorage.getItem('currentScrollPosition');
+       const savedScrollPosition = sessionStorage.getItem('scrollPosition');
        if (savedScrollPosition) {
          const scrollY = parseInt(savedScrollPosition);
          console.log('スクロール位置を復元:', scrollY);
          
-                   // ページの固定状態を解除
-          document.body.style.position = '';
-          document.body.style.top = '';
-          document.body.style.left = '';
-          document.body.style.width = '';
-          document.body.style.overflow = '';
-          
-          // HTML要素の固定状態も解除
-          document.documentElement.style.overflow = '';
-          document.documentElement.style.position = '';
-          document.documentElement.style.top = '';
-          document.documentElement.style.width = '';
-          
-          // 即座にスクロール位置を復元
-          window.scrollTo(0, scrollY);
-          sessionStorage.removeItem('currentScrollPosition');
+         // 即座にスクロール位置を復元
+         window.scrollTo(0, scrollY);
+         sessionStorage.removeItem('scrollPosition');
+         
+         // さらに確実にするため、複数回復元
+         setTimeout(() => window.scrollTo(0, scrollY), 10);
+         setTimeout(() => window.scrollTo(0, scrollY), 50);
+         setTimeout(() => window.scrollTo(0, scrollY), 100);
+         setTimeout(() => window.scrollTo(0, scrollY), 200);
        }
        
        initializeApp();
