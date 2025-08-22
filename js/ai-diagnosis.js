@@ -507,36 +507,35 @@ class CameraPickerAI {
   generateAdvice(userType, scores, userPreferences) {
     const advice = {
       immediate: [],
-      long_term: []
+      long_term: [],
+      technique: []
     };
 
-    // 即座に実践できるアドバイス（最大2個）
+    // 即座に実践できるアドバイス
     if (userType.typeKey === 'portrait_artist') {
       advice.immediate.push('自然光を活用したポートレート撮影を練習しましょう');
       advice.immediate.push('被写体との距離感を意識して撮影してください');
     } else if (userType.typeKey === 'street_photographer') {
       advice.immediate.push('街の光と影を意識して撮影しましょう');
       advice.immediate.push('瞬間を捉える練習を重ねてください');
-    } else if (userType.typeKey === 'landscape_master') {
-      advice.immediate.push('構図の基本（三分割法）を意識して撮影しましょう');
-      advice.immediate.push('光の質を観察して、ベストなタイミングを狙ってください');
-    } else {
-      advice.immediate.push('基本の露出（絞り・シャッタースピード・ISO）を理解しましょう');
-      advice.immediate.push('構図の基本を練習してください');
     }
 
-    // 長期的な成長アドバイス（最大1個）
+    // 長期的な成長アドバイス
     if (scores.image_quality > 80) {
       advice.long_term.push('構図の勉強を深めて、より芸術的な写真を目指しましょう');
-    } else if (scores.video_capability > 70) {
+    }
+    if (scores.video_capability > 70) {
       advice.long_term.push('動画編集スキルを身につけて、ストーリーテリングを向上させましょう');
-    } else {
-      advice.long_term.push('撮影技術を向上させるために、定期的に練習を重ねましょう');
     }
 
-    // アドバイス数を厳格に制限（合計3個まで）
-    advice.immediate = advice.immediate.slice(0, 2);
-    advice.long_term = advice.long_term.slice(0, 1);
+    // 技術的アドバイス
+    if (userPreferences.experience_level === 'beginner') {
+      advice.technique.push('基本の露出（絞り・シャッタースピード・ISO）を理解しましょう');
+      advice.technique.push('構図の基本（三分割法など）を練習してください');
+    } else if (userPreferences.experience_level === 'intermediate') {
+      advice.technique.push('より高度な構図テクニックを学びましょう');
+      advice.technique.push('ライティングの知識を深めてください');
+    }
 
     return advice;
   }

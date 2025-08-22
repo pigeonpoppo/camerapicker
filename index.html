@@ -410,21 +410,7 @@
       // Store in localStorage
       localStorage.setItem('cameraPickerLevel', level);
       
-      // 自動スクロールでギア選択セクションのタイトルが見えるように移動
-      setTimeout(() => {
-        const gearSection = document.querySelector('.gear-section');
-        const sectionTitle = gearSection.querySelector('.section-title');
-        const currentScroll = window.pageYOffset;
-        const titlePosition = sectionTitle.offsetTop;
-        
-        // 現在位置から下にスクロール（タイトルが見える位置まで）
-        if (titlePosition > currentScroll) {
-          window.scrollTo({
-            top: titlePosition - 100, // タイトルの少し上に
-            behavior: 'smooth'
-          });
-        }
-      }, 300);
+
     }
     
     function startPicking(mode) {
@@ -446,22 +432,7 @@
       // Store in localStorage  
       localStorage.setItem('cameraPickerMode', mode);
       
-      // 診断開始ボタンが中央に来るように自動スクロール
-      setTimeout(() => {
-        const startButton = document.getElementById('start-button');
-        const currentScroll = window.pageYOffset;
-        const buttonPosition = startButton.offsetTop;
-        const windowHeight = window.innerHeight;
-        
-        // 現在位置から下にスクロールしてボタンを中央に
-        if (buttonPosition > currentScroll) {
-          const targetScroll = buttonPosition - (windowHeight / 2) + (startButton.offsetHeight / 2);
-          window.scrollTo({
-            top: targetScroll,
-            behavior: 'smooth'
-          });
-        }
-      }, 200);
+
     }
     
     function updateStartButton() {
@@ -511,6 +482,17 @@
         });
         
                 const url = `pick.html?${params.toString()}`;
+        
+        // 現在のスクロール位置を保存
+        const currentScrollY = window.scrollY;
+        sessionStorage.setItem('scrollPosition', currentScrollY.toString());
+        console.log('スクロール位置を保存:', currentScrollY);
+        
+        // ページの状態を完全に固定してから遷移
+        document.documentElement.style.position = 'fixed';
+        document.documentElement.style.top = `-${currentScrollY}px`;
+        document.documentElement.style.width = '100%';
+        document.documentElement.style.overflow = 'hidden';
         
         // 遷移
         window.location.href = url;
