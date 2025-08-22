@@ -1182,17 +1182,27 @@
        console.log('pick.html DOM読み込み完了');
        console.log('ユーザー設定:', userPreferences);
        
-       // スクロール位置を復元（より確実に）
+                // スクロール位置を復元（より確実に）
        const savedScrollPosition = sessionStorage.getItem('scrollPosition');
        if (savedScrollPosition) {
+         const scrollY = parseInt(savedScrollPosition);
+         console.log('スクロール位置を復元:', scrollY);
+         
+         // ページの固定状態を解除
+         document.documentElement.style.position = '';
+         document.documentElement.style.top = '';
+         document.documentElement.style.width = '';
+         document.documentElement.style.overflow = '';
+         
          // 即座に復元
-         window.scrollTo(0, parseInt(savedScrollPosition));
+         window.scrollTo(0, scrollY);
          sessionStorage.removeItem('scrollPosition');
          
-         // さらに確実にするため、少し遅れて再度復元
-         setTimeout(() => {
-           window.scrollTo(0, parseInt(savedScrollPosition));
-         }, 50);
+         // さらに確実にするため、複数回復元
+         setTimeout(() => window.scrollTo(0, scrollY), 10);
+         setTimeout(() => window.scrollTo(0, scrollY), 50);
+         setTimeout(() => window.scrollTo(0, scrollY), 100);
+         setTimeout(() => window.scrollTo(0, scrollY), 200);
        }
        
        initializeApp();

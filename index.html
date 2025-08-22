@@ -512,8 +512,21 @@
         
                 const url = `pick.html?${params.toString()}`;
         
-        // 共通関数を使用して遷移
-        CommonUtils.navigateReplace(url);
+        // スクロール位置を確実に保存
+        const currentScrollY = window.scrollY;
+        sessionStorage.setItem('scrollPosition', currentScrollY.toString());
+        console.log('スクロール位置を保存:', currentScrollY);
+        
+        // ページのスクロール位置を完全に固定
+        document.documentElement.style.position = 'fixed';
+        document.documentElement.style.top = `-${currentScrollY}px`;
+        document.documentElement.style.width = '100%';
+        document.documentElement.style.overflow = 'hidden';
+        
+        // 遷移前に少し待機してから遷移
+        requestAnimationFrame(() => {
+          window.location.replace(url);
+        });
       }
     
     // 統計情報を読み込む
