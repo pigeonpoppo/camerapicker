@@ -6,7 +6,7 @@
 　<link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
 
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Camera Picker - ギア選択</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
@@ -161,10 +161,11 @@
     .main-content {
       flex: 1;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: 2rem;
+      padding: 1rem 2rem 8rem 2rem; /* 下のパディングを増やしてボタンとの重なりを防ぐ */
       position: relative;
+      padding-top: 2rem; /* 上に余白を追加 */
     }
     
     .card-stack {
@@ -172,6 +173,7 @@
       width: 100%;
       max-width: 400px;
       aspect-ratio: 3/4;
+      margin-top: 1rem; /* カードを少し下に */
     }
     
     .camera-card {
@@ -188,6 +190,27 @@
       user-select: none;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       overflow: hidden;
+      z-index: 1;
+      /* レイヤー風配置のための調整 */
+      margin: 0 auto;
+      width: calc(100% - 32px); /* 後ろのカードが見えるように幅を調整 */
+    }
+    
+    /* 後ろのカード用のスタイル - レイヤー風配置 */
+    .camera-card.card-behind-1 {
+      transform: translateX(-8px) translateY(8px);
+      z-index: 0;
+      opacity: 1;
+      box-shadow: var(--shadow-md);
+      width: calc(100% - 16px); /* 少し小さくしてレイヤー感を強調 */
+    }
+    
+    .camera-card.card-behind-2 {
+      transform: translateX(-16px) translateY(16px);
+      z-index: -1;
+      opacity: 1;
+      box-shadow: var(--shadow-sm);
+      width: calc(100% - 32px); /* さらに小さく */
     }
     
     .camera-card:active {
@@ -225,6 +248,13 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      overflow-y: auto;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+    
+    .card-content::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
     }
     
     .card-header {
@@ -284,17 +314,101 @@
       font-size: 0.875rem;
       color: var(--color-gray-600);
       line-height: 1.5;
+      margin-bottom: 1rem;
     }
     
-    /* Action Buttons */
-    .action-buttons {
+    /* 詳細情報セクション */
+    .card-details {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-gray-200);
+    }
+    
+    .detail-section {
+      margin-bottom: 1rem;
+    }
+    
+    .detail-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .detail-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      font-size: 0.875rem;
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+    
+    .detail-item:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-label {
+      color: var(--color-gray-600);
+      font-weight: 500;
+    }
+    
+    .detail-value {
+      color: var(--color-gray-900);
+      font-weight: 600;
+      text-align: right;
+    }
+    
+    /* スクロールヒント */
+    .scroll-hint {
       position: absolute;
-      bottom: 2rem;
+      bottom: 1rem;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 1rem;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      opacity: 0.8;
+      animation: bounceHint 2s ease-in-out infinite;
+      z-index: 2;
     }
+    
+    @keyframes bounceHint {
+      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+      40% { transform: translateX(-50%) translateY(-5px); }
+      60% { transform: translateX(-50%) translateY(-3px); }
+    }
+    
+         /* Action Buttons */
+     .action-buttons {
+       position: fixed;
+       bottom: 2rem;
+       left: 50%;
+       transform: translateX(-50%);
+       display: flex;
+       gap: 1rem;
+       z-index: 1000;
+       background: rgba(255, 255, 255, 0.9);
+       backdrop-filter: blur(10px);
+       padding: 1rem;
+       border-radius: 2rem;
+       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+     }
     
     .action-button {
       width: 56px;
@@ -422,34 +536,61 @@
       background: var(--color-blue-600);
     }
     
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .header {
-        padding: 0.5rem 1rem;
-      }
-      
-      .stats {
-        display: none;
-      }
-      
-      .main-content {
-        padding: 1rem;
-      }
-      
-      .card-stack {
-        max-width: 350px;
-      }
-      
-      .action-buttons {
-        bottom: 1rem;
-      }
-      
-      .action-button {
-        width: 48px;
-        height: 48px;
-        font-size: 1rem;
-      }
-    }
+         /* Responsive Design */
+     @media (max-width: 768px) {
+       .header {
+         padding: 0.5rem 1rem;
+       }
+       
+       .stats {
+         display: none;
+       }
+       
+       .main-content {
+         padding: 1rem;
+         padding-bottom: 8rem; /* アクションボタンのための余白を追加 */
+         padding-top: 1rem; /* 上の余白を調整 */
+       }
+       
+       .card-stack {
+         max-width: 350px;
+         margin-top: 0.5rem; /* モバイルでは余白を小さく */
+         /* モバイルでのレイヤー風配置調整 */
+         padding-left: 16px; /* 後ろのカードが見えるように左側に余白 */
+       }
+       
+       .action-buttons {
+         bottom: 2rem; /* より下に配置 */
+         padding-bottom: env(safe-area-inset-bottom); /* iOS Safari対応 */
+       }
+       
+       .action-button {
+         width: 48px;
+         height: 48px;
+         font-size: 1rem;
+       }
+       
+       /* スマホでの高さ調整 */
+       .app-container {
+         min-height: 100vh;
+         min-height: 100dvh; /* dynamic viewport height */
+       }
+       
+       /* 空の状態でのボタン位置調整 */
+       .empty-state {
+         padding-bottom: 4rem;
+       }
+       
+       .results-button {
+         margin-bottom: 2rem;
+       }
+       
+       /* スクロールヒントをモバイルでは小さく */
+       .scroll-hint {
+         font-size: 0.6rem;
+         padding: 0.4rem 0.8rem;
+       }
+     }
     
     /* Loading States */
     .loading {
@@ -525,40 +666,44 @@
     </main>
   </div>
 
-  <script>
-    // Sample data - would be loaded from API in production
-    const sampleData = [
-      {
-        id: 1,
-        brand: "Sony",
-        name: "α7 IV",
-        price: "¥298,000",
-        image: "https://via.placeholder.com/400x300?text=Sony+α7+IV",
-        features: ["フルサイズ", "手ブレ補正", "4K動画"],
-        specs: "有効約3300万画素、ISO 100-51200、ボディ内手ブレ補正5軸",
-        rarity: "common"
-      },
-      {
-        id: 2,
-        brand: "Canon",
-        name: "EOS R6 Mark II",
-        price: "¥348,000",
-        image: "https://via.placeholder.com/400x300?text=Canon+EOS+R6+Mark+II",
-        features: ["高感度", "連写", "デュアルピクセルAF"],
-        specs: "有効約2420万画素、ISO 100-102400、最高約40コマ/秒",
-        rarity: "rare"
-      },
-      {
-        id: 3,
-        brand: "Fujifilm",
-        name: "X-T5",
-        price: "¥248,000",
-        image: "https://via.placeholder.com/400x300?text=Fujifilm+X-T5",
-        features: ["高解像度", "フィルムシミュレーション", "クラシックデザイン"],
-        specs: "有効約4020万画素、ISO 125-12800、5軸手ブレ補正",
-        rarity: "uncommon"
-      }
-    ];
+           <script src="js/ai-diagnosis.js"></script>
+      <script src="js/gpt-client.js"></script>
+      <script>
+        // AI診断システムの読み込み確認
+        window.addEventListener('load', () => {
+          if (window.cameraPickerAI) {
+            console.log('✅ AI診断システムが正常に読み込まれました');
+          } else {
+            console.error('❌ AI診断システムの読み込みに失敗しました');
+          }
+        });
+      </script>
+   <script>
+           // ユーザー設定を取得
+      const urlParams = new URLSearchParams(window.location.search);
+      const userPreferences = {
+        experience_level: urlParams.get('level') || 'intermediate',
+        mode: urlParams.get('mode') || 'body',
+        budget_preference: urlParams.get('budget') || 'medium',
+        shooting_style: urlParams.get('style') ? urlParams.get('style').split(',') : [],
+        portability_importance: urlParams.get('portability') || 'medium'
+      };
+
+             // GPTクライアントの初期化
+       if (window.gptClient) {
+         // GitHub Pages環境では設定を変更しない
+         if (!window.location.hostname.includes('github.io')) {
+           const savedServerUrl = localStorage.getItem('server_url');
+           if (savedServerUrl) {
+             window.gptClient.serverURL = savedServerUrl;
+             window.gptClient.checkServerHealth();
+           }
+         }
+       }
+
+           // AIからカメラデータを取得
+      let sampleData = [];
+      let swipeHistory = [];
     
     let currentIndex = 0;
     let gameStats = {
@@ -574,61 +719,184 @@
     let currentX = 0;
     let currentCard = null;
     
-    function initializeApp() {
-      // Load saved progress if any
-      const saved = localStorage.getItem('cameraPickerProgress');
-      if (saved) {
-        const progress = JSON.parse(saved);
-        currentIndex = progress.currentIndex || 0;
-        gameStats = { ...gameStats, ...progress.gameStats };
+                                       async function initializeApp() {
+        // ローディング状態を開始
+        document.body.classList.add('loading');
+        
+        // Clear any previous progress and results to ensure fresh start
+        localStorage.removeItem('cameraPickerProgress');
+        localStorage.removeItem('cameraPickerResults');
+        
+        // Reset all variables
+        currentIndex = 0;
+        swipeHistory = [];
+        gameStats = {
+          likes: 0,
+          dislikes: 0,
+          superlikes: 0,
+          points: 0,
+          streak: 0
+        };
+        
+        // AIからカメラデータを取得
+        if (window.cameraPickerAI) {
+          try {
+            sampleData = await window.cameraPickerAI.selectCamerasForUser(userPreferences);
+            console.log('AI診断システムからカメラデータを取得:', sampleData.length, '台');
+          } catch (error) {
+            console.error('❌ カメラデータ取得エラー:', error);
+            sampleData = [];
+          }
+        } else {
+          console.error('❌ AI診断システムが読み込まれていません');
+          sampleData = [];
+        }
+        
+        // Hide empty state and show card stack
+        document.getElementById('empty-state').classList.remove('show');
+        document.getElementById('card-stack').style.display = 'block';
+        document.querySelector('.action-buttons').style.display = 'flex';
+        
+        // ローディング状態を解除
+        document.body.classList.remove('loading');
+        
+        updateStats();
+        showCurrentCard();
+        setupSwipeHandlers();
+        
+        console.log('診断を新規開始しました。カメラ数:', sampleData.length);
+        
+        // カメラデータが空の場合はエラー表示
+        if (sampleData.length === 0) {
+          console.error('❌ カメラデータが取得できませんでした');
+          const errorMessage = 'カメラデータの読み込みに失敗しました。\n\n考えられる原因：\n• インターネット接続の問題\n• データベースファイルの読み込みエラー\n• ブラウザのキャッシュの問題\n\n解決方法：\n1. ページを再読み込み（F5）\n2. ブラウザのキャッシュをクリア\n3. しばらく時間をおいてから再度お試しください';
+          alert(errorMessage);
+          return; // 初期化を停止
+        }
       }
+    
+         function showCurrentCard() {
+       const cardStack = document.getElementById('card-stack');
+       
+       console.log(`カード表示: ${currentIndex + 1}/${sampleData.length}`);
+       
+       if (currentIndex >= sampleData.length) {
+         console.log('全てのカードを表示完了、結果画面へ');
+         showEmptyState();
+         return;
+       }
+       
+       // Clear existing cards
+       cardStack.innerHTML = '';
+       
+       // Show multiple cards (current + next 2)
+       for (let i = 0; i < 3; i++) {
+         const cardIndex = currentIndex + i;
+         if (cardIndex >= sampleData.length) break;
+         
+         const item = sampleData[cardIndex];
+         const card = createCardElement(item, i);
+         cardStack.appendChild(card);
+         
+         if (i === 0) {
+           currentCard = card;
+         }
+       }
       
-      updateStats();
-      showCurrentCard();
-      setupSwipeHandlers();
+      // Update progress
+      updateProgress();
     }
     
-    function showCurrentCard() {
-      const cardStack = document.getElementById('card-stack');
-      
-      if (currentIndex >= sampleData.length) {
-        showEmptyState();
-        return;
-      }
-      
-      const item = sampleData[currentIndex];
-      
-      // Create card element
+    function createCardElement(item, stackIndex) {
       const card = document.createElement('div');
-      card.className = 'camera-card';
+      card.className = `camera-card ${stackIndex === 1 ? 'card-behind-1' : stackIndex === 2 ? 'card-behind-2' : ''}`;
+      
       card.innerHTML = `
         <img src="${item.image}" alt="${item.name}" class="card-image" loading="lazy">
         <div class="card-content">
           <div class="card-header">
             <div class="card-brand">${item.brand}</div>
             <h2 class="card-name">${item.name}</h2>
-            <div class="card-price">${item.price}</div>
+            <div class="card-price">¥${item.price?.toLocaleString() || 'お問い合わせ'}</div>
           </div>
           <div class="card-features">
             <div class="feature-tags">
-              ${item.features.map(feature => 
+              ${item.features?.map(feature => 
                 `<span class="feature-tag ${Math.random() > 0.7 ? 'highlight' : ''}">${feature}</span>`
-              ).join('')}
+              ).join('') || ''}
             </div>
-            <div class="card-specs">${item.specs}</div>
+            <div class="card-specs">${item.specs || ''}</div>
           </div>
+          ${stackIndex === 0 ? createCardDetails(item) : ''}
         </div>
-        <div class="swipe-indicator like">LIKE</div>
-        <div class="swipe-indicator dislike">NOPE</div>
+        ${stackIndex === 0 ? `
+          <div class="swipe-indicator like">LIKE</div>
+          <div class="swipe-indicator dislike">NOPE</div>
+          <div class="scroll-hint">
+            <span>↓</span>
+            <span>詳細をスクロールで確認</span>
+          </div>
+        ` : ''}
       `;
       
-      // Clear existing cards and add new one
-      cardStack.innerHTML = '';
-      cardStack.appendChild(card);
-      currentCard = card;
-      
-      // Update progress
-      updateProgress();
+      return card;
+    }
+    
+    function createCardDetails(item) {
+      return `
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-title">
+              <span>📷</span>
+              <span>基本仕様</span>
+            </div>
+            <ul class="detail-list">
+              <li class="detail-item">
+                <span class="detail-label">センサーサイズ</span>
+                <span class="detail-value">${item.sensor_size || '-'}</span>
+              </li>
+              <li class="detail-item">
+                <span class="detail-label">画素数</span>
+                <span class="detail-value">${item.megapixels ? item.megapixels + 'MP' : '-'}</span>
+              </li>
+              <li class="detail-item">
+                <span class="detail-label">価格帯</span>
+                <span class="detail-value">${item.price_range || '-'}</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="detail-section">
+            <div class="detail-title">
+              <span>⭐</span>
+              <span>強み</span>
+            </div>
+            <ul class="detail-list">
+              ${item.strengths?.map(strength => 
+                `<li class="detail-item">
+                  <span class="detail-label">${strength}</span>
+                  <span class="detail-value">✓</span>
+                </li>`
+              ).join('') || '<li class="detail-item"><span class="detail-label">情報なし</span></li>'}
+            </ul>
+          </div>
+          
+          <div class="detail-section">
+            <div class="detail-title">
+              <span>🎯</span>
+              <span>適用シーン</span>
+            </div>
+            <ul class="detail-list">
+              ${item.best_for?.map(scene => 
+                `<li class="detail-item">
+                  <span class="detail-label">${scene}</span>
+                  <span class="detail-value">◎</span>
+                </li>`
+              ).join('') || '<li class="detail-item"><span class="detail-label">情報なし</span></li>'}
+            </ul>
+          </div>
+        </div>
+      `;
     }
     
     function updateProgress() {
@@ -642,57 +910,64 @@
       document.getElementById('points').textContent = gameStats.points;
     }
     
-    function swipeCard(action) {
-      if (!currentCard || currentIndex >= sampleData.length) return;
-      
-      const item = sampleData[currentIndex];
-      
-      // Calculate points based on action and rarity
-      let points = 0;
-      switch (action) {
-        case 'like':
-          gameStats.likes++;
-          gameStats.streak++;
-          points = item.rarity === 'rare' ? 20 : item.rarity === 'uncommon' ? 15 : 10;
-          currentCard.classList.add('swipe-right');
-          break;
-        case 'dislike':
-          gameStats.dislikes++;
-          gameStats.streak = 0;
-          points = 2;
-          currentCard.classList.add('swipe-left');
-          break;
-        case 'superlike':
-          gameStats.superlikes++;
-          gameStats.streak++;
-          points = item.rarity === 'rare' ? 50 : item.rarity === 'uncommon' ? 35 : 25;
-          // Super like animation
-          currentCard.style.transform = 'translateY(-100vh) scale(0.8)';
-          currentCard.style.opacity = '0';
-          break;
-      }
-      
-      // Add streak bonus
-      if (gameStats.streak >= 3) {
-        points += Math.floor(gameStats.streak / 3) * 5;
-      }
-      
-      gameStats.points += points;
-      
-      // Show points animation
-      if (points > 10) {
-        showPointsAnimation(points);
-      }
-      
-      updateStats();
-      saveProgress();
-      
-      // Move to next card
-      setTimeout(() => {
-        currentIndex++;
-        showCurrentCard();
-      }, 300);
-    }
+         function swipeCard(action) {
+       if (!currentCard || currentIndex >= sampleData.length) return;
+       
+       const item = sampleData[currentIndex];
+       
+       // スワイプ履歴を記録
+       swipeHistory.push({
+         camera_id: item.id,
+         action: action,
+         timestamp: Date.now()
+       });
+       
+       // Calculate points based on action and rarity
+       let points = 0;
+       switch (action) {
+         case 'like':
+           gameStats.likes++;
+           gameStats.streak++;
+           points = item.rarity === 'rare' ? 20 : item.rarity === 'uncommon' ? 15 : 10;
+           currentCard.classList.add('swipe-right');
+           break;
+         case 'dislike':
+           gameStats.dislikes++;
+           gameStats.streak = 0;
+           points = 2;
+           currentCard.classList.add('swipe-left');
+           break;
+         case 'superlike':
+           gameStats.superlikes++;
+           gameStats.streak++;
+           points = item.rarity === 'rare' ? 50 : item.rarity === 'uncommon' ? 35 : 25;
+           // Super like animation
+           currentCard.style.transform = 'translateY(-100vh) scale(0.8)';
+           currentCard.style.opacity = '0';
+           break;
+       }
+       
+       // Add streak bonus
+       if (gameStats.streak >= 3) {
+         points += Math.floor(gameStats.streak / 3) * 5;
+       }
+       
+       gameStats.points += points;
+       
+       // Show points animation
+       if (points > 10) {
+         showPointsAnimation(points);
+       }
+       
+       updateStats();
+       saveProgress();
+       
+       // Move to next card
+       setTimeout(() => {
+         currentIndex++;
+         showCurrentCard();
+       }, 300);
+     }
     
     function showPointsAnimation(points) {
       const animation = document.createElement('div');
@@ -718,8 +993,31 @@
       }, 2000);
     }
     
+    // スクロールヒントを管理
+    let hasScrolledOnce = false;
+    
+    function hideScrollHint() {
+      if (!hasScrolledOnce) {
+        hasScrolledOnce = true;
+        const scrollHint = document.querySelector('.scroll-hint');
+        if (scrollHint) {
+          scrollHint.style.opacity = '0';
+          setTimeout(() => {
+            scrollHint.style.display = 'none';
+          }, 300);
+        }
+      }
+    }
+    
     function setupSwipeHandlers() {
       const cardStack = document.getElementById('card-stack');
+      
+      // カード内のスクロールを検出（イベント委譲を使用）
+      cardStack.addEventListener('scroll', (e) => {
+        if (e.target.classList.contains('card-content')) {
+          hideScrollHint();
+        }
+      }, { passive: true });
       
       function handleStart(e) {
         if (!currentCard) return;
@@ -813,15 +1111,39 @@
       }
     }
     
-    function showResults() {
-      // Save final results
-      localStorage.setItem('cameraPickerResults', JSON.stringify({
-        gameStats,
-        completedAt: new Date().toISOString()
-      }));
-      
-      window.location.href = 'result.html';
-    }
+                   async function showResults() {
+        // AI診断結果を生成
+        if (window.cameraPickerAI) {
+          try {
+            const userType = window.cameraPickerAI.analyzeUserType(swipeHistory, userPreferences);
+            const diagnosisResult = await window.cameraPickerAI.generateDiagnosisResult(userType, swipeHistory, userPreferences);
+            
+            // Save final results
+            localStorage.setItem('cameraPickerResults', JSON.stringify({
+              gameStats,
+              diagnosisResult,
+              userPreferences,
+              swipeHistory,
+              completedAt: new Date().toISOString()
+            }));
+          } catch (error) {
+            console.error('診断結果生成エラー:', error);
+            // フォールバック
+            localStorage.setItem('cameraPickerResults', JSON.stringify({
+              gameStats,
+              completedAt: new Date().toISOString()
+            }));
+          }
+        } else {
+          // フォールバック
+          localStorage.setItem('cameraPickerResults', JSON.stringify({
+            gameStats,
+            completedAt: new Date().toISOString()
+          }));
+        }
+        
+        window.location.href = 'result.html';
+      }
     
     // Add CSS for points animation
     const style = document.createElement('style');
@@ -834,8 +1156,12 @@
     `;
     document.head.appendChild(style);
     
-    // Initialize app when DOM is loaded
-    document.addEventListener('DOMContentLoaded', initializeApp);
+         // Initialize app when DOM is loaded
+     document.addEventListener('DOMContentLoaded', () => {
+       console.log('pick.html DOM読み込み完了');
+       console.log('ユーザー設定:', userPreferences);
+       initializeApp();
+     });
     
     // Handle page visibility changes
     document.addEventListener('visibilitychange', () => {
@@ -849,7 +1175,7 @@
   // Service Worker registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('service-worker.js')
       .then(registration => {
         console.log('SW registered: ', registration);
       })

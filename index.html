@@ -132,22 +132,27 @@
     
     /* Experience Level Selection */
     .level-section {
-      margin-bottom: var(--spacing-16);
+      margin-bottom: var(--spacing-12);
+    }
+    
+    /* Gear Selection */
+    .gear-section {
+      margin-bottom: var(--spacing-12);
     }
     
     .section-title {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 600;
       color: var(--color-gray-900);
-      margin-bottom: var(--spacing-8);
+      margin-bottom: var(--spacing-6);
       text-align: center;
     }
     
     .level-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--spacing-6);
-      max-width: 900px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-4);
+      max-width: 800px;
       margin: 0 auto;
     }
     
@@ -155,10 +160,11 @@
       background: white;
       border: 1px solid var(--color-gray-200);
       border-radius: var(--border-radius-lg);
-      padding: var(--spacing-8);
+      padding: var(--spacing-6);
       cursor: pointer;
       transition: all 0.2s ease;
       position: relative;
+      text-align: center;
     }
     
     .level-card:hover {
@@ -184,16 +190,15 @@
     }
     
     .level-emoji {
-      font-size: 2.5rem;
-      margin-bottom: var(--spacing-4);
+      font-size: 2rem;
+      margin-bottom: var(--spacing-3);
       display: block;
     }
     
     .level-title {
-      font-size: 1.125rem;
+      font-size: 1rem;
       font-weight: 600;
       color: var(--color-gray-900);
-      margin-bottom: var(--spacing-2);
     }
     
     .level-description {
@@ -204,9 +209,9 @@
     /* Action Buttons */
     .actions {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: var(--spacing-6);
-      max-width: 1000px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-4);
+      max-width: 800px;
       margin: 0 auto;
     }
     
@@ -214,12 +219,13 @@
       background: white;
       border: 1px solid var(--color-gray-200);
       border-radius: var(--border-radius-lg);
-      padding: var(--spacing-8);
+      padding: var(--spacing-6);
       text-decoration: none;
       color: inherit;
       transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
+      text-align: center;
     }
     
     .action-card::before {
@@ -245,16 +251,15 @@
     }
     
     .action-emoji {
-      font-size: 3rem;
-      margin-bottom: var(--spacing-4);
+      font-size: 2.5rem;
+      margin-bottom: var(--spacing-3);
       display: block;
     }
     
     .action-title {
-      font-size: 1.5rem;
+      font-size: 1.125rem;
       font-weight: 600;
       color: var(--color-gray-900);
-      margin-bottom: var(--spacing-3);
     }
     
     .action-description {
@@ -395,11 +400,12 @@
     <div class="container">
       <div class="header-content">
         <a href="/" class="logo">Camera Picker</a>
-        <nav class="nav-links">
-          <a href="#" class="nav-link">使い方</a>
-          <a href="#" class="nav-link">ランキング</a>
-          <a href="#" class="nav-link">コミュニティ</a>
-        </nav>
+                 <nav class="nav-links">
+           <a href="#" class="nav-link">使い方</a>
+           <a href="#" class="nav-link">ランキング</a>
+           <a href="#" class="nav-link">コミュニティ</a>
+           <a href="settings.html" class="nav-link">設定</a>
+         </nav>
       </div>
     </div>
   </header>
@@ -407,7 +413,7 @@
   <main>
     <section class="hero">
       <div class="container">
-        <h1 class="hero-title animate-in">あなたにぴったりの<br>カメラを見つけよう</h1>
+        <h1 class="hero-title animate-in">Camera Picker</h1>
         <p class="hero-subtitle animate-in-delay">
           数千台のカメラの中から、あなたの撮影スタイルと予算に最適な1台を見つけるお手伝いをします。
         </p>
@@ -421,58 +427,38 @@
           <div class="level-card" data-level="beginner" onclick="selectLevel('beginner')">
             <span class="level-emoji">🌱</span>
             <h3 class="level-title">はじめて</h3>
-            <p class="level-description">カメラを初めて購入する方向け。操作の簡単さと価格を重視した提案をします。</p>
           </div>
           
           <div class="level-card" data-level="intermediate" onclick="selectLevel('intermediate')">
             <span class="level-emoji">📷</span>
             <h3 class="level-title">慣れてきた</h3>
-            <p class="level-description">基本操作を理解している方向け。機能と価格のバランスを考慮した提案をします。</p>
           </div>
           
           <div class="level-card" data-level="advanced" onclick="selectLevel('advanced')">
             <span class="level-emoji">🎯</span>
             <h3 class="level-title">こだわりたい</h3>
-            <p class="level-description">専門的な撮影を行う方向け。性能を重視したプロ仕様の機材を提案します。</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section>
+    <section class="gear-section">
       <div class="container">
+        <h2 class="section-title">次に、あなたは何を探していますか？</h2>
         <div class="actions">
           <a href="#" class="action-card" onclick="startPicking('body')">
             <span class="action-emoji">📸</span>
             <h3 class="action-title">カメラ本体</h3>
-            <p class="action-description">メインとなるカメラボディを選びます</p>
-            <ul class="action-features">
-              <li>画質・性能重視の選択</li>
-              <li>予算に応じた最適化</li>
-              <li>用途別の推薦</li>
-            </ul>
           </a>
           
           <a href="#" class="action-card" onclick="startPicking('lens')">
             <span class="action-emoji">🔍</span>
             <h3 class="action-title">レンズ</h3>
-            <p class="action-description">撮影スタイルに合わせたレンズを選びます</p>
-            <ul class="action-features">
-              <li>撮影シーン別提案</li>
-              <li>焦点距離の最適化</li>
-              <li>F値・画質重視</li>
-            </ul>
           </a>
           
           <a href="#" class="action-card" onclick="startPicking('combo')">
             <span class="action-emoji">🎁</span>
             <h3 class="action-title">セット組み合わせ</h3>
-            <p class="action-description">本体とレンズの最適な組み合わせを提案</p>
-            <ul class="action-features">
-              <li>相性を考慮した組み合わせ</li>
-              <li>トータル予算での最適化</li>
-              <li>初心者にも安心</li>
-            </ul>
           </a>
         </div>
         
@@ -486,20 +472,12 @@
       <div class="container">
         <div class="stats-grid">
           <div class="stat-item">
-            <span class="stat-number">1,247</span>
-            <span class="stat-label">カメラ機種</span>
+            <span class="stat-number" id="camera-count">-</span>
+            <span class="stat-label">カメラ登録数</span>
           </div>
           <div class="stat-item">
-            <span class="stat-number">2,891</span>
-            <span class="stat-label">レンズ</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">15,432</span>
-            <span class="stat-label">マッチング数</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">98%</span>
-            <span class="stat-label">満足度</span>
+            <span class="stat-number" id="lens-count">-</span>
+            <span class="stat-label">レンズ登録数</span>
           </div>
         </div>
       </div>
@@ -525,6 +503,22 @@
       
       // Store in localStorage
       localStorage.setItem('cameraPickerLevel', level);
+      
+      // 自動スクロールでギア選択セクションのタイトルが見えるように移動
+      setTimeout(() => {
+        const gearSection = document.querySelector('.gear-section');
+        const sectionTitle = gearSection.querySelector('.section-title');
+        const currentScroll = window.pageYOffset;
+        const titlePosition = sectionTitle.offsetTop;
+        
+        // 現在位置から下にスクロール（タイトルが見える位置まで）
+        if (titlePosition > currentScroll) {
+          window.scrollTo({
+            top: titlePosition - 100, // タイトルの少し上に
+            behavior: 'smooth'
+          });
+        }
+      }, 300);
     }
     
     function startPicking(mode) {
@@ -536,12 +530,32 @@
       });
       
       // Highlight selected mode
-      event.currentTarget.style.borderColor = 'var(--color-blue-500)';
+      const selectedCard = document.querySelector(`[onclick="startPicking('${mode}')"]`);
+      if (selectedCard) {
+        selectedCard.style.borderColor = 'var(--color-blue-500)';
+      }
       
       updateStartButton();
       
       // Store in localStorage  
       localStorage.setItem('cameraPickerMode', mode);
+      
+      // 診断開始ボタンが中央に来るように自動スクロール
+      setTimeout(() => {
+        const startButton = document.getElementById('start-button');
+        const currentScroll = window.pageYOffset;
+        const buttonPosition = startButton.offsetTop;
+        const windowHeight = window.innerHeight;
+        
+        // 現在位置から下にスクロールしてボタンを中央に
+        if (buttonPosition > currentScroll) {
+          const targetScroll = buttonPosition - (windowHeight / 2) + (startButton.offsetHeight / 2);
+          window.scrollTo({
+            top: targetScroll,
+            behavior: 'smooth'
+          });
+        }
+      }, 200);
     }
     
     function updateStartButton() {
@@ -559,50 +573,109 @@
       }
     }
     
-    function startDiagnosis() {
-      if (!selectedLevel || !selectedMode) {
-        return;
+                   function startDiagnosis() {
+        if (!selectedLevel || !selectedMode) {
+          return;
+        }
+        
+        console.log('診断開始:', { level: selectedLevel, mode: selectedMode });
+        
+        // Add loading state
+        document.body.classList.add('loading');
+        
+        // Save selections
+        localStorage.setItem('cameraPickerLevel', selectedLevel);
+        localStorage.setItem('cameraPickerMode', selectedMode);
+        
+        // デフォルト設定を追加
+        const userPreferences = {
+          experience_level: selectedLevel,
+          mode: selectedMode,
+          budget_preference: 'medium',
+          shooting_style: [],
+          portability_importance: 'medium'
+        };
+        
+        // URLパラメータを構築
+        const params = new URLSearchParams({
+          mode: selectedMode,
+          level: selectedLevel,
+          budget: userPreferences.budget_preference,
+          portability: userPreferences.portability_importance
+        });
+        
+        const url = `pick.html?${params.toString()}`;
+        console.log('pick.htmlに遷移:', url);
+        
+        // 直接pick.htmlに遷移
+        window.location.href = url;
       }
-      
-      // Add loading state
-      document.body.classList.add('loading');
-      
-      // Save selections
-      localStorage.setItem('cameraPickerLevel', selectedLevel);
-      localStorage.setItem('cameraPickerMode', selectedMode);
-      
-      // Navigate to context questions or direct to picking
-      const useContext = Math.random() > 0.5; // A/B test context questions
-      
-      if (useContext) {
-        window.location.href = `context.html?mode=${selectedMode}&level=${selectedLevel}`;
-      } else {
-        window.location.href = `pick.html?mode=${selectedMode}&level=${selectedLevel}`;
+    
+    // 統計情報を読み込む
+    async function loadStats() {
+      try {
+        // GitHub Pages対応のパス構築
+        const basePath = window.location.pathname.includes('/camerapicker/') 
+          ? '/camerapicker/' 
+          : '/';
+        
+        // カメラデータを読み込み
+        const cameraResponse = await fetch(`${basePath}data/camera.json`);
+        const cameraData = await cameraResponse.json();
+        const cameraCount = cameraData.length - 1; // ヘッダー行を除く
+        
+        // レンズデータを読み込み
+        const lensResponse = await fetch(`${basePath}data/lenses.json`);
+        const lensData = await lensResponse.json();
+        const lensCount = lensData.length - 1; // ヘッダー行を除く
+        
+        // 統計情報を更新
+        document.getElementById('camera-count').textContent = cameraCount.toLocaleString();
+        document.getElementById('lens-count').textContent = lensCount.toLocaleString();
+        
+        console.log(`📊 統計情報読み込み完了: カメラ${cameraCount}台、レンズ${lensCount}本`);
+      } catch (error) {
+        console.error('❌ 統計情報読み込みエラー:', error);
+        // フォールバック値
+        document.getElementById('camera-count').textContent = '21';
+        document.getElementById('lens-count').textContent = '21';
       }
     }
-    
+
+    // スクロールなしで選択を復元する関数
+    function restoreSelectionWithoutScroll(level, mode) {
+      if (level) {
+        selectedLevel = level;
+        document.querySelectorAll('.level-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        document.querySelector(`[data-level="${level}"]`).classList.add('selected');
+      }
+      
+      if (mode) {
+        selectedMode = mode;
+        document.querySelectorAll('.action-card').forEach(card => {
+          card.style.borderColor = 'var(--color-gray-200)';
+        });
+        const selectedCard = document.querySelector(`[onclick="startPicking('${mode}')"]`);
+        if (selectedCard) {
+          selectedCard.style.borderColor = 'var(--color-blue-500)';
+        }
+      }
+      
+      updateStartButton();
+    }
+
     // Initialize page
     function init() {
-      // Restore previous selections
+      // 統計情報を読み込み
+      loadStats();
+      
+      // Restore previous selections without scrolling
       const savedLevel = localStorage.getItem('cameraPickerLevel');
       const savedMode = localStorage.getItem('cameraPickerMode');
       
-      if (savedLevel) {
-        selectLevel(savedLevel);
-      }
-      
-      if (savedMode) {
-        // Simulate click on saved mode
-        const modeButtons = {
-          'body': 0,
-          'lens': 1, 
-          'combo': 2
-        };
-        const index = modeButtons[savedMode];
-        if (index !== undefined) {
-          document.querySelectorAll('.action-card')[index].click();
-        }
-      }
+      restoreSelectionWithoutScroll(savedLevel, savedMode);
       
       // Animate elements on load
       const animateElements = document.querySelectorAll('.animate-in, .animate-in-delay');
@@ -618,7 +691,7 @@
     // Service Worker registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('service-worker.js')
       .then(registration => {
         console.log('SW registered: ', registration);
       })
