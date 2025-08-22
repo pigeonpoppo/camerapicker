@@ -487,20 +487,12 @@
       <div class="container">
         <div class="stats-grid">
           <div class="stat-item">
-            <span class="stat-number">1,247</span>
-            <span class="stat-label">カメラ機種</span>
+            <span class="stat-number" id="camera-count">-</span>
+            <span class="stat-label">カメラ登録数</span>
           </div>
           <div class="stat-item">
-            <span class="stat-number">2,891</span>
-            <span class="stat-label">レンズ</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">15,432</span>
-            <span class="stat-label">マッチング数</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">98%</span>
-            <span class="stat-label">満足度</span>
+            <span class="stat-number" id="lens-count">-</span>
+            <span class="stat-label">レンズ登録数</span>
           </div>
         </div>
       </div>
@@ -526,6 +518,15 @@
       
       // Store in localStorage
       localStorage.setItem('cameraPickerLevel', level);
+      
+      // 自動スクロールでギア選択セクションに移動
+      setTimeout(() => {
+        const actionsSection = document.querySelector('.actions').closest('section');
+        actionsSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 300);
     }
     
     function startPicking(mode) {
@@ -598,8 +599,42 @@
         window.location.href = url;
       }
     
+    // 統計情報を読み込む
+    async function loadStats() {
+      try {
+        // GitHub Pages対応のパス構築
+        const basePath = window.location.pathname.includes('/camerapicker/') 
+          ? '/camerapicker/' 
+          : '/';
+        
+        // カメラデータを読み込み
+        const cameraResponse = await fetch(`${basePath}data/camera.json`);
+        const cameraData = await cameraResponse.json();
+        const cameraCount = cameraData.length - 1; // ヘッダー行を除く
+        
+        // レンズデータを読み込み
+        const lensResponse = await fetch(`${basePath}data/lenses.json`);
+        const lensData = await lensResponse.json();
+        const lensCount = lensData.length - 1; // ヘッダー行を除く
+        
+        // 統計情報を更新
+        document.getElementById('camera-count').textContent = cameraCount.toLocaleString();
+        document.getElementById('lens-count').textContent = lensCount.toLocaleString();
+        
+        console.log(`📊 統計情報読み込み完了: カメラ${cameraCount}台、レンズ${lensCount}本`);
+      } catch (error) {
+        console.error('❌ 統計情報読み込みエラー:', error);
+        // フォールバック値
+        document.getElementById('camera-count').textContent = '21';
+        document.getElementById('lens-count').textContent = '21';
+      }
+    }
+
     // Initialize page
     function init() {
+      // 統計情報を読み込み
+      loadStats();
+      
       // Restore previous selections
       const savedLevel = localStorage.getItem('cameraPickerLevel');
       const savedMode = localStorage.getItem('cameraPickerMode');
@@ -635,7 +670,7 @@
     // Service Worker registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('service-worker.js')
       .then(registration => {
         console.log('SW registered: ', registration);
       })
