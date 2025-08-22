@@ -565,29 +565,7 @@
           </div>
         </div>
 
-        <ul class="feature-list">
-          <li class="feature-item">
-            <div class="feature-icon">✓</div>
-            <div class="feature-content">
-              <h4>多様な被写体への関心</h4>
-              <p>風景から人物まで、幅広い撮影ジャンルに興味を示し、それぞれに適した機材を求める傾向があります。</p>
-            </div>
-          </li>
-          <li class="feature-item">
-            <div class="feature-icon">✓</div>
-            <div class="feature-content">
-              <h4>技術的な成長への意欲</h4>
-              <p>新しい撮影技法や機材の機能を積極的に学習し、自分のスキルアップに活かそうとします。</p>
-            </div>
-          </li>
-          <li class="feature-item">
-            <div class="feature-icon">✓</div>
-            <div class="feature-content">
-              <h4>長期的な視点での機材選び</h4>
-              <p>初心者向けより、成長に合わせて長く使える機材を選ぶことを重視します。</p>
-            </div>
-          </li>
-        </ul>
+
       </section>
 
       <section class="content-section">
@@ -881,6 +859,21 @@
     document.addEventListener('DOMContentLoaded', () => {
       animateOnScroll();
       displayAIDiagnosis(); // AI診断結果を表示
+      
+      // デフォルトのアドバイスを表示（診断結果がない場合）
+      const adviceContainer = document.querySelector('.feature-list');
+      if (adviceContainer && adviceContainer.children.length === 0) {
+        const defaultAdvice = {
+          immediate: [
+            '基本の露出（絞り・シャッタースピード・ISO）を理解しましょう',
+            '構図の基本を練習してください'
+          ],
+          long_term: [
+            '撮影技術を向上させるために、定期的に練習を重ねましょう'
+          ]
+        };
+        displayAdvice(defaultAdvice);
+      }
     });
     
     // Add smooth scrolling for anchor links
