@@ -135,6 +135,11 @@
       margin-bottom: var(--spacing-16);
     }
     
+    /* Gear Selection */
+    .gear-section {
+      margin-bottom: var(--spacing-16);
+    }
+    
     .section-title {
       font-size: 1.5rem;
       font-weight: 600;
@@ -408,7 +413,7 @@
   <main>
     <section class="hero">
       <div class="container">
-        <h1 class="hero-title animate-in">まずは、あなたの撮影経験と<br>探したいギアを教えてください</h1>
+        <h1 class="hero-title animate-in">Camera Picker</h1>
         <p class="hero-subtitle animate-in-delay">
           数千台のカメラの中から、あなたの撮影スタイルと予算に最適な1台を見つけるお手伝いをします。
         </p>
@@ -440,8 +445,9 @@
       </div>
     </section>
 
-    <section>
+    <section class="gear-section">
       <div class="container">
+        <h2 class="section-title">次に、あなたは何を探していますか？</h2>
         <div class="actions">
           <a href="#" class="action-card" onclick="startPicking('body')">
             <span class="action-emoji">📸</span>
@@ -538,12 +544,24 @@
       });
       
       // Highlight selected mode
-      event.currentTarget.style.borderColor = 'var(--color-blue-500)';
+      const selectedCard = document.querySelector(`[onclick="startPicking('${mode}')"]`);
+      if (selectedCard) {
+        selectedCard.style.borderColor = 'var(--color-blue-500)';
+      }
       
       updateStartButton();
       
       // Store in localStorage  
       localStorage.setItem('cameraPickerMode', mode);
+      
+      // 診断開始ボタンにスクロール
+      setTimeout(() => {
+        const startButton = document.getElementById('start-button');
+        startButton.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 200);
     }
     
     function updateStartButton() {
