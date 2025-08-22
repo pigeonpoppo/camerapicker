@@ -550,6 +550,16 @@
 
            <script src="js/ai-diagnosis.js"></script>
       <script src="js/gpt-client.js"></script>
+      <script>
+        // AI診断システムの読み込み確認
+        window.addEventListener('load', () => {
+          if (window.cameraPickerAI) {
+            console.log('✅ AI診断システムが正常に読み込まれました');
+          } else {
+            console.error('❌ AI診断システムの読み込みに失敗しました');
+          }
+        });
+      </script>
    <script>
            // ユーザー設定を取得
       const urlParams = new URLSearchParams(window.location.search);
@@ -588,40 +598,61 @@
     let currentX = 0;
     let currentCard = null;
     
-         async function initializeApp() {
-       // Clear any previous progress to ensure fresh start
-       localStorage.removeItem('cameraPickerProgress');
-       localStorage.removeItem('cameraPickerResults');
+                   async function initializeApp() {
+        // Clear any previous progress and results to ensure fresh start
+        localStorage.removeItem('cameraPickerProgress');
+        localStorage.removeItem('cameraPickerResults');
+        
+        // Reset all variables
+        currentIndex = 0;
+        swipeHistory = [];
+        gameStats = {
+          likes: 0,
+          dislikes: 0,
+          superlikes: 0,
+          points: 0,
+          streak: 0
+        };
+        
+        // AIからカメラデータを取得
+        if (window.cameraPickerAI) {
+          sampleData = window.cameraPickerAI.selectCamerasForUser(userPreferences);
+          console.log('AI診断システムからカメラデータを取得:', sampleData.length, '台');
+        } else {
+          console.error('AI診断システムが読み込まれていません');
+          sampleData = [];
+        }
+        
+        // Hide empty state and show card stack
+        document.getElementById('empty-state').classList.remove('show');
+        document.getElementById('card-stack').style.display = 'block';
+        document.querySelector('.action-buttons').style.display = 'flex';
+        
+        updateStats();
+        showCurrentCard();
+        setupSwipeHandlers();
+        
+        console.log('診断を新規開始しました。カメラ数:', sampleData.length);
+        
+        // カメラデータが空の場合はエラー表示
+        if (sampleData.length === 0) {
+          console.error('カメラデータが取得できませんでした');
+          alert('カメラデータの読み込みに失敗しました。ページを再読み込みしてください。');
+        }
+      }
+    
+         function showCurrentCard() {
+       const cardStack = document.getElementById('card-stack');
        
-       // AIからカメラデータを取得
-       if (window.cameraPickerAI) {
-         sampleData = window.cameraPickerAI.selectCamerasForUser(userPreferences);
+       console.log(`カード表示: ${currentIndex + 1}/${sampleData.length}`);
+       
+       if (currentIndex >= sampleData.length) {
+         console.log('全てのカードを表示完了、結果画面へ');
+         showEmptyState();
+         return;
        }
        
-       // Reset to beginning
-       currentIndex = 0;
-       gameStats = {
-         likes: 0,
-         dislikes: 0,
-         superlikes: 0,
-         points: 0,
-         streak: 0
-       };
-       
-       updateStats();
-       showCurrentCard();
-       setupSwipeHandlers();
-     }
-    
-    function showCurrentCard() {
-      const cardStack = document.getElementById('card-stack');
-      
-      if (currentIndex >= sampleData.length) {
-        showEmptyState();
-        return;
-      }
-      
-      const item = sampleData[currentIndex];
+       const item = sampleData[currentIndex];
       
       // Create card element
       const card = document.createElement('div');
@@ -890,8 +921,12 @@
     `;
     document.head.appendChild(style);
     
-    // Initialize app when DOM is loaded
-    document.addEventListener('DOMContentLoaded', initializeApp);
+         // Initialize app when DOM is loaded
+     document.addEventListener('DOMContentLoaded', () => {
+       console.log('pick.html DOM読み込み完了');
+       console.log('ユーザー設定:', userPreferences);
+       initializeApp();
+     });
     
     // Handle page visibility changes
     document.addEventListener('visibilitychange', () => {
