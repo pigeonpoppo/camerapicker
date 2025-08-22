@@ -153,16 +153,6 @@
       letter-spacing: -0.02em;
     }
     
-    .article-title .line-break {
-      display: block;
-    }
-    
-    .article-title .personality-type {
-      font-size: 3.5rem;
-      display: block;
-      margin-top: 0.5rem;
-    }
-    
     .article-subtitle {
       font-size: 1.25rem;
       color: var(--color-gray-600);
@@ -532,10 +522,7 @@
     <div class="container">
       <header class="article-header">
         <div class="article-meta">Camera Picker 診断結果</div>
-        <h1 class="article-title">
-          <span class="line-break">あなたは</span>
-          <span class="personality-type">「探究型フォトグラファー」</span>
-        </h1>
+        <h1 class="article-title">あなたは<br>「探究型フォトグラファー」</h1>
         <p class="article-subtitle">
           新しい機材への好奇心が旺盛で、様々な可能性を探求することを楽しむタイプです。機材選びにも積極的で、幅広いジャンルの撮影に興味を持っています。
         </p>
@@ -667,7 +654,7 @@
           </p>
         </div>
 
-        <ul class="feature-list">
+                <ul class="feature-list">
           <!-- アドバイスはJavaScriptで動的に生成されます -->
         </ul>
       </section>
@@ -697,10 +684,7 @@
           // タイトルも更新
           const titleElement = document.querySelector('.article-title');
           if (titleElement) {
-            titleElement.innerHTML = `
-              <span class="line-break">あなたは</span>
-              <span class="personality-type">「${photographerType.type.name}」</span>
-            `;
+            titleElement.innerHTML = `あなたは<br>「${photographerType.type.name}」`;
           }
         }
         
