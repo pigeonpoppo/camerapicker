@@ -512,13 +512,28 @@
         
                 const url = `pick.html?${params.toString()}`;
         
-        // 遷移先でスクロールしたい位置を保存（ボタンが画面中央に来る位置）
-        const targetScrollY = Math.max(0, window.scrollY + 200); // 現在位置から200px下
-        sessionStorage.setItem('targetScrollPosition', targetScrollY.toString());
-        console.log('目標スクロール位置を保存:', targetScrollY);
+        // 現在のスクロール位置を保存
+        const currentScrollY = window.scrollY;
+        sessionStorage.setItem('currentScrollPosition', currentScrollY.toString());
+        console.log('現在のスクロール位置を保存:', currentScrollY);
         
-        // 直接遷移
-        window.location.href = url;
+        // ページの状態を完全に固定
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${currentScrollY}px`;
+        document.body.style.left = '0';
+        document.body.style.width = '100%';
+        document.body.style.overflow = 'hidden';
+        
+        // HTML要素も固定
+        document.documentElement.style.overflow = 'hidden';
+        document.documentElement.style.position = 'fixed';
+        document.documentElement.style.top = `-${currentScrollY}px`;
+        document.documentElement.style.width = '100%';
+        
+        // 遷移を非同期で実行
+        requestAnimationFrame(() => {
+          window.location.replace(url);
+        });
       }
     
     // 統計情報を読み込む
@@ -598,6 +613,11 @@
     
     // Run initialization when page loads
     document.addEventListener('DOMContentLoaded', init);
+    
+    // ページ離脱時にスクロール位置を保存
+    window.addEventListener('beforeunload', () => {
+      sessionStorage.setItem('currentScrollPosition', window.scrollY.toString());
+    });
   </script>
   <script src="js/common.js"></script>
   <script>

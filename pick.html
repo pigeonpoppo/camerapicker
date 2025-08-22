@@ -1182,21 +1182,28 @@
        console.log('pick.html DOM読み込み完了');
        console.log('ユーザー設定:', userPreferences);
        
-       // 目標スクロール位置に移動
-       const targetScrollPosition = sessionStorage.getItem('targetScrollPosition');
-       if (targetScrollPosition) {
-         const targetY = parseInt(targetScrollPosition);
-         console.log('目標スクロール位置に移動:', targetY);
+       // 保存されたスクロール位置を即座に復元
+       const savedScrollPosition = sessionStorage.getItem('currentScrollPosition');
+       if (savedScrollPosition) {
+         const scrollY = parseInt(savedScrollPosition);
+         console.log('スクロール位置を復元:', scrollY);
          
-         // ページ読み込み完了後にスムーズにスクロール
-         setTimeout(() => {
-           window.scrollTo({
-             top: targetY,
-             behavior: 'smooth'
-           });
-         }, 100);
-         
-         sessionStorage.removeItem('targetScrollPosition');
+                   // ページの固定状態を解除
+          document.body.style.position = '';
+          document.body.style.top = '';
+          document.body.style.left = '';
+          document.body.style.width = '';
+          document.body.style.overflow = '';
+          
+          // HTML要素の固定状態も解除
+          document.documentElement.style.overflow = '';
+          document.documentElement.style.position = '';
+          document.documentElement.style.top = '';
+          document.documentElement.style.width = '';
+          
+          // 即座にスクロール位置を復元
+          window.scrollTo(0, scrollY);
+          sessionStorage.removeItem('currentScrollPosition');
        }
        
        initializeApp();
