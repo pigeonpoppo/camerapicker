@@ -58,6 +58,7 @@
       color: var(--color-gray-900);
       line-height: 1.6;
       overflow-x: hidden;
+      scroll-behavior: smooth;
     }
     
     .container {
@@ -606,6 +607,9 @@
         
         const url = `pick.html?${params.toString()}`;
         console.log('pick.htmlに遷移:', url);
+        
+        // スクロール位置を保存
+        sessionStorage.setItem('scrollPosition', window.scrollY);
         
         // 直接pick.htmlに遷移
         window.location.href = url;

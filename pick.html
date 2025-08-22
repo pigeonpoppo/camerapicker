@@ -49,6 +49,7 @@
       line-height: 1.6;
       overflow: hidden;
       height: 100vh;
+      scroll-behavior: smooth;
     }
     
     .app-container {
@@ -1094,6 +1095,11 @@
       document.getElementById('card-stack').style.display = 'none';
       document.getElementById('empty-state').classList.add('show');
       document.querySelector('.action-buttons').style.display = 'none';
+      
+      // 結果ページに遷移
+      setTimeout(() => {
+        showResults();
+      }, 2000); // 2秒後に結果ページに遷移
     }
     
     function saveProgress() {
@@ -1160,6 +1166,16 @@
      document.addEventListener('DOMContentLoaded', () => {
        console.log('pick.html DOM読み込み完了');
        console.log('ユーザー設定:', userPreferences);
+       
+       // スクロール位置を復元
+       const savedScrollPosition = sessionStorage.getItem('scrollPosition');
+       if (savedScrollPosition) {
+         setTimeout(() => {
+           window.scrollTo(0, parseInt(savedScrollPosition));
+           sessionStorage.removeItem('scrollPosition');
+         }, 100);
+       }
+       
        initializeApp();
      });
     
