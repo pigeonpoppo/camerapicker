@@ -512,21 +512,13 @@
         
                 const url = `pick.html?${params.toString()}`;
         
-        // スクロール位置を確実に保存
-        const currentScrollY = window.scrollY;
-        sessionStorage.setItem('scrollPosition', currentScrollY.toString());
-        console.log('スクロール位置を保存:', currentScrollY);
+        // 遷移先でスクロールしたい位置を保存（ボタンが画面中央に来る位置）
+        const targetScrollY = Math.max(0, window.scrollY + 200); // 現在位置から200px下
+        sessionStorage.setItem('targetScrollPosition', targetScrollY.toString());
+        console.log('目標スクロール位置を保存:', targetScrollY);
         
-        // ページのスクロール位置を完全に固定
-        document.documentElement.style.position = 'fixed';
-        document.documentElement.style.top = `-${currentScrollY}px`;
-        document.documentElement.style.width = '100%';
-        document.documentElement.style.overflow = 'hidden';
-        
-        // 遷移前に少し待機してから遷移
-        requestAnimationFrame(() => {
-          window.location.replace(url);
-        });
+        // 直接遷移
+        window.location.href = url;
       }
     
     // 統計情報を読み込む

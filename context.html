@@ -552,21 +552,13 @@
       const mode = urlParams.get('mode') || 'body';
       const level = urlParams.get('level') || 'intermediate';
       
-      // スクロール位置を確実に保存
-      const currentScrollY = window.scrollY;
-      sessionStorage.setItem('scrollPosition', currentScrollY.toString());
-      console.log('スクロール位置を保存:', currentScrollY);
+      // 遷移先でスクロールしたい位置を保存
+      const targetScrollY = Math.max(0, window.scrollY + 200);
+      sessionStorage.setItem('targetScrollPosition', targetScrollY.toString());
+      console.log('目標スクロール位置を保存:', targetScrollY);
       
-      // ページのスクロール位置を完全に固定
-      document.documentElement.style.position = 'fixed';
-      document.documentElement.style.top = `-${currentScrollY}px`;
-      document.documentElement.style.width = '100%';
-      document.documentElement.style.overflow = 'hidden';
-      
-      // 遷移前に少し待機してから遷移
-      requestAnimationFrame(() => {
-        window.location.replace(`pick.html?mode=${mode}&level=${level}&context=true`);
-      });
+      // 直接遷移
+      window.location.href = `pick.html?mode=${mode}&level=${level}&context=true`;
     }
     
     function skipQuestions() {
@@ -576,47 +568,33 @@
         const mode = urlParams.get('mode') || 'body';
         const level = urlParams.get('level') || 'intermediate';
         
-        // スクロール位置を確実に保存
-        const currentScrollY = window.scrollY;
-        sessionStorage.setItem('scrollPosition', currentScrollY.toString());
-        console.log('スクロール位置を保存:', currentScrollY);
+        // 遷移先でスクロールしたい位置を保存
+        const targetScrollY = Math.max(0, window.scrollY + 200);
+        sessionStorage.setItem('targetScrollPosition', targetScrollY.toString());
+        console.log('目標スクロール位置を保存:', targetScrollY);
         
-        // ページのスクロール位置を完全に固定
-        document.documentElement.style.position = 'fixed';
-        document.documentElement.style.top = `-${currentScrollY}px`;
-        document.documentElement.style.width = '100%';
-        document.documentElement.style.overflow = 'hidden';
-        
-        // 遷移前に少し待機してから遷移
-        requestAnimationFrame(() => {
-          window.location.replace(`pick.html?mode=${mode}&level=${level}`);
-        });
+        // 直接遷移
+        window.location.href = `pick.html?mode=${mode}&level=${level}`;
       }
     }
     
     // Initialize
     window.onload = function() {
-      // スクロール位置を復元
-      const savedScrollPosition = sessionStorage.getItem('scrollPosition');
-      if (savedScrollPosition) {
-        const scrollY = parseInt(savedScrollPosition);
-        console.log('スクロール位置を復元:', scrollY);
+      // 目標スクロール位置に移動
+      const targetScrollPosition = sessionStorage.getItem('targetScrollPosition');
+      if (targetScrollPosition) {
+        const targetY = parseInt(targetScrollPosition);
+        console.log('目標スクロール位置に移動:', targetY);
         
-        // ページの固定状態を解除
-        document.documentElement.style.position = '';
-        document.documentElement.style.top = '';
-        document.documentElement.style.width = '';
-        document.documentElement.style.overflow = '';
+        // ページ読み込み完了後にスムーズにスクロール
+        setTimeout(() => {
+          window.scrollTo({
+            top: targetY,
+            behavior: 'smooth'
+          });
+        }, 100);
         
-        // 即座に復元
-        window.scrollTo(0, scrollY);
-        sessionStorage.removeItem('scrollPosition');
-        
-        // さらに確実にするため、複数回復元
-        setTimeout(() => window.scrollTo(0, scrollY), 10);
-        setTimeout(() => window.scrollTo(0, scrollY), 50);
-        setTimeout(() => window.scrollTo(0, scrollY), 100);
-        setTimeout(() => window.scrollTo(0, scrollY), 200);
+        sessionStorage.removeItem('targetScrollPosition');
       }
       
       initializeQuestions();
