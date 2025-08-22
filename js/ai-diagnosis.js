@@ -9,18 +9,166 @@ class CameraPickerAI {
   // データベース読み込み
   async loadDatabase() {
     try {
-      const response = await fetch('data/camera-database.json');
+      console.log('カメラデータベースを読み込み中...');
+      
+      // GitHub Pages対応のパス構築
+      const basePath = window.location.pathname.includes('/camerapicker/') 
+        ? '/camerapicker/' 
+        : '/';
+      const dataPath = `${basePath}data/camera-database.json`;
+      
+      console.log('データベースパス:', dataPath);
+      const response = await fetch(dataPath);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       this.cameraDatabase = data.cameras;
       this.photographerTypes = data.photographer_types;
+      console.log(`✅ カメラデータベース読み込み完了: ${this.cameraDatabase.length}台のカメラ`);
     } catch (error) {
-      console.error('データベース読み込みエラー:', error);
+      console.error('❌ データベース読み込みエラー:', error);
+      console.log('フォールバックデータを使用します...');
+      
+      // フォールバックデータを設定
+      this.cameraDatabase = [
+        {
+          id: "sony-a7iv",
+          brand: "Sony",
+          name: "α7 IV",
+          price: 298000,
+          price_range: "high",
+          sensor_size: "full_frame",
+          megapixels: 33,
+          features: ["4k_video", "ibis", "weather_sealed", "dual_sd"],
+          strengths: ["hybrid_shooting", "autofocus", "image_quality"],
+          weaknesses: ["battery_life", "menu_complexity"],
+          best_for: ["portrait", "wedding", "commercial", "hybrid"],
+          experience_level: ["intermediate", "advanced"],
+          budget_friendly: false,
+          compact: false,
+          image: "https://via.placeholder.com/400x300?text=Sony+α7+IV",
+          specs: "有効約3300万画素、ISO 100-51200、ボディ内手ブレ補正5軸"
+        },
+        {
+          id: "canon-r6ii",
+          brand: "Canon",
+          name: "EOS R6 Mark II",
+          price: 348000,
+          price_range: "high",
+          sensor_size: "full_frame",
+          megapixels: 24,
+          features: ["4k_video", "ibis", "weather_sealed", "dual_sd"],
+          strengths: ["autofocus", "burst_speed", "low_light"],
+          weaknesses: ["megapixels", "price"],
+          best_for: ["sports", "wildlife", "action", "low_light"],
+          experience_level: ["intermediate", "advanced"],
+          budget_friendly: false,
+          compact: false,
+          image: "https://via.placeholder.com/400x300?text=Canon+EOS+R6+Mark+II",
+          specs: "有効約2420万画素、ISO 100-102400、最高約40コマ/秒"
+        },
+        {
+          id: "fujifilm-xt5",
+          brand: "Fujifilm",
+          name: "X-T5",
+          price: 248000,
+          price_range: "medium",
+          sensor_size: "aps_c",
+          megapixels: 40,
+          features: ["4k_video", "ibis", "weather_sealed", "film_simulation"],
+          strengths: ["image_quality", "color_science", "build_quality"],
+          weaknesses: ["autofocus", "battery_life"],
+          best_for: ["street", "portrait", "landscape", "artistic"],
+          experience_level: ["beginner", "intermediate", "advanced"],
+          budget_friendly: true,
+          compact: true,
+          image: "https://via.placeholder.com/400x300?text=Fujifilm+X-T5",
+          specs: "有効約4020万画素、ISO 125-12800、5軸手ブレ補正"
+        }
+      ];
+      
+      this.photographerTypes = {
+        portrait_artist: {
+          name: "ポートレートアーティスト",
+          description: "人物撮影に特化した美しい写真を追求するタイプ",
+          camera_preferences: ["image_quality", "color_science", "bokeh"],
+          strengths: ["構図", "ライティング", "被写体とのコミュニケーション"],
+          weaknesses: ["動体撮影", "風景写真"]
+        },
+        street_photographer: {
+          name: "ストリートフォトグラファー",
+          description: "街の瞬間を捉えることを得意とするタイプ",
+          camera_preferences: ["compact", "discrete", "quick_af"],
+          strengths: ["瞬間の判断", "街の観察力", "自然な表情の撮影"],
+          weaknesses: ["スタジオ撮影", "大規模なセットアップ"]
+        },
+        landscape_master: {
+          name: "ランドスケープマスター",
+          description: "自然の美しさを表現することを追求するタイプ",
+          camera_preferences: ["dynamic_range", "resolution", "weather_sealed"],
+          strengths: ["構図", "光の理解", "忍耐力"],
+          weaknesses: ["動体撮影", "人物撮影"]
+        }
+      };
+      
+      console.log(`✅ フォールバックデータ設定完了: ${this.cameraDatabase.length}台のカメラ`);
+      console.log('📋 フォールバックデータ詳細:', {
+        cameras: this.cameraDatabase.length,
+        types: Object.keys(this.photographerTypes).length
+      });
     }
   }
 
+  // データベース読み込み待機
+  async waitForDatabase(maxWaitTime = 10000) {
+    const startTime = Date.now();
+    console.log('データベース読み込み待機開始...');
+    
+    while (!this.cameraDatabase || this.cameraDatabase.length === 0) {
+      if (Date.now() - startTime > maxWaitTime) {
+        console.error('❌ データベース読み込みタイムアウト');
+        console.log('🔄 フォールバックデータの設定を確認中...');
+        
+        // フォールバックデータが設定されているかチェック
+        if (this.cameraDatabase && this.cameraDatabase.length > 0) {
+          console.log('✅ フォールバックデータが利用可能です');
+          return true;
+        }
+        
+        return false;
+      }
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+    
+    console.log('✅ データベース読み込み完了');
+    return true;
+  }
+
   // ①の選択内容に基づいてカメラを選定
-  selectCamerasForUser(userPreferences) {
-    if (!this.cameraDatabase) return [];
+  async selectCamerasForUser(userPreferences) {
+    console.log('🔍 カメラ選択開始 - データベース状態:', {
+      hasDatabase: !!this.cameraDatabase,
+      databaseLength: this.cameraDatabase ? this.cameraDatabase.length : 0
+    });
+
+    // データベースが読み込まれるまで待機
+    if (!this.cameraDatabase || this.cameraDatabase.length === 0) {
+      console.log('データベース読み込み待機中...');
+      await this.waitForDatabase();
+    }
+
+    console.log('📊 データベース読み込み後の状態:', {
+      hasDatabase: !!this.cameraDatabase,
+      databaseLength: this.cameraDatabase ? this.cameraDatabase.length : 0
+    });
+
+    if (!this.cameraDatabase || this.cameraDatabase.length === 0) {
+      console.error('❌ カメラデータベースが利用できません');
+      return [];
+    }
 
     const {
       experience_level,
