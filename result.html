@@ -688,9 +688,153 @@
   </article>
 
   <script>
+    // AI診断結果を表示する関数
+    function displayAIDiagnosis() {
+      const results = JSON.parse(localStorage.getItem('cameraPickerResults') || '{}');
+      const diagnosisResult = results.diagnosisResult;
+      
+      if (diagnosisResult) {
+        const { photographerType, scores, likedFeatures, dislikedFeatures, recommendations, advice } = diagnosisResult;
+        
+        // フォトグラファータイプ表示
+        if (photographerType) {
+          document.querySelector('.personality-type').textContent = photographerType.type.name;
+          document.querySelector('.personality-description').textContent = photographerType.type.description;
+          
+          // タイトルも更新
+          const titleElement = document.querySelector('.article-title');
+          if (titleElement) {
+            titleElement.innerHTML = `あなたは<br>「${photographerType.type.name}」`;
+          }
+        }
+        
+        // スコア表示
+        if (scores) {
+          displayScores(scores);
+        }
+        
+        // おすすめ機材表示
+        if (recommendations && recommendations.primary) {
+          displayRecommendations(recommendations);
+        }
+        
+        // アドバイス表示
+        if (advice) {
+          displayAdvice(advice);
+        }
+      }
+    }
+    
+    function displayScores(scores) {
+      const scoreElements = {
+        'image_quality': document.querySelector('.stat-card:nth-child(1) .stat-number'),
+        'autofocus': document.querySelector('.stat-card:nth-child(2) .stat-number'),
+        'video_capability': document.querySelector('.stat-card:nth-child(3) .stat-number'),
+        'portability': document.querySelector('.stat-card:nth-child(4) .stat-number')
+      };
+      
+      if (scoreElements.image_quality) {
+        scoreElements.image_quality.textContent = scores.image_quality || 87;
+      }
+      if (scoreElements.autofocus) {
+        scoreElements.autofocus.textContent = scores.autofocus || 73;
+      }
+      if (scoreElements.video_capability) {
+        scoreElements.video_capability.textContent = scores.video_capability || 91;
+      }
+      if (scoreElements.portability) {
+        scoreElements.portability.textContent = scores.portability || 68;
+      }
+    }
+    
+    function displayRecommendations(recommendations) {
+      const recommendationCards = document.querySelectorAll('.recommendation-card');
+      
+      if (recommendations.primary && recommendationCards[0]) {
+        const primary = recommendations.primary;
+        const card = recommendationCards[0];
+        
+        card.querySelector('.recommendation-brand').textContent = primary.brand;
+        card.querySelector('.recommendation-name').textContent = primary.name;
+        card.querySelector('.recommendation-price').textContent = `¥${primary.price.toLocaleString()}`;
+        card.querySelector('img').src = primary.image;
+        card.querySelector('img').alt = primary.name;
+      }
+      
+      if (recommendations.alternatives && recommendations.alternatives.length > 0) {
+        recommendations.alternatives.forEach((alt, index) => {
+          if (recommendationCards[index + 1]) {
+            const card = recommendationCards[index + 1];
+            card.querySelector('.recommendation-brand').textContent = alt.brand;
+            card.querySelector('.recommendation-name').textContent = alt.name;
+            card.querySelector('.recommendation-price').textContent = `¥${alt.price.toLocaleString()}`;
+            card.querySelector('img').src = alt.image;
+            card.querySelector('img').alt = alt.name;
+          }
+        });
+      }
+    }
+    
+    function displayAdvice(advice) {
+      const adviceContainer = document.querySelector('.feature-list');
+      if (!adviceContainer) return;
+      
+      let adviceHTML = '';
+      
+      if (advice.immediate && advice.immediate.length > 0) {
+        advice.immediate.forEach((item, index) => {
+          adviceHTML += `
+            <li class="feature-item">
+              <div class="feature-icon">${index + 1}</div>
+              <div class="feature-content">
+                <h4>即座に実践できるアドバイス</h4>
+                <p>${item}</p>
+              </div>
+            </li>
+          `;
+        });
+      }
+      
+      if (advice.long_term && advice.long_term.length > 0) {
+        advice.long_term.forEach((item, index) => {
+          adviceHTML += `
+            <li class="feature-item">
+              <div class="feature-icon">${index + 1}</div>
+              <div class="feature-content">
+                <h4>長期的な成長アドバイス</h4>
+                <p>${item}</p>
+              </div>
+            </li>
+          `;
+        });
+      }
+      
+      if (advice.technique && advice.technique.length > 0) {
+        advice.technique.forEach((item, index) => {
+          adviceHTML += `
+            <li class="feature-item">
+              <div class="feature-icon">${index + 1}</div>
+              <div class="feature-content">
+                <h4>技術的アドバイス</h4>
+                <p>${item}</p>
+              </div>
+            </li>
+          `;
+        });
+      }
+      
+      if (adviceHTML) {
+        adviceContainer.innerHTML = adviceHTML;
+      }
+    }
+    
     function shareResults() {
+      const results = JSON.parse(localStorage.getItem('cameraPickerResults') || '{}');
+      const diagnosisResult = results.diagnosisResult;
+      const photographerType = diagnosisResult?.photographerType?.type?.name || '探究型フォトグラファー';
+      
       const title = "私の撮影スタイル診断結果";
-      const text = "Camera Pickerで診断したところ「探究型フォトグラファー」でした！";
+      const text = `Camera Pickerで診断したところ「${photographerType}」でした！`;
       const url = window.location.href;
       
       if (navigator.share) {
@@ -765,7 +909,10 @@
     }
     
     // Initialize animations when page loads
-    document.addEventListener('DOMContentLoaded', animateOnScroll);
+    document.addEventListener('DOMContentLoaded', () => {
+      animateOnScroll();
+      displayAIDiagnosis(); // AI診断結果を表示
+    });
     
     // Add smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {

@@ -395,11 +395,12 @@
     <div class="container">
       <div class="header-content">
         <a href="/" class="logo">Camera Picker</a>
-        <nav class="nav-links">
-          <a href="#" class="nav-link">使い方</a>
-          <a href="#" class="nav-link">ランキング</a>
-          <a href="#" class="nav-link">コミュニティ</a>
-        </nav>
+                 <nav class="nav-links">
+           <a href="#" class="nav-link">使い方</a>
+           <a href="#" class="nav-link">ランキング</a>
+           <a href="#" class="nav-link">コミュニティ</a>
+           <a href="settings.html" class="nav-link">設定</a>
+         </nav>
       </div>
     </div>
   </header>
@@ -571,8 +572,25 @@
        localStorage.setItem('cameraPickerLevel', selectedLevel);
        localStorage.setItem('cameraPickerMode', selectedMode);
        
-       // Always go to pick page for Tinder-style experience
-       window.location.href = `pick.html?mode=${selectedMode}&level=${selectedLevel}`;
+       // デフォルト設定を追加
+       const userPreferences = {
+         experience_level: selectedLevel,
+         mode: selectedMode,
+         budget_preference: 'medium',
+         shooting_style: [],
+         portability_importance: 'medium'
+       };
+       
+       // URLパラメータを構築
+       const params = new URLSearchParams({
+         mode: selectedMode,
+         level: selectedLevel,
+         budget: userPreferences.budget_preference,
+         portability: userPreferences.portability_importance
+       });
+       
+       // 直接pick.htmlに遷移
+       window.location.href = `pick.html?${params.toString()}`;
      }
     
     // Initialize page

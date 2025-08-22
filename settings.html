@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>設定 - Camera Picker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --color-gray-50: #fafafa;
+      --color-gray-100: #f5f5f5;
+      --color-gray-200: #e5e5e5;
+      --color-gray-300: #d4d4d4;
+      --color-gray-400: #a3a3a3;
+      --color-gray-500: #737373;
+      --color-gray-600: #525252;
+      --color-gray-700: #404040;
+      --color-gray-800: #262626;
+      --color-gray-900: #171717;
+      
+      --color-blue-500: #3b82f6;
+      --color-blue-600: #2563eb;
+      --color-green-500: #10b981;
+      --color-red-500: #ef4444;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--color-gray-50);
+      color: var(--color-gray-900);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .header p {
+      color: var(--color-gray-600);
+    }
+    
+    .settings-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .setting-group {
+      margin-bottom: 2rem;
+    }
+    
+    .setting-group:last-child {
+      margin-bottom: 0;
+    }
+    
+    .setting-label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    .setting-description {
+      color: var(--color-gray-600);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    
+    .input-group {
+      position: relative;
+    }
+    
+    .api-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--color-gray-300);
+      border-radius: 0.5rem;
+      font-family: monospace;
+      font-size: 0.875rem;
+      transition: border-color 0.2s ease;
+    }
+    
+    .api-input:focus {
+      outline: none;
+      border-color: var(--color-blue-500);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .toggle-button {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-gray-500);
+      font-size: 1.25rem;
+    }
+    
+    .toggle-button:hover {
+      color: var(--color-gray-700);
+    }
+    
+    .save-button {
+      background: var(--color-blue-500);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      width: 100%;
+    }
+    
+    .save-button:hover {
+      background: var(--color-blue-600);
+    }
+    
+    .save-button:disabled {
+      background: var(--color-gray-300);
+      cursor: not-allowed;
+    }
+    
+    .status-message {
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+      font-weight: 500;
+    }
+    
+    .status-success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    
+    .status-error {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--color-blue-500);
+      text-decoration: none;
+      font-weight: 500;
+      margin-bottom: 2rem;
+    }
+    
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .info-box h3 {
+      color: #1e40af;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .info-box p {
+      color: #1e40af;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+    
+         .info-box ul {
+       color: #1e40af;
+       font-size: 0.875rem;
+       padding-left: 1.5rem;
+     }
+     
+     .server-status {
+       margin-top: 1rem;
+     }
+     
+     .status-indicator {
+       padding: 1rem;
+       border-radius: 0.5rem;
+       font-weight: 500;
+       text-align: center;
+     }
+     
+     .status-indicator.success {
+       background: #dcfce7;
+       color: #166534;
+       border: 1px solid #bbf7d0;
+     }
+     
+     .status-indicator.error {
+       background: #fef2f2;
+       color: #dc2626;
+       border: 1px solid #fecaca;
+     }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">
+      ← ホームに戻る
+    </a>
+    
+    <div class="header">
+      <h1>設定</h1>
+      <p>Camera Pickerの設定を管理します</p>
+    </div>
+    
+    <div class="info-box">
+      <h3>🤖 AI診断機能について</h3>
+      <p>バックエンドサーバーが起動していると、GPT APIを使用した詳細でパーソナライズされたアドバイスを受けることができます。</p>
+      <ul>
+        <li>APIキーはバックエンドで安全に管理されます</li>
+        <li>サーバーが起動していなくても基本的な診断機能は利用できます</li>
+        <li>OpenAIの利用規約に従ってご利用ください</li>
+      </ul>
+    </div>
+    
+    <div class="settings-card">
+      <div class="setting-group">
+        <label class="setting-label">サーバー接続状況</label>
+        <p class="setting-description">
+          バックエンドサーバーの接続状況を確認します。
+        </p>
+        <div class="server-status" id="server-status">
+          <div class="status-indicator">🔄 確認中...</div>
+        </div>
+      </div>
+      
+      <div class="setting-group">
+        <label class="setting-label">サーバー設定</label>
+        <p class="setting-description">
+          バックエンドサーバーのURLを設定します（開発環境用）。
+        </p>
+        <div class="input-group">
+          <input type="text" id="server-url-input" class="api-input" placeholder="http://localhost:3000" />
+        </div>
+      </div>
+      
+      <button type="button" class="save-button" onclick="saveSettings()">
+        設定を保存
+      </button>
+      
+      <div id="status-message" class="status-message" style="display: none;"></div>
+    </div>
+  </div>
+
+  <script>
+    // サーバー接続状況をチェック
+    async function checkServerStatus() {
+      const statusElement = document.getElementById('server-status');
+      const serverUrl = document.getElementById('server-url-input').value || 'http://localhost:3000';
+      
+      try {
+        const response = await fetch(`${serverUrl}/api/health`);
+        const data = await response.json();
+        
+        if (data.status === 'ok') {
+          statusElement.innerHTML = `
+            <div class="status-indicator success">
+              ✅ サーバー接続成功
+              ${data.hasApiKey ? '<br><small>GPT API: 利用可能</small>' : '<br><small>GPT API: 未設定</small>'}
+            </div>
+          `;
+        } else {
+          statusElement.innerHTML = `
+            <div class="status-indicator error">
+              ❌ サーバーエラー
+            </div>
+          `;
+        }
+      } catch (error) {
+        statusElement.innerHTML = `
+          <div class="status-indicator error">
+            ❌ サーバーに接続できません
+            <br><small>サーバーが起動しているか確認してください</small>
+          </div>
+        `;
+      }
+    }
+    
+    // 設定を保存
+    function saveSettings() {
+      const serverUrl = document.getElementById('server-url-input').value.trim();
+      
+      try {
+        // ローカルストレージに保存
+        if (serverUrl) {
+          localStorage.setItem('server_url', serverUrl);
+        } else {
+          localStorage.removeItem('server_url');
+        }
+        
+        // GPTクライアントのURLを更新
+        if (window.gptClient) {
+          window.gptClient.serverURL = serverUrl || 'http://localhost:3000';
+          window.gptClient.checkServerHealth();
+        }
+        
+        showStatus('設定を保存しました！', 'success');
+        
+        // 接続状況を再チェック
+        setTimeout(checkServerStatus, 1000);
+      } catch (error) {
+        showStatus('設定の保存に失敗しました。', 'error');
+      }
+    }
+    
+    // ステータスメッセージを表示
+    function showStatus(message, type) {
+      const statusMessage = document.getElementById('status-message');
+      statusMessage.textContent = message;
+      statusMessage.className = `status-message status-${type}`;
+      statusMessage.style.display = 'block';
+      
+      setTimeout(() => {
+        statusMessage.style.display = 'none';
+      }, 3000);
+    }
+    
+    // ページ読み込み時の処理
+    document.addEventListener('DOMContentLoaded', () => {
+      // 保存されたサーバーURLを復元
+      const savedServerUrl = localStorage.getItem('server_url');
+      if (savedServerUrl) {
+        document.getElementById('server-url-input').value = savedServerUrl;
+      }
+      
+      // サーバー接続状況をチェック
+      checkServerStatus();
+    });
+  </script>
+</body>
+</html>

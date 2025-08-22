@@ -548,110 +548,31 @@
     </main>
   </div>
 
-  <script>
-         // Sample data - would be loaded from API in production
-     const sampleData = [
-       {
-         id: 1,
-         brand: "Sony",
-         name: "α7 IV",
-         price: "¥298,000",
-         image: "https://via.placeholder.com/400x300?text=Sony+α7+IV",
-         features: ["フルサイズ", "手ブレ補正", "4K動画"],
-         specs: "有効約3300万画素、ISO 100-51200、ボディ内手ブレ補正5軸",
-         rarity: "common"
-       },
-       {
-         id: 2,
-         brand: "Canon",
-         name: "EOS R6 Mark II",
-         price: "¥348,000",
-         image: "https://via.placeholder.com/400x300?text=Canon+EOS+R6+Mark+II",
-         features: ["高感度", "連写", "デュアルピクセルAF"],
-         specs: "有効約2420万画素、ISO 100-102400、最高約40コマ/秒",
-         rarity: "rare"
-       },
-       {
-         id: 3,
-         brand: "Fujifilm",
-         name: "X-T5",
-         price: "¥248,000",
-         image: "https://via.placeholder.com/400x300?text=Fujifilm+X-T5",
-         features: ["高解像度", "フィルムシミュレーション", "クラシックデザイン"],
-         specs: "有効約4020万画素、ISO 125-12800、5軸手ブレ補正",
-         rarity: "uncommon"
-       },
-       {
-         id: 4,
-         brand: "Nikon",
-         name: "Z6 II",
-         price: "¥278,000",
-         image: "https://via.placeholder.com/400x300?text=Nikon+Z6+II",
-         features: ["フルサイズ", "高感度", "デュアルEXPEED"],
-         specs: "有効約2450万画素、ISO 100-51200、最高約14コマ/秒",
-         rarity: "common"
-       },
-       {
-         id: 5,
-         brand: "Panasonic",
-         name: "LUMIX S5",
-         price: "¥198,000",
-         image: "https://via.placeholder.com/400x300?text=Panasonic+S5",
-         features: ["フルサイズ", "動画特化", "手ブレ補正"],
-         specs: "有効約2420万画素、ISO 100-51200、4K60p動画対応",
-         rarity: "common"
-       },
-       {
-         id: 6,
-         brand: "Canon",
-         name: "EOS R8",
-         price: "¥198,000",
-         image: "https://via.placeholder.com/400x300?text=Canon+EOS+R8",
-         features: ["軽量", "高速AF", "4K動画"],
-         specs: "有効約2420万画素、ISO 100-102400、最高約40コマ/秒",
-         rarity: "uncommon"
-       },
-       {
-         id: 7,
-         brand: "Sony",
-         name: "α7C II",
-         price: "¥248,000",
-         image: "https://via.placeholder.com/400x300?text=Sony+α7C+II",
-         features: ["コンパクト", "フルサイズ", "手ブレ補正"],
-         specs: "有効約3300万画素、ISO 100-51200、5軸手ブレ補正",
-         rarity: "uncommon"
-       },
-       {
-         id: 8,
-         brand: "Fujifilm",
-         name: "X-S20",
-         price: "¥148,000",
-         image: "https://via.placeholder.com/400x300?text=Fujifilm+X-S20",
-         features: ["軽量", "動画特化", "長時間撮影"],
-         specs: "有効約2610万画素、ISO 160-12800、6.2K動画対応",
-         rarity: "common"
-       },
-       {
-         id: 9,
-         brand: "OM System",
-         name: "OM-5",
-         price: "¥128,000",
-         image: "https://via.placeholder.com/400x300?text=OM+System+OM-5",
-         features: ["軽量", "防塵防滴", "手ブレ補正"],
-         specs: "有効約2040万画素、ISO 200-25600、5軸手ブレ補正",
-         rarity: "common"
-       },
-       {
-         id: 10,
-         brand: "Canon",
-         name: "EOS R7",
-         price: "¥198,000",
-         image: "https://via.placeholder.com/400x300?text=Canon+EOS+R7",
-         features: ["APS-C", "高速連写", "スポーツ対応"],
-         specs: "有効約3250万画素、ISO 100-32000、最高約30コマ/秒",
-         rarity: "rare"
-       }
-     ];
+           <script src="js/ai-diagnosis.js"></script>
+      <script src="js/gpt-client.js"></script>
+   <script>
+           // ユーザー設定を取得
+      const urlParams = new URLSearchParams(window.location.search);
+      const userPreferences = {
+        experience_level: urlParams.get('level') || 'intermediate',
+        mode: urlParams.get('mode') || 'body',
+        budget_preference: urlParams.get('budget') || 'medium',
+        shooting_style: urlParams.get('style') ? urlParams.get('style').split(',') : [],
+        portability_importance: urlParams.get('portability') || 'medium'
+      };
+
+      // GPTクライアントの初期化
+      if (window.gptClient) {
+        const savedServerUrl = localStorage.getItem('server_url');
+        if (savedServerUrl) {
+          window.gptClient.serverURL = savedServerUrl;
+          window.gptClient.checkServerHealth();
+        }
+      }
+
+           // AIからカメラデータを取得
+      let sampleData = [];
+      let swipeHistory = [];
     
     let currentIndex = 0;
     let gameStats = {
@@ -667,10 +588,15 @@
     let currentX = 0;
     let currentCard = null;
     
-         function initializeApp() {
+         async function initializeApp() {
        // Clear any previous progress to ensure fresh start
        localStorage.removeItem('cameraPickerProgress');
        localStorage.removeItem('cameraPickerResults');
+       
+       // AIからカメラデータを取得
+       if (window.cameraPickerAI) {
+         sampleData = window.cameraPickerAI.selectCamerasForUser(userPreferences);
+       }
        
        // Reset to beginning
        currentIndex = 0;
@@ -741,57 +667,64 @@
       document.getElementById('points').textContent = gameStats.points;
     }
     
-    function swipeCard(action) {
-      if (!currentCard || currentIndex >= sampleData.length) return;
-      
-      const item = sampleData[currentIndex];
-      
-      // Calculate points based on action and rarity
-      let points = 0;
-      switch (action) {
-        case 'like':
-          gameStats.likes++;
-          gameStats.streak++;
-          points = item.rarity === 'rare' ? 20 : item.rarity === 'uncommon' ? 15 : 10;
-          currentCard.classList.add('swipe-right');
-          break;
-        case 'dislike':
-          gameStats.dislikes++;
-          gameStats.streak = 0;
-          points = 2;
-          currentCard.classList.add('swipe-left');
-          break;
-        case 'superlike':
-          gameStats.superlikes++;
-          gameStats.streak++;
-          points = item.rarity === 'rare' ? 50 : item.rarity === 'uncommon' ? 35 : 25;
-          // Super like animation
-          currentCard.style.transform = 'translateY(-100vh) scale(0.8)';
-          currentCard.style.opacity = '0';
-          break;
-      }
-      
-      // Add streak bonus
-      if (gameStats.streak >= 3) {
-        points += Math.floor(gameStats.streak / 3) * 5;
-      }
-      
-      gameStats.points += points;
-      
-      // Show points animation
-      if (points > 10) {
-        showPointsAnimation(points);
-      }
-      
-      updateStats();
-      saveProgress();
-      
-      // Move to next card
-      setTimeout(() => {
-        currentIndex++;
-        showCurrentCard();
-      }, 300);
-    }
+         function swipeCard(action) {
+       if (!currentCard || currentIndex >= sampleData.length) return;
+       
+       const item = sampleData[currentIndex];
+       
+       // スワイプ履歴を記録
+       swipeHistory.push({
+         camera_id: item.id,
+         action: action,
+         timestamp: Date.now()
+       });
+       
+       // Calculate points based on action and rarity
+       let points = 0;
+       switch (action) {
+         case 'like':
+           gameStats.likes++;
+           gameStats.streak++;
+           points = item.rarity === 'rare' ? 20 : item.rarity === 'uncommon' ? 15 : 10;
+           currentCard.classList.add('swipe-right');
+           break;
+         case 'dislike':
+           gameStats.dislikes++;
+           gameStats.streak = 0;
+           points = 2;
+           currentCard.classList.add('swipe-left');
+           break;
+         case 'superlike':
+           gameStats.superlikes++;
+           gameStats.streak++;
+           points = item.rarity === 'rare' ? 50 : item.rarity === 'uncommon' ? 35 : 25;
+           // Super like animation
+           currentCard.style.transform = 'translateY(-100vh) scale(0.8)';
+           currentCard.style.opacity = '0';
+           break;
+       }
+       
+       // Add streak bonus
+       if (gameStats.streak >= 3) {
+         points += Math.floor(gameStats.streak / 3) * 5;
+       }
+       
+       gameStats.points += points;
+       
+       // Show points animation
+       if (points > 10) {
+         showPointsAnimation(points);
+       }
+       
+       updateStats();
+       saveProgress();
+       
+       // Move to next card
+       setTimeout(() => {
+         currentIndex++;
+         showCurrentCard();
+       }, 300);
+     }
     
     function showPointsAnimation(points) {
       const animation = document.createElement('div');
@@ -912,15 +845,39 @@
       }
     }
     
-    function showResults() {
-      // Save final results
-      localStorage.setItem('cameraPickerResults', JSON.stringify({
-        gameStats,
-        completedAt: new Date().toISOString()
-      }));
-      
-      window.location.href = 'result.html';
-    }
+                   async function showResults() {
+        // AI診断結果を生成
+        if (window.cameraPickerAI) {
+          try {
+            const userType = window.cameraPickerAI.analyzeUserType(swipeHistory, userPreferences);
+            const diagnosisResult = await window.cameraPickerAI.generateDiagnosisResult(userType, swipeHistory, userPreferences);
+            
+            // Save final results
+            localStorage.setItem('cameraPickerResults', JSON.stringify({
+              gameStats,
+              diagnosisResult,
+              userPreferences,
+              swipeHistory,
+              completedAt: new Date().toISOString()
+            }));
+          } catch (error) {
+            console.error('診断結果生成エラー:', error);
+            // フォールバック
+            localStorage.setItem('cameraPickerResults', JSON.stringify({
+              gameStats,
+              completedAt: new Date().toISOString()
+            }));
+          }
+        } else {
+          // フォールバック
+          localStorage.setItem('cameraPickerResults', JSON.stringify({
+            gameStats,
+            completedAt: new Date().toISOString()
+          }));
+        }
+        
+        window.location.href = 'result.html';
+      }
     
     // Add CSS for points animation
     const style = document.createElement('style');
