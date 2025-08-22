@@ -522,7 +522,7 @@
     <div class="container">
       <header class="article-header">
         <div class="article-meta">Camera Picker 診断結果</div>
-        <h1 class="article-title">あなたは<br>「探究型フォトグラファー」</h1>
+        <h1 class="article-title">あなたは「探究型フォトグラファー」</h1>
         <p class="article-subtitle">
           新しい機材への好奇心が旺盛で、様々な可能性を探求することを楽しむタイプです。機材選びにも積極的で、幅広いジャンルの撮影に興味を持っています。
         </p>
@@ -662,7 +662,7 @@
           // タイトルも更新
           const titleElement = document.querySelector('.article-title');
           if (titleElement) {
-            titleElement.innerHTML = `あなたは<br>「${photographerType.type.name}」`;
+            titleElement.innerHTML = `あなたは「${photographerType.type.name}」`;
           }
         }
         
@@ -740,8 +740,10 @@
       let adviceHTML = '';
       let adviceNumber = 1;
       
+      // 即座に実践できるアドバイス（最大2個）
       if (advice.immediate && advice.immediate.length > 0) {
-        advice.immediate.forEach((item) => {
+        const immediateAdvice = advice.immediate.slice(0, 2);
+        immediateAdvice.forEach((item) => {
           adviceHTML += `
             <li class="feature-item">
               <div class="feature-icon">${adviceNumber}</div>
@@ -755,8 +757,10 @@
         });
       }
       
+      // 長期的な成長アドバイス（最大1個）
       if (advice.long_term && advice.long_term.length > 0) {
-        advice.long_term.forEach((item) => {
+        const longTermAdvice = advice.long_term.slice(0, 1);
+        longTermAdvice.forEach((item) => {
           adviceHTML += `
             <li class="feature-item">
               <div class="feature-icon">${adviceNumber}</div>
@@ -770,9 +774,34 @@
         });
       }
       
-      if (adviceHTML) {
-        adviceContainer.innerHTML = adviceHTML;
+      // アドバイスがない場合はデフォルトを表示
+      if (!adviceHTML) {
+        adviceHTML = `
+          <li class="feature-item">
+            <div class="feature-icon">1</div>
+            <div class="feature-content">
+              <h4>即座に実践できるアドバイス</h4>
+              <p>基本の露出（絞り・シャッタースピード・ISO）を理解しましょう</p>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">2</div>
+            <div class="feature-content">
+              <h4>即座に実践できるアドバイス</h4>
+              <p>構図の基本を練習してください</p>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">3</div>
+            <div class="feature-content">
+              <h4>長期的な成長アドバイス</h4>
+              <p>撮影技術を向上させるために、定期的に練習を重ねましょう</p>
+            </div>
+          </li>
+        `;
       }
+      
+      adviceContainer.innerHTML = adviceHTML;
     }
     
     function shareResults() {
@@ -859,21 +888,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       animateOnScroll();
       displayAIDiagnosis(); // AI診断結果を表示
-      
-      // デフォルトのアドバイスを表示（診断結果がない場合）
-      const adviceContainer = document.querySelector('.feature-list');
-      if (adviceContainer && adviceContainer.children.length === 0) {
-        const defaultAdvice = {
-          immediate: [
-            '基本の露出（絞り・シャッタースピード・ISO）を理解しましょう',
-            '構図の基本を練習してください'
-          ],
-          long_term: [
-            '撮影技術を向上させるために、定期的に練習を重ねましょう'
-          ]
-        };
-        displayAdvice(defaultAdvice);
-      }
     });
     
     // Add smooth scrolling for anchor links
