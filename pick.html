@@ -220,7 +220,7 @@
     
     .camera-card.dragging {
       transition: none;
-      z-index: 10;
+      z-index: 15;
     }
     
     .camera-card.swipe-left {
@@ -478,21 +478,24 @@
       opacity: 0;
       transition: opacity 0.2s ease;
       pointer-events: none;
-      z-index: 5;
+      z-index: 20;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     
     .swipe-indicator.like {
-      right: 1rem;
+      right: 2rem;
       background: var(--color-green-500);
       color: white;
       transform: translateY(-50%) rotate(20deg);
+      font-size: 1.25rem;
     }
     
     .swipe-indicator.dislike {
-      left: 1rem;
+      left: 2rem;
       background: var(--color-red-500);
       color: white;
       transform: translateY(-50%) rotate(-20deg);
+      font-size: 1.25rem;
     }
     
     /* Empty State */
@@ -643,7 +646,7 @@
 
     <main class="main-content">
       <div class="card-stack" id="card-stack">
-        <!-- Cards will be dynamically inserted here -->
+    
       </div>
       
       <div class="empty-state" id="empty-state">
@@ -673,7 +676,7 @@
         // AI診断システムの読み込み確認
         window.addEventListener('load', () => {
           if (window.cameraPickerAI) {
-            console.log('✅ AI診断システムが正常に読み込まれました');
+            // AI診断システムが正常に読み込まれました
           } else {
             console.error('❌ AI診断システムの読み込みに失敗しました');
           }
@@ -743,7 +746,7 @@
         if (window.cameraPickerAI) {
           try {
             sampleData = await window.cameraPickerAI.selectCamerasForUser(userPreferences);
-            console.log('AI診断システムからカメラデータを取得:', sampleData.length, '台');
+
           } catch (error) {
             console.error('❌ カメラデータ取得エラー:', error);
             sampleData = [];
@@ -831,14 +834,26 @@
           ${stackIndex === 0 ? createCardDetails(item) : ''}
         </div>
         ${stackIndex === 0 ? `
-          <div class="swipe-indicator like">LIKE</div>
-          <div class="swipe-indicator dislike">NOPE</div>
           <div class="scroll-hint">
             <span>↓</span>
             <span>詳細をスクロールで確認</span>
           </div>
         ` : ''}
       `;
+      
+      // スワイプインジケーターをカードの外に追加
+      if (stackIndex === 0) {
+        const likeIndicator = document.createElement('div');
+        likeIndicator.className = 'swipe-indicator like';
+        likeIndicator.textContent = 'LIKE';
+        
+        const dislikeIndicator = document.createElement('div');
+        dislikeIndicator.className = 'swipe-indicator dislike';
+        dislikeIndicator.textContent = 'NOPE';
+        
+        card.appendChild(likeIndicator);
+        card.appendChild(dislikeIndicator);
+      }
       
       return card;
     }
@@ -1167,13 +1182,17 @@
        console.log('pick.html DOM読み込み完了');
        console.log('ユーザー設定:', userPreferences);
        
-       // スクロール位置を復元
+       // スクロール位置を復元（より確実に）
        const savedScrollPosition = sessionStorage.getItem('scrollPosition');
        if (savedScrollPosition) {
+         // 即座に復元
+         window.scrollTo(0, parseInt(savedScrollPosition));
+         sessionStorage.removeItem('scrollPosition');
+         
+         // さらに確実にするため、少し遅れて再度復元
          setTimeout(() => {
            window.scrollTo(0, parseInt(savedScrollPosition));
-           sessionStorage.removeItem('scrollPosition');
-         }, 100);
+         }, 50);
        }
        
        initializeApp();
