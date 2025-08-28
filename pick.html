@@ -754,12 +754,15 @@
    <script>
            // ユーザー設定を取得
       const urlParams = new URLSearchParams(window.location.search);
+      const conditions = JSON.parse(localStorage.getItem('cameraPickerConditions') || '{}');
+      
       const userPreferences = {
-        experience_level: urlParams.get('level') || 'intermediate',
-        mode: urlParams.get('mode') || 'body',
-        budget_preference: urlParams.get('budget') || 'medium',
-        shooting_style: urlParams.get('style') ? urlParams.get('style').split(',') : [],
-        portability_importance: urlParams.get('portability') || 'medium'
+        experience_level: urlParams.get('level') || localStorage.getItem('cameraPickerLevel') || 'intermediate',
+        mode: urlParams.get('mode') || localStorage.getItem('cameraPickerMode') || 'body',
+        budget_preference: urlParams.get('budget') || conditions.budget || 'medium',
+        shooting_style: urlParams.get('style') ? urlParams.get('style').split(',') : (conditions.categories || []),
+        portability_importance: urlParams.get('portability') || 'medium',
+        priorities: conditions.priorities || []
       };
 
              // GPTクライアントの初期化
@@ -861,13 +864,30 @@
               // 条件入力時はユーザー設定に基づいて選択
               sampleData = await window.cameraPickerAI.selectCamerasForUser(userPreferences);
             }
+            
+            // データが空の場合はフォールバック
+            if (!sampleData || sampleData.length === 0) {
+              console.warn('⚠️ AI診断でデータが取得できませんでした。フォールバックを使用します。');
+              sampleData = await getCamerasByReleaseDate();
+            }
           } catch (error) {
             console.error('❌ カメラデータ取得エラー:', error);
-            sampleData = [];
+            // エラー時はフォールバック
+            try {
+              sampleData = await getCamerasByReleaseDate();
+            } catch (fallbackError) {
+              console.error('❌ フォールバックも失敗:', fallbackError);
+              sampleData = [];
+            }
           }
         } else {
-          console.error('❌ AI診断システムが読み込まれていません');
-          sampleData = [];
+          console.error('❌ AI診断システムが読み込まれていません。フォールバックを使用します。');
+          try {
+            sampleData = await getCamerasByReleaseDate();
+          } catch (fallbackError) {
+            console.error('❌ フォールバックも失敗:', fallbackError);
+            sampleData = [];
+          }
         }
         
         // Hide empty state and show card stack
@@ -929,23 +949,42 @@
       const card = document.createElement('div');
       card.className = `camera-card ${stackIndex === 1 ? 'card-behind-1' : stackIndex === 2 ? 'card-behind-2' : ''}`;
       
+      // データベースフィールド名に合わせてマッピング
+      const cameraData = {
+        image: item['画像URL'] || '/images/cameras/default-camera.jpg',
+        name: item['カメラ名'] || 'カメラ名不明',
+        brand: item['メーカー'] || 'メーカー不明',
+        price: item['新品価格'] || item['中古価格'] || null,
+        type: item['タイプ（レンズ交換式など）'] || '',
+        megapixels: item['画素数'] || '',
+        sensor: item['撮像素子'] || '',
+        year: item['発売年'] || '',
+        mount: item['レンズマウント'] || '',
+        features: [
+          item['タイプ（レンズ交換式など）'],
+          item['画素数'] ? `${item['画素数']}画素` : '',
+          item['撮像素子'] || '',
+          item['4K対応'] || ''
+        ].filter(Boolean)
+      };
+      
       card.innerHTML = `
-        <img src="${item.image}" alt="${item.name}" class="card-image" loading="lazy">
+        <img src="${cameraData.image}" alt="${cameraData.name}" class="card-image" loading="lazy" onerror="this.src='/images/cameras/default-camera.jpg'">
         <div class="card-content">
           <div class="card-header">
-            <div class="card-brand">${item.brand}</div>
-            <h2 class="card-name">${item.name}</h2>
-            <div class="card-price">¥${item.price?.toLocaleString() || 'お問い合わせ'}</div>
+            <div class="card-brand">${cameraData.brand}</div>
+            <h2 class="card-name">${cameraData.name}</h2>
+            <div class="card-price">${cameraData.price ? `¥${cameraData.price}` : '価格未定'}</div>
           </div>
           <div class="card-features">
             <div class="feature-tags">
-              ${item.features?.map(feature => 
+              ${cameraData.features.map(feature => 
                 `<span class="feature-tag ${Math.random() > 0.7 ? 'highlight' : ''}">${feature}</span>`
-              ).join('') || ''}
+              ).join('')}
             </div>
-            <div class="card-specs">${item.specs || ''}</div>
+            <div class="card-specs">${cameraData.type} | ${cameraData.year}年発売</div>
           </div>
-          ${stackIndex === 0 ? createCardDetails(item) : ''}
+          ${stackIndex === 0 ? createCardDetails(cameraData) : ''}
         </div>
         ${stackIndex === 0 ? `
           <div class="scroll-hint">
@@ -972,7 +1011,7 @@
       return card;
     }
     
-    function createCardDetails(item) {
+    function createCardDetails(cameraData) {
       return `
         <div class="card-details">
           <div class="detail-section">
@@ -982,45 +1021,51 @@
             </div>
             <ul class="detail-list">
               <li class="detail-item">
-                <span class="detail-label">センサーサイズ</span>
-                <span class="detail-value">${item.sensor_size || '-'}</span>
+                <span class="detail-label">カメラタイプ</span>
+                <span class="detail-value">${cameraData.type || '-'}</span>
               </li>
               <li class="detail-item">
                 <span class="detail-label">画素数</span>
-                <span class="detail-value">${item.megapixels ? item.megapixels + 'MP' : '-'}</span>
+                <span class="detail-value">${cameraData.megapixels || '-'}</span>
               </li>
               <li class="detail-item">
-                <span class="detail-label">価格帯</span>
-                <span class="detail-value">${item.price_range || '-'}</span>
+                <span class="detail-label">撮像素子</span>
+                <span class="detail-value">${cameraData.sensor || '-'}</span>
+              </li>
+              <li class="detail-item">
+                <span class="detail-label">レンズマウント</span>
+                <span class="detail-value">${cameraData.mount || '-'}</span>
               </li>
             </ul>
           </div>
           
           <div class="detail-section">
             <div class="detail-title">
-              <span>⭐</span>
-              <span>強み</span>
+              <span>💰</span>
+              <span>価格情報</span>
             </div>
             <ul class="detail-list">
-              ${item.strengths?.map(strength => 
-                `<li class="detail-item">
-                  <span class="detail-label">${strength}</span>
-                  <span class="detail-value">✓</span>
-                </li>`
-              ).join('') || '<li class="detail-item"><span class="detail-label">情報なし</span></li>'}
+              <li class="detail-item">
+                <span class="detail-label">新品価格</span>
+                <span class="detail-value">${cameraData.price || '価格未定'}</span>
+              </li>
+              <li class="detail-item">
+                <span class="detail-label">発売年</span>
+                <span class="detail-value">${cameraData.year || '-'}</span>
+              </li>
             </ul>
           </div>
           
           <div class="detail-section">
             <div class="detail-title">
               <span>🎯</span>
-              <span>適用シーン</span>
+              <span>特徴</span>
             </div>
             <ul class="detail-list">
-              ${item.best_for?.map(scene => 
+              ${cameraData.features.map(feature => 
                 `<li class="detail-item">
-                  <span class="detail-label">${scene}</span>
-                  <span class="detail-value">◎</span>
+                  <span class="detail-label">${feature}</span>
+                  <span class="detail-value">✓</span>
                 </li>`
               ).join('') || '<li class="detail-item"><span class="detail-label">情報なし</span></li>'}
             </ul>

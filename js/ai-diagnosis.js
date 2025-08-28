@@ -141,37 +141,53 @@ class CameraPickerAI {
     const scoredCameras = this.cameraDatabase.map(camera => {
       let score = 0;
 
-      // 経験レベルマッチング
-      if (camera.experience_level && camera.experience_level.includes(experience_level)) {
-        score += 20;
+      // 経験レベルマッチング（発売年から推測）
+      const cameraYear = parseInt(camera['発売年']) || 2000;
+      const currentYear = new Date().getFullYear();
+      const cameraAge = currentYear - cameraYear;
+      
+      if (experience_level === 'beginner' && cameraAge <= 5) {
+        score += 20; // 初心者には新しいカメラ
+      } else if (experience_level === 'advanced' && cameraAge >= 3) {
+        score += 15; // 上級者には安定したカメラ
+      } else {
+        score += 10;
       }
 
       // 予算マッチング
-      if (budget_preference === 'low' && camera.budget_friendly) {
-        score += 15;
-      } else if (budget_preference === 'high' && !camera.budget_friendly) {
-        score += 15;
-      } else if (budget_preference === 'medium') {
-        score += 10;
+      const budgetValue = parseInt(budget_preference) || 15;
+      const cameraPrice = parseInt(camera['新品価格']) || parseInt(camera['中古価格']) || 0;
+      
+      if (budgetValue <= 10 && cameraPrice <= 100000) {
+        score += 15; // 低予算
+      } else if (budgetValue >= 30 && cameraPrice >= 200000) {
+        score += 15; // 高予算
+      } else if (budgetValue >= 10 && budgetValue <= 30) {
+        score += 10; // 中予算
       }
 
-      // 撮影スタイルマッチング
-      if (shooting_style && camera.best_for.some(style => 
-        shooting_style.includes(style))) {
-        score += 10;
+      // 撮影スタイルマッチング（カメラタイプから推測）
+      const cameraType = camera['タイプ（レンズ交換式など）'] || '';
+      if (shooting_style && shooting_style.length > 0) {
+        if (shooting_style.includes('portrait') && cameraType.includes('一眼レフ')) {
+          score += 10;
+        } else if (shooting_style.includes('landscape') && cameraType.includes('ミラーレス')) {
+          score += 10;
+        } else if (shooting_style.includes('street') && cameraType.includes('コンパクト')) {
+          score += 10;
+        }
       }
 
       // 携帯性マッチング
-      if (portability_importance === 'high' && camera.compact) {
+      if (portability_importance === 'high' && cameraType.includes('コンパクト')) {
         score += 10;
-      } else if (portability_importance === 'low' && !camera.compact) {
+      } else if (portability_importance === 'low' && cameraType.includes('一眼レフ')) {
         score += 5;
       }
 
-      // 汎用性ボーナス
-      if (camera.best_for.length > 3) {
-        score += 5;
-      }
+      // データ品質ボーナス
+      const qualityScore = parseInt(camera['データ品質スコア']) || 0;
+      score += qualityScore * 2;
 
       return { ...camera, score };
     });
@@ -214,10 +230,11 @@ class CameraPickerAI {
     }
 
     // 予算から性格を推測
-    if (userPreferences.budget_preference === 'low') {
+    const budgetValue = parseInt(userPreferences.budget_preference) || 15;
+    if (budgetValue <= 10) {
       traits.push('コスト意識');
       characteristics.push('効率重視');
-    } else if (userPreferences.budget_preference === 'high') {
+    } else if (budgetValue >= 30) {
       traits.push('プレミアム志向');
       characteristics.push('品質重視');
     } else {

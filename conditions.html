@@ -649,8 +649,18 @@
         priorities: Array.from(document.querySelectorAll('#priority-items .category-checkbox:checked')).map(cb => cb.value)
       };
       
+      // localStorageに保存
       localStorage.setItem('cameraPickerConditions', JSON.stringify(conditions));
-      window.location.href = 'pick.html';
+      
+      // URLパラメータを構築
+      const params = new URLSearchParams();
+      if (conditions.categories.length > 0) {
+        params.set('style', conditions.categories.join(','));
+      }
+      params.set('budget', conditions.budget);
+      
+      // ピック画面に遷移
+      window.location.href = `pick.html?${params.toString()}`;
     }
     
     // 初期化
