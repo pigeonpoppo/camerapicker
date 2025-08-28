@@ -420,7 +420,7 @@ class CameraPickerAI {
     const recommendations = this.generateRecommendations(userType, scores, userPreferences);
 
     // レベル別アドバイスを生成
-    const advice = this.generateLevelAdvice(userType.experience_level, userType.traits);
+    const advice = this.generateLevelAdvice(userType.experience_level || 'intermediate', userType.traits || []);
 
     return {
       photographerType: userType,
