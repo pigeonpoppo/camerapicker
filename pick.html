@@ -800,17 +800,17 @@
           ? '/camerapicker/' 
           : '/';
         
-        // カメラデータベースを読み込み
-        const response = await fetch(`${basePath}camera_database.json`);
-        const data = await response.json();
+        // カメラデータを読み込み
+        const response = await fetch(`${basePath}camera.json`);
+        const cameras = await response.json();
         
-        if (!data.cameras || data.cameras.length === 0) {
+        if (!cameras || cameras.length === 0) {
           console.error('❌ カメラデータが取得できません');
           return [];
         }
         
         // 発売年でソート（新しい順）
-        const sortedCameras = data.cameras
+        const sortedCameras = cameras
           .filter(camera => camera['発売年']) // 発売年が存在するもののみ
           .sort((a, b) => {
             const yearA = parseInt(a['発売年']) || 0;

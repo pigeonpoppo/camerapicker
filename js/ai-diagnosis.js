@@ -14,7 +14,7 @@ class CameraPickerAI {
       const basePath = window.location.pathname.includes('/camerapicker/') 
         ? '/camerapicker/' 
         : '/';
-      const dataPath = `${basePath}camera_database.json`;
+      const dataPath = `${basePath}camera.json`;
       
       console.log('データベースパス:', dataPath);
       const response = await fetch(dataPath);
@@ -24,7 +24,7 @@ class CameraPickerAI {
       }
       
       const data = await response.json();
-      this.cameraDatabase = data.cameras || [];
+      this.cameraDatabase = data || [];
       console.log(`✅ カメラデータベース読み込み完了: ${this.cameraDatabase.length}台のカメラ`);
     } catch (error) {
       console.error('❌ データベース読み込みエラー:', error);
