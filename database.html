@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>カメラデータベース - Camera Picker</title>
+  <link rel="stylesheet" href="css/common.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--color-gray-50);
+      color: var(--color-gray-900);
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: 1rem;
+    }
+    
+    .header p {
+      font-size: 1.125rem;
+      color: var(--color-gray-600);
+      margin-bottom: 2rem;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    
+    .stat-card {
+      background: white;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-blue-500);
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--color-gray-600);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .search-box {
+      flex: 1;
+      min-width: 300px;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--color-gray-300);
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    
+    .search-box:focus {
+      border-color: var(--color-blue-500);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .filter-select {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--color-gray-300);
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background: white;
+      outline: none;
+      cursor: pointer;
+    }
+    
+    .filter-select:focus {
+      border-color: var(--color-blue-500);
+    }
+    
+    .camera-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    #camera-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .camera-card {
+      background: white;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+    
+    .camera-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    
+    .camera-header {
+      display: flex;
+      justify-content: between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    
+    .camera-name {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 0.25rem;
+    }
+    
+    .camera-manufacturer {
+      font-size: 0.875rem;
+      color: var(--color-blue-500);
+      font-weight: 500;
+    }
+    
+    .camera-type {
+      font-size: 0.75rem;
+      color: var(--color-gray-500);
+      background: var(--color-gray-100);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      display: inline-block;
+      margin-top: 0.5rem;
+    }
+    
+    .camera-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .spec-label {
+      font-size: 0.75rem;
+      color: var(--color-gray-500);
+      margin-bottom: 0.25rem;
+    }
+    
+    .spec-value {
+      font-size: 0.875rem;
+      color: var(--color-gray-900);
+      font-weight: 500;
+    }
+    
+    .quality-score {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .quality-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-weight: 500;
+    }
+    
+    .quality-high {
+      background: var(--color-green-500);
+      color: white;
+    }
+    
+    .quality-medium {
+      background: var(--color-orange-500);
+      color: white;
+    }
+    
+    .quality-low {
+      background: var(--color-red-500);
+      color: white;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--color-gray-600);
+    }
+    
+    .error {
+      text-align: center;
+      padding: 3rem;
+      color: var(--color-red-500);
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: var(--color-gray-600);
+    }
+    
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--color-blue-500);
+      color: white;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+      margin-bottom: 2rem;
+    }
+    
+    .back-button:hover {
+      background: var(--color-blue-600);
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .camera-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .search-box {
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-button">← ホームに戻る</a>
+    
+    <div class="header">
+      <h1>📷 カメラデータベース</h1>
+      <p>542件のカメラデータを閲覧できます</p>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="total-cameras">-</div>
+        <div class="stat-label">総カメラ数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="total-lenses">-</div>
+        <div class="stat-label">総レンズ数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="avg-quality">-</div>
+        <div class="stat-label">平均品質スコア</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="high-quality">-</div>
+        <div class="stat-label">高品質データ</div>
+      </div>
+    </div>
+    
+    <div class="controls">
+      <input type="text" class="search-box" id="search-input" placeholder="カメラ名、メーカー、タイプで検索...">
+      <select class="filter-select" id="manufacturer-filter">
+        <option value="">全メーカー</option>
+      </select>
+      <select class="filter-select" id="type-filter">
+        <option value="">全タイプ</option>
+      </select>
+    </div>
+    
+    <div id="camera-container">
+      <div class="loading">データを読み込み中...</div>
+    </div>
+  </div>
+
+  <script>
+    let allCameras = [];
+    let allLenses = [];
+    
+    // データを読み込む
+    async function loadData() {
+      try {
+        // GitHub Pages対応のパス構築
+        const basePath = window.location.pathname.includes('/camerapicker/') 
+          ? '/camerapicker/' 
+          : '/';
+        
+        // カメラデータを読み込み
+        const cameraResponse = await fetch(`${basePath}camera.json`);
+        allCameras = await cameraResponse.json();
+        
+        // レンズデータを読み込み
+        const lensResponse = await fetch(`${basePath}lens.json`);
+        allLenses = await lensResponse.json();
+        
+        // 統計情報を更新
+        updateStats();
+        
+        // フィルターオプションを設定
+        setupFilters();
+        
+        // カメラ一覧を表示
+        displayCameras(allCameras);
+        
+      } catch (error) {
+        console.error('❌ データ読み込みエラー:', error);
+        document.getElementById('camera-container').innerHTML = 
+          '<div class="error">データの読み込みに失敗しました</div>';
+      }
+    }
+    
+    // 統計情報を更新
+    function updateStats() {
+      document.getElementById('total-cameras').textContent = allCameras.length.toLocaleString();
+      document.getElementById('total-lenses').textContent = allLenses.length.toLocaleString();
+      
+      // 平均品質スコアを計算
+      const qualityScores = allCameras.map(camera => {
+        const score = camera['データ品質スコア'];
+        return typeof score === 'number' ? score : parseInt(score) || 0;
+      });
+      
+      const avgScore = qualityScores.length > 0 
+        ? (qualityScores.reduce((a, b) => a + b, 0) / qualityScores.length).toFixed(1)
+        : '0.0';
+      
+      document.getElementById('avg-quality').textContent = avgScore;
+      
+      // 高品質データ（6点以上）の件数
+      const highQualityCount = qualityScores.filter(score => score >= 6).length;
+      document.getElementById('high-quality').textContent = highQualityCount.toLocaleString();
+    }
+    
+    // フィルターオプションを設定
+    function setupFilters() {
+      const manufacturers = [...new Set(allCameras.map(camera => camera['メーカー']).filter(Boolean))];
+      const types = [...new Set(allCameras.map(camera => camera['タイプ（レンズ交換式など）']).filter(Boolean))];
+      
+      const manufacturerFilter = document.getElementById('manufacturer-filter');
+      const typeFilter = document.getElementById('type-filter');
+      
+      manufacturers.sort().forEach(manufacturer => {
+        const option = document.createElement('option');
+        option.value = manufacturer;
+        option.textContent = manufacturer;
+        manufacturerFilter.appendChild(option);
+      });
+      
+      types.sort().forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = type;
+        typeFilter.appendChild(option);
+      });
+    }
+    
+    // カメラ一覧を表示
+    function displayCameras(cameras) {
+      const container = document.getElementById('camera-container');
+      
+      if (cameras.length === 0) {
+        container.innerHTML = '<div class="no-results">該当するカメラが見つかりません</div>';
+        return;
+      }
+      
+      const cameraHTML = cameras.map(camera => {
+        const qualityScore = typeof camera['データ品質スコア'] === 'number' 
+          ? camera['データ品質スコア'] 
+          : parseInt(camera['データ品質スコア']) || 0;
+        
+        let qualityClass = 'quality-low';
+        let qualityText = '低品質';
+        
+        if (qualityScore >= 6) {
+          qualityClass = 'quality-high';
+          qualityText = '高品質';
+        } else if (qualityScore >= 3) {
+          qualityClass = 'quality-medium';
+          qualityText = '中品質';
+        }
+        
+        return `
+          <div class="camera-card">
+            <div class="camera-header">
+              <div>
+                <div class="camera-name">${camera['カメラ名'] || '不明'}</div>
+                <div class="camera-manufacturer">${camera['メーカー'] || '不明'}</div>
+                <div class="camera-type">${camera['タイプ（レンズ交換式など）'] || '不明'}</div>
+              </div>
+            </div>
+            
+            <div class="camera-specs">
+              <div class="spec-item">
+                <div class="spec-label">画素数</div>
+                <div class="spec-value">${camera['画素数'] || '不明'}</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">撮像素子</div>
+                <div class="spec-value">${camera['撮像素子'] || '不明'}</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">新品価格</div>
+                <div class="spec-value">${camera['新品価格'] || '不明'}</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">レンズマウント</div>
+                <div class="spec-value">${camera['レンズマウント'] || '不明'}</div>
+              </div>
+            </div>
+            
+            <div class="quality-score">
+              <span class="quality-badge ${qualityClass}">${qualityText}</span>
+              <span>品質スコア: ${qualityScore}/8</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      container.innerHTML = cameraHTML;
+    }
+    
+    // 検索とフィルター
+    function filterCameras() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
+      const manufacturerFilter = document.getElementById('manufacturer-filter').value;
+      const typeFilter = document.getElementById('type-filter').value;
+      
+      const filteredCameras = allCameras.filter(camera => {
+        const matchesSearch = !searchTerm || 
+          (camera['カメラ名'] && camera['カメラ名'].toLowerCase().includes(searchTerm)) ||
+          (camera['メーカー'] && camera['メーカー'].toLowerCase().includes(searchTerm)) ||
+          (camera['タイプ（レンズ交換式など）'] && camera['タイプ（レンズ交換式など）'].toLowerCase().includes(searchTerm));
+        
+        const matchesManufacturer = !manufacturerFilter || camera['メーカー'] === manufacturerFilter;
+        const matchesType = !typeFilter || camera['タイプ（レンズ交換式など）'] === typeFilter;
+        
+        return matchesSearch && matchesManufacturer && matchesType;
+      });
+      
+      displayCameras(filteredCameras);
+    }
+    
+    // イベントリスナーを設定
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      
+      document.getElementById('search-input').addEventListener('input', filterCameras);
+      document.getElementById('manufacturer-filter').addEventListener('change', filterCameras);
+      document.getElementById('type-filter').addEventListener('change', filterCameras);
+    });
+  </script>
+</body>
+</html>

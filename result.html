@@ -153,6 +153,16 @@
       letter-spacing: -0.02em;
     }
     
+    .article-title .line-break {
+      display: block;
+    }
+    
+    .article-title .personality-type {
+      font-size: 3.5rem;
+      display: block;
+      margin-top: 0.5rem;
+    }
+    
     .article-subtitle {
       font-size: 1.25rem;
       color: var(--color-gray-600);
@@ -522,7 +532,10 @@
     <div class="container">
       <header class="article-header">
         <div class="article-meta">Camera Picker 診断結果</div>
-        <h1 class="article-title">あなたは<br>「探究型フォトグラファー」</h1>
+        <h1 class="article-title">
+          <span class="line-break">あなたは</span>
+          <span class="personality-type">「探究型フォトグラファー」</span>
+        </h1>
         <p class="article-subtitle">
           新しい機材への好奇心が旺盛で、様々な可能性を探求することを楽しむタイプです。機材選びにも積極的で、幅広いジャンルの撮影に興味を持っています。
         </p>
@@ -565,29 +578,7 @@
           </div>
         </div>
 
-        <ul class="feature-list">
-          <li class="feature-item">
-            <div class="feature-icon">✓</div>
-            <div class="feature-content">
-              <h4>多様な被写体への関心</h4>
-              <p>風景から人物まで、幅広い撮影ジャンルに興味を示し、それぞれに適した機材を求める傾向があります。</p>
-            </div>
-          </li>
-          <li class="feature-item">
-            <div class="feature-icon">✓</div>
-            <div class="feature-content">
-              <h4>技術的な成長への意欲</h4>
-              <p>新しい撮影技法や機材の機能を積極的に学習し、自分のスキルアップに活かそうとします。</p>
-            </div>
-          </li>
-          <li class="feature-item">
-            <div class="feature-icon">✓</div>
-            <div class="feature-content">
-              <h4>長期的な視点での機材選び</h4>
-              <p>初心者向けより、成長に合わせて長く使える機材を選ぶことを重視します。</p>
-            </div>
-          </li>
-        </ul>
+
       </section>
 
       <section class="content-section">
@@ -654,28 +645,8 @@
           </p>
         </div>
 
-        <ul class="feature-list">
-          <li class="feature-item">
-            <div class="feature-icon">1</div>
-            <div class="feature-content">
-              <h4>レンズ資産を計画的に構築</h4>
-              <p>標準域から始めて、撮影の幅を広げていけるよう段階的にレンズを揃えていくことをおすすめします。</p>
-            </div>
-          </li>
-          <li class="feature-item">
-            <div class="feature-icon">2</div>
-            <div class="feature-content">
-              <h4>撮影コミュニティへの参加</h4>
-              <p>同じ志向を持つフォトグラファーとの交流で、新しい技法や視点を学ぶ機会を増やしましょう。</p>
-            </div>
-          </li>
-          <li class="feature-item">
-            <div class="feature-icon">3</div>
-            <div class="feature-content">
-              <h4>定期的な機材見直し</h4>
-            <p>スキルの向上に合わせて、年に1-2回は機材構成を見直し、必要に応じてアップグレードを検討しましょう。</p>
-            </div>
-          </li>
+                <ul class="feature-list">
+          <!-- アドバイスはJavaScriptで動的に生成されます -->
         </ul>
       </section>
 
@@ -704,7 +675,10 @@
           // タイトルも更新
           const titleElement = document.querySelector('.article-title');
           if (titleElement) {
-            titleElement.innerHTML = `あなたは<br>「${photographerType.type.name}」`;
+            titleElement.innerHTML = `
+              <span class="line-break">あなたは</span>
+              <span class="personality-type">「${photographerType.type.name}」</span>
+            `;
           }
         }
         
@@ -780,52 +754,70 @@
       if (!adviceContainer) return;
       
       let adviceHTML = '';
+      let adviceNumber = 1;
       
+      // 即座に実践できるアドバイス（最大2個）
       if (advice.immediate && advice.immediate.length > 0) {
-        advice.immediate.forEach((item, index) => {
+        const immediateAdvice = advice.immediate.slice(0, 2);
+        immediateAdvice.forEach((item) => {
           adviceHTML += `
             <li class="feature-item">
-              <div class="feature-icon">${index + 1}</div>
+              <div class="feature-icon">${adviceNumber}</div>
               <div class="feature-content">
                 <h4>即座に実践できるアドバイス</h4>
                 <p>${item}</p>
               </div>
             </li>
           `;
+          adviceNumber++;
         });
       }
       
+      // 長期的な成長アドバイス（最大1個）
       if (advice.long_term && advice.long_term.length > 0) {
-        advice.long_term.forEach((item, index) => {
+        const longTermAdvice = advice.long_term.slice(0, 1);
+        longTermAdvice.forEach((item) => {
           adviceHTML += `
             <li class="feature-item">
-              <div class="feature-icon">${index + 1}</div>
+              <div class="feature-icon">${adviceNumber}</div>
               <div class="feature-content">
                 <h4>長期的な成長アドバイス</h4>
                 <p>${item}</p>
               </div>
             </li>
           `;
+          adviceNumber++;
         });
       }
       
-      if (advice.technique && advice.technique.length > 0) {
-        advice.technique.forEach((item, index) => {
-          adviceHTML += `
-            <li class="feature-item">
-              <div class="feature-icon">${index + 1}</div>
-              <div class="feature-content">
-                <h4>技術的アドバイス</h4>
-                <p>${item}</p>
-              </div>
-            </li>
-          `;
-        });
+      // アドバイスがない場合はデフォルトを表示
+      if (!adviceHTML) {
+        adviceHTML = `
+          <li class="feature-item">
+            <div class="feature-icon">1</div>
+            <div class="feature-content">
+              <h4>即座に実践できるアドバイス</h4>
+              <p>基本の露出（絞り・シャッタースピード・ISO）を理解しましょう</p>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">2</div>
+            <div class="feature-content">
+              <h4>即座に実践できるアドバイス</h4>
+              <p>構図の基本を練習してください</p>
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">3</div>
+            <div class="feature-content">
+              <h4>長期的な成長アドバイス</h4>
+              <p>撮影技術を向上させるために、定期的に練習を重ねましょう</p>
+            </div>
+          </li>
+        `;
       }
       
-      if (adviceHTML) {
-        adviceContainer.innerHTML = adviceHTML;
-      }
+      adviceContainer.innerHTML = adviceHTML;
     }
     
     function shareResults() {

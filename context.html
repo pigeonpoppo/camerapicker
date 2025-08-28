@@ -40,6 +40,7 @@
       background: var(--color-gray-50);
       color: var(--color-gray-900);
       line-height: 1.6;
+      scroll-behavior: smooth;
     }
     
     .container {
@@ -551,7 +552,12 @@
       const mode = urlParams.get('mode') || 'body';
       const level = urlParams.get('level') || 'intermediate';
       
-      // Redirect to pick page
+      // 遷移先でスクロールしたい位置を保存
+      const targetScrollY = Math.max(0, window.scrollY + 200);
+      sessionStorage.setItem('targetScrollPosition', targetScrollY.toString());
+      console.log('目標スクロール位置を保存:', targetScrollY);
+      
+      // 直接遷移
       window.location.href = `pick.html?mode=${mode}&level=${level}&context=true`;
     }
     
@@ -562,13 +568,37 @@
         const mode = urlParams.get('mode') || 'body';
         const level = urlParams.get('level') || 'intermediate';
         
-        // Go directly to pick page
+        // 遷移先でスクロールしたい位置を保存
+        const targetScrollY = Math.max(0, window.scrollY + 200);
+        sessionStorage.setItem('targetScrollPosition', targetScrollY.toString());
+        console.log('目標スクロール位置を保存:', targetScrollY);
+        
+        // 直接遷移
         window.location.href = `pick.html?mode=${mode}&level=${level}`;
       }
     }
     
     // Initialize
-    window.onload = initializeQuestions;
+    window.onload = function() {
+      // 目標スクロール位置に移動
+      const targetScrollPosition = sessionStorage.getItem('targetScrollPosition');
+      if (targetScrollPosition) {
+        const targetY = parseInt(targetScrollPosition);
+        console.log('目標スクロール位置に移動:', targetY);
+        
+        // ページ読み込み完了後にスムーズにスクロール
+        setTimeout(() => {
+          window.scrollTo({
+            top: targetY,
+            behavior: 'smooth'
+          });
+        }, 100);
+        
+        sessionStorage.removeItem('targetScrollPosition');
+      }
+      
+      initializeQuestions();
+    };
     // Service Worker registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

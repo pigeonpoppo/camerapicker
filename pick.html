@@ -49,6 +49,7 @@
       line-height: 1.6;
       overflow: hidden;
       height: 100vh;
+      scroll-behavior: smooth;
     }
     
     .app-container {
@@ -161,19 +162,22 @@
     .main-content {
       flex: 1;
       display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 1rem 2rem 8rem 2rem; /* 下のパディングを増やしてボタンとの重なりを防ぐ */
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1rem 2rem 0 2rem;
       position: relative;
-      padding-top: 2rem; /* 上に余白を追加 */
+      padding-top: 2rem;
+      min-height: calc(100vh - 250px); /* ボタン用のスペースをさらに確保 */
     }
     
     .card-stack {
       position: relative;
       width: 100%;
       max-width: 400px;
-      aspect-ratio: 3/4;
-      margin-top: 1rem; /* カードを少し下に */
+      height: 450px; /* 高さをさらに調整 */
+      margin-top: 1rem;
+      margin-bottom: 3rem; /* ボタンとの間隔をさらに確保 */
     }
     
     .camera-card {
@@ -219,7 +223,7 @@
     
     .camera-card.dragging {
       transition: none;
-      z-index: 10;
+      z-index: 15;
     }
     
     .camera-card.swipe-left {
@@ -236,7 +240,7 @@
     
     .card-image {
       width: 100%;
-      height: 50%;
+      height: 40%;
       object-fit: cover;
       background: var(--color-gray-100);
       border-bottom: 1px solid var(--color-gray-200);
@@ -244,18 +248,32 @@
     
     .card-content {
       padding: 1.5rem;
-      height: 50%;
+      height: 60%;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      overflow-y: auto;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE/Edge */
+      overflow-y: auto; /* スクロールを有効化 */
+      scrollbar-width: thin; /* Firefox用 */
+      scrollbar-color: var(--color-gray-300) transparent; /* Firefox用 */
     }
     
+    /* Webkit用のスクロールバースタイル */
     .card-content::-webkit-scrollbar {
-      display: none; /* Chrome/Safari */
+      width: 6px;
     }
+    
+    .card-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .card-content::-webkit-scrollbar-thumb {
+      background: var(--color-gray-300);
+      border-radius: 3px;
+    }
+    
+    .card-content::-webkit-scrollbar-thumb:hover {
+      background: var(--color-gray-400);
+    }
+      gap: 1rem;
     
     .card-header {
       flex-shrink: 0;
@@ -287,6 +305,56 @@
     .card-features {
       flex: 1;
       overflow-y: auto;
+    }
+    
+    .card-details {
+      margin-top: 1rem;
+      border-top: 1px solid var(--color-gray-200);
+      padding-top: 1rem;
+    }
+    
+    .detail-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .detail-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+    
+    .detail-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--color-gray-100);
+      font-size: 0.85rem;
+    }
+    
+    .detail-item:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-label {
+      color: var(--color-gray-600);
+      flex: 1;
+    }
+    
+    .detail-value {
+      color: var(--color-gray-900);
+      font-weight: 500;
+      text-align: right;
     }
     
     .feature-tags {
@@ -375,8 +443,9 @@
       left: 50%;
       transform: translateX(-50%);
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.25rem;
       background: rgba(0, 0, 0, 0.7);
       color: white;
       padding: 0.5rem 1rem;
@@ -396,10 +465,7 @@
     
          /* Action Buttons */
      .action-buttons {
-       position: fixed;
-       bottom: 2rem;
-       left: 50%;
-       transform: translateX(-50%);
+       position: relative; /* fixedからrelativeに変更 */
        display: flex;
        gap: 1rem;
        z-index: 1000;
@@ -408,6 +474,8 @@
        padding: 1rem;
        border-radius: 2rem;
        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+       margin-top: auto; /* 下部に配置 */
+       margin-bottom: 2rem;
      }
     
     .action-button {
@@ -477,21 +545,24 @@
       opacity: 0;
       transition: opacity 0.2s ease;
       pointer-events: none;
-      z-index: 5;
+      z-index: 20;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     
     .swipe-indicator.like {
-      right: 1rem;
+      right: 2rem;
       background: var(--color-green-500);
       color: white;
       transform: translateY(-50%) rotate(20deg);
+      font-size: 1.25rem;
     }
     
     .swipe-indicator.dislike {
-      left: 1rem;
+      left: 2rem;
       background: var(--color-red-500);
       color: white;
       transform: translateY(-50%) rotate(-20deg);
+      font-size: 1.25rem;
     }
     
     /* Empty State */
@@ -642,7 +713,7 @@
 
     <main class="main-content">
       <div class="card-stack" id="card-stack">
-        <!-- Cards will be dynamically inserted here -->
+    
       </div>
       
       <div class="empty-state" id="empty-state">
@@ -665,6 +736,8 @@
       </div>
     </main>
   </div>
+    </main>
+  </div>
 
            <script src="js/ai-diagnosis.js"></script>
       <script src="js/gpt-client.js"></script>
@@ -672,7 +745,7 @@
         // AI診断システムの読み込み確認
         window.addEventListener('load', () => {
           if (window.cameraPickerAI) {
-            console.log('✅ AI診断システムが正常に読み込まれました');
+            // AI診断システムが正常に読み込まれました
           } else {
             console.error('❌ AI診断システムの読み込みに失敗しました');
           }
@@ -742,7 +815,7 @@
         if (window.cameraPickerAI) {
           try {
             sampleData = await window.cameraPickerAI.selectCamerasForUser(userPreferences);
-            console.log('AI診断システムからカメラデータを取得:', sampleData.length, '台');
+
           } catch (error) {
             console.error('❌ カメラデータ取得エラー:', error);
             sampleData = [];
@@ -830,14 +903,26 @@
           ${stackIndex === 0 ? createCardDetails(item) : ''}
         </div>
         ${stackIndex === 0 ? `
-          <div class="swipe-indicator like">LIKE</div>
-          <div class="swipe-indicator dislike">NOPE</div>
           <div class="scroll-hint">
             <span>↓</span>
             <span>詳細をスクロールで確認</span>
           </div>
         ` : ''}
       `;
+      
+      // スワイプインジケーターをカードの外に追加
+      if (stackIndex === 0) {
+        const likeIndicator = document.createElement('div');
+        likeIndicator.className = 'swipe-indicator like';
+        likeIndicator.textContent = 'LIKE';
+        
+        const dislikeIndicator = document.createElement('div');
+        dislikeIndicator.className = 'swipe-indicator dislike';
+        dislikeIndicator.textContent = 'NOPE';
+        
+        card.appendChild(likeIndicator);
+        card.appendChild(dislikeIndicator);
+      }
       
       return card;
     }
@@ -1094,6 +1179,11 @@
       document.getElementById('card-stack').style.display = 'none';
       document.getElementById('empty-state').classList.add('show');
       document.querySelector('.action-buttons').style.display = 'none';
+      
+      // 結果ページに遷移
+      setTimeout(() => {
+        showResults();
+      }, 2000); // 2秒後に結果ページに遷移
     }
     
     function saveProgress() {
@@ -1156,10 +1246,35 @@
     `;
     document.head.appendChild(style);
     
-         // Initialize app when DOM is loaded
+                           // Initialize app when DOM is loaded
      document.addEventListener('DOMContentLoaded', () => {
        console.log('pick.html DOM読み込み完了');
        console.log('ユーザー設定:', userPreferences);
+       
+       // 保存されたスクロール位置を即座に復元
+       const savedScrollPosition = sessionStorage.getItem('scrollPosition');
+       if (savedScrollPosition) {
+         const scrollY = parseInt(savedScrollPosition);
+         console.log('スクロール位置を復元:', scrollY);
+         
+         // ページの固定状態を解除
+         document.documentElement.style.position = '';
+         document.documentElement.style.top = '';
+         document.documentElement.style.width = '';
+         document.documentElement.style.overflow = '';
+         
+         // 即座にスクロール位置を復元
+         window.scrollTo(0, scrollY);
+         sessionStorage.removeItem('scrollPosition');
+         
+         // さらに確実にするため、複数回復元
+         setTimeout(() => window.scrollTo(0, scrollY), 10);
+         setTimeout(() => window.scrollTo(0, scrollY), 50);
+         setTimeout(() => window.scrollTo(0, scrollY), 100);
+         setTimeout(() => window.scrollTo(0, scrollY), 200);
+         setTimeout(() => window.scrollTo(0, scrollY), 500);
+       }
+       
        initializeApp();
      });
     

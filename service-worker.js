@@ -1,14 +1,17 @@
-const CACHE_NAME = 'camera-picker-v1';
+const CACHE_NAME = 'camera-picker-v2';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/conditions.html',
   '/pick.html',
   '/result.html',
+  '/database.html',
   '/context.html',
   '/offline.html',
   '/manifest.json',
-  '/data/camera.json',
-  '/data/lenses.json',
+  '/camera.json',
+  '/lens.json',
+  '/camera_database.json',
   '/images/icons/icon-72x72.png',
   '/images/icons/icon-96x96.png',
   '/images/icons/icon-128x128.png',

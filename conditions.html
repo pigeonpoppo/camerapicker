@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>条件入力 - Camera Picker</title>
+  <link rel="stylesheet" href="css/common.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--color-gray-50);
+      color: var(--color-gray-900);
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: 1rem;
+    }
+    
+    .header p {
+      font-size: 1.125rem;
+      color: var(--color-gray-600);
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--color-gray-200);
+      border-radius: 4px;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: var(--color-blue-500);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    
+    .section {
+      background: white;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 0.75rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .section-emoji {
+      font-size: 1.5rem;
+    }
+    
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .category-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border: 2px solid var(--color-gray-200);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+    }
+    
+    .category-item:hover {
+      border-color: var(--color-blue-500);
+      background: var(--color-gray-50);
+    }
+    
+    .category-item.selected {
+      border-color: var(--color-blue-500);
+      background: var(--color-blue-50);
+    }
+    
+    .category-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-blue-500);
+    }
+    
+    .slider-container {
+      margin-bottom: 2rem;
+    }
+    
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .slider-title {
+      font-weight: 500;
+      color: var(--color-gray-900);
+    }
+    
+    .slider-value {
+      font-weight: 600;
+      color: var(--color-blue-500);
+    }
+    
+    .slider {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--color-gray-200);
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-blue-500);
+      cursor: pointer;
+    }
+    
+    .slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-blue-500);
+      cursor: pointer;
+      border: none;
+    }
+    
+    .priority-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    
+    .priority-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      border: 2px solid var(--color-gray-200);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+    }
+    
+    .priority-item:hover {
+      border-color: var(--color-blue-500);
+      background: var(--color-gray-50);
+    }
+    
+    .priority-item.selected {
+      border-color: var(--color-blue-500);
+      background: var(--color-blue-50);
+    }
+    
+    .priority-emoji {
+      font-size: 1.5rem;
+    }
+    
+    .priority-text {
+      font-weight: 500;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 3rem;
+    }
+    
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-secondary {
+      background: var(--color-gray-200);
+      color: var(--color-gray-700);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--color-gray-300);
+    }
+    
+    .btn-primary {
+      background: var(--color-blue-500);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--color-blue-600);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .skip-notice {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 1rem;
+      background: var(--color-gray-100);
+      border-radius: 0.5rem;
+      color: var(--color-gray-600);
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .section {
+        padding: 1.5rem;
+      }
+      
+      .category-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      }
+      
+      .priority-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📋 条件を設定</h1>
+      <p>あなたの用途や重視する項目を教えてください</p>
+    </div>
+    
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    
+    <!-- 用途カテゴリ -->
+    <div class="section">
+      <h2 class="section-title">
+        <span class="section-emoji">🎯</span>
+        用途カテゴリ（複数選択可）
+      </h2>
+      <div class="category-grid" id="usage-categories">
+        <label class="category-item">
+          <input type="checkbox" class="category-checkbox" value="travel">
+          <span>旅行</span>
+        </label>
+        <label class="category-item">
+          <input type="checkbox" class="category-checkbox" value="vlog">
+          <span>Vlog</span>
+        </label>
+        <label class="category-item">
+          <input type="checkbox" class="category-checkbox" value="sports">
+          <span>運動会</span>
+        </label>
+        <label class="category-item">
+          <input type="checkbox" class="category-checkbox" value="landscape">
+          <span>風景</span>
+        </label>
+        <label class="category-item">
+          <input type="checkbox" class="category-checkbox" value="product">
+          <span>商品撮影</span>
+        </label>
+        <label class="category-item">
+          <input type="checkbox" class="category-checkbox" value="portrait">
+          <span>ポートレート</span>
+        </label>
+        <label class="category-item">
+          <input type="checkbox" class="category-checkbox" value="street">
+          <span>ストリート</span>
+        </label>
+        <label class="category-item">
+          <input type="checkbox" class="category-checkbox" value="night">
+          <span>夜景</span>
+        </label>
+        <label class="category-item">
+          <input type="checkbox" class="category-checkbox" value="macro">
+          <span>マクロ</span>
+        </label>
+        <label class="category-item">
+          <input type="checkbox" class="category-checkbox" value="wildlife">
+          <span>野生動物</span>
+        </label>
+      </div>
+    </div>
+    
+    <!-- 発売日 -->
+    <div class="section">
+      <h2 class="section-title">
+        <span class="section-emoji">📅</span>
+        発売年
+      </h2>
+      <div class="slider-container">
+        <div class="slider-label">
+          <span class="slider-title">2000年〜2025年</span>
+          <span class="slider-value" id="year-value">2020年</span>
+        </div>
+        <input type="range" class="slider" id="year-slider" min="2000" max="2025" value="2020">
+      </div>
+    </div>
+    
+    <!-- 予算 -->
+    <div class="section">
+      <h2 class="section-title">
+        <span class="section-emoji">💰</span>
+        予算
+      </h2>
+      <div class="slider-container">
+        <div class="slider-label">
+          <span class="slider-title">1万円〜50万円以上</span>
+          <span class="slider-value" id="budget-value">15万円</span>
+        </div>
+        <input type="range" class="slider" id="budget-slider" min="1" max="50" value="15">
+      </div>
+    </div>
+    
+    <!-- 重視項目 -->
+    <div class="section">
+      <h2 class="section-title">
+        <span class="section-emoji">⭐</span>
+        重視する項目（複数選択可）
+      </h2>
+      <div class="priority-grid" id="priority-items">
+        <label class="priority-item">
+          <input type="checkbox" class="category-checkbox" value="image-quality">
+          <span class="priority-emoji">📸</span>
+          <span class="priority-text">画質</span>
+        </label>
+        <label class="priority-item">
+          <input type="checkbox" class="category-checkbox" value="lightweight">
+          <span class="priority-emoji">⚖️</span>
+          <span class="priority-text">軽さ</span>
+        </label>
+        <label class="priority-item">
+          <input type="checkbox" class="category-checkbox" value="waterproof">
+          <span class="priority-emoji">💧</span>
+          <span class="priority-text">防水</span>
+        </label>
+        <label class="priority-item">
+          <input type="checkbox" class="category-checkbox" value="night-performance">
+          <span class="priority-emoji">🌙</span>
+          <span class="priority-text">夜景性能</span>
+        </label>
+        <label class="priority-item">
+          <input type="checkbox" class="category-checkbox" value="burst-speed">
+          <span class="priority-emoji">⚡</span>
+          <span class="priority-text">連写性能</span>
+        </label>
+        <label class="priority-item">
+          <input type="checkbox" class="category-checkbox" value="battery-life">
+          <span class="priority-emoji">🔋</span>
+          <span class="priority-text">バッテリー</span>
+        </label>
+        <label class="priority-item">
+          <input type="checkbox" class="category-checkbox" value="video-quality">
+          <span class="priority-emoji">🎥</span>
+          <span class="priority-text">動画性能</span>
+        </label>
+        <label class="priority-item">
+          <input type="checkbox" class="category-checkbox" value="ease-of-use">
+          <span class="priority-emoji">🎯</span>
+          <span class="priority-text">使いやすさ</span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="buttons">
+      <button class="btn btn-secondary" onclick="skipConditions()">
+        ⏭️ 条件をスキップ
+      </button>
+      <button class="btn btn-primary" id="next-button" onclick="saveConditions()">
+        🎯 マッチング開始
+      </button>
+    </div>
+    
+    <div class="skip-notice">
+      💡 条件をスキップすると、ランダムなカメラからマッチングが始まります
+    </div>
+  </div>
+
+  <script>
+    // スライダーの値更新
+    document.getElementById('year-slider').addEventListener('input', function() {
+      document.getElementById('year-value').textContent = this.value + '年';
+      updateProgress();
+    });
+    
+    document.getElementById('budget-slider').addEventListener('input', function() {
+      const value = this.value;
+      if (value >= 50) {
+        document.getElementById('budget-value').textContent = '50万円以上';
+      } else {
+        document.getElementById('budget-value').textContent = value + '万円';
+      }
+      updateProgress();
+    });
+    
+    // チェックボックスの選択状態更新
+    document.querySelectorAll('.category-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        const item = this.closest('.category-item, .priority-item');
+        if (this.checked) {
+          item.classList.add('selected');
+        } else {
+          item.classList.remove('selected');
+        }
+        updateProgress();
+      });
+    });
+    
+    // 進捗バーの更新
+    function updateProgress() {
+      const totalSections = 4;
+      let completedSections = 0;
+      
+      // 用途カテゴリ（最低1つ選択）
+      const usageSelected = document.querySelectorAll('#usage-categories input:checked').length > 0;
+      if (usageSelected) completedSections++;
+      
+      // 発売年（設定済み）
+      completedSections++;
+      
+      // 予算（設定済み）
+      completedSections++;
+      
+      // 重視項目（最低1つ選択）
+      const prioritySelected = document.querySelectorAll('#priority-items input:checked').length > 0;
+      if (prioritySelected) completedSections++;
+      
+      const progress = (completedSections / totalSections) * 100;
+      document.getElementById('progress-fill').style.width = progress + '%';
+      
+      // ボタンの有効化
+      const nextButton = document.getElementById('next-button');
+      nextButton.disabled = !(usageSelected && prioritySelected);
+    }
+    
+    // 条件をスキップ
+    function skipConditions() {
+      const conditions = {
+        usage: [],
+        year: 2020,
+        budget: 15,
+        priorities: [],
+        skipped: true
+      };
+      
+      localStorage.setItem('cameraPickerConditions', JSON.stringify(conditions));
+      window.location.href = 'pick.html';
+    }
+    
+    // 条件を保存
+    function saveConditions() {
+      const conditions = {
+        usage: Array.from(document.querySelectorAll('#usage-categories input:checked')).map(cb => cb.value),
+        year: parseInt(document.getElementById('year-slider').value),
+        budget: parseInt(document.getElementById('budget-slider').value),
+        priorities: Array.from(document.querySelectorAll('#priority-items input:checked')).map(cb => cb.value),
+        skipped: false
+      };
+      
+      localStorage.setItem('cameraPickerConditions', JSON.stringify(conditions));
+      window.location.href = 'pick.html';
+    }
+    
+    // 初期化
+    document.addEventListener('DOMContentLoaded', function() {
+      updateProgress();
+    });
+  </script>
+</body>
+</html>
