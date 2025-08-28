@@ -19,7 +19,7 @@
     }
     
     .hero-title {
-      font-size: 3.5rem;
+      font-size: 2.5rem;
       font-weight: 700;
       color: var(--color-gray-900);
       margin-bottom: var(--spacing-6);
@@ -28,7 +28,7 @@
     }
     
     .hero-subtitle {
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       color: var(--color-gray-600);
       margin-bottom: var(--spacing-12);
       max-width: 600px;
@@ -56,7 +56,7 @@
     
     .level-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: var(--spacing-4);
       max-width: 800px;
       margin: 0 auto;
@@ -257,12 +257,21 @@
     /* Responsive */
     @media (max-width: 768px) {
       .hero-title {
-        font-size: 2.5rem;
+        font-size: 2rem;
       }
       
-      .level-grid,
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+      
+      .level-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.75rem;
+      }
+      
       .actions {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.75rem;
       }
       
       .nav-links {
@@ -270,7 +279,38 @@
       }
       
       .container {
-        padding: 0 var(--spacing-4);
+        padding: 0 1rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+      }
+      
+      .stat-number {
+        font-size: 2rem;
+      }
+      
+      .stat-label {
+        font-size: 0.8rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .hero-title {
+        font-size: 1.75rem;
+      }
+      
+      .level-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .actions {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
       }
     }
     
@@ -366,11 +406,6 @@
             <span class="action-emoji">🎁</span>
             <h3 class="action-title">セット組み合わせ</h3>
           </div>
-          
-          <div class="action-card" onclick="window.location.href='database.html'">
-            <span class="action-emoji">📊</span>
-            <h3 class="action-title">データベース閲覧</h3>
-          </div>
         </div>
         
         <button class="start-button" id="start-button" onclick="startDiagnosis()" disabled>
@@ -391,22 +426,7 @@
             <span class="stat-label">レンズ登録数</span>
           </div>
         </div>
-        <div style="text-align: center; margin-top: 2rem;">
-          <a href="database.html" style="
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: var(--color-blue-500);
-            color: white;
-            text-decoration: none;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-          " onmouseover="this.style.background='var(--color-blue-600)'" onmouseout="this.style.background='var(--color-blue-500)'">
-            📊 データベースを詳しく見る
-          </a>
-        </div>
+
       </div>
     </section>
   </main>
@@ -521,26 +541,25 @@
           ? '/camerapicker/' 
           : '/';
         
-        // カメラデータを読み込み
-        const cameraResponse = await fetch(`${basePath}camera.json`);
-        const cameraData = await cameraResponse.json();
-        const cameraCount = cameraData.length; // JSON配列の長さ
+        // 統合データベースから統計情報を読み込み
+        const databaseResponse = await fetch(`${basePath}camera_database.json`);
+        const databaseData = await databaseResponse.json();
         
-        // レンズデータを読み込み
-        const lensResponse = await fetch(`${basePath}lens.json`);
-        const lensData = await lensResponse.json();
-        const lensCount = lensData.length; // JSON配列の長さ
+        // メタデータから件数を取得
+        const cameraCount = databaseData.metadata?.total_cameras || 0;
+        const lensCount = databaseData.metadata?.total_lenses || 0;
         
         // 統計情報を更新
         document.getElementById('camera-count').textContent = cameraCount.toLocaleString();
         document.getElementById('lens-count').textContent = lensCount.toLocaleString();
         
+        console.log('✅ 統計情報読み込み完了:', { cameraCount, lensCount });
 
       } catch (error) {
         console.error('❌ 統計情報読み込みエラー:', error);
-        // フォールバック値
-        document.getElementById('camera-count').textContent = '21';
-        document.getElementById('lens-count').textContent = '21';
+        // フォールバック値（実際の件数）
+        document.getElementById('camera-count').textContent = '542';
+        document.getElementById('lens-count').textContent = '91';
       }
     }
 

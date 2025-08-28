@@ -1,8 +1,7 @@
-// AI診断機能
+// 動的AI診断機能
 class CameraPickerAI {
   constructor() {
     this.cameraDatabase = null;
-    this.photographerTypes = null;
     this.loadDatabase();
   }
 
@@ -15,7 +14,7 @@ class CameraPickerAI {
       const basePath = window.location.pathname.includes('/camerapicker/') 
         ? '/camerapicker/' 
         : '/';
-      const dataPath = `${basePath}data/camera-database.json`;
+      const dataPath = `${basePath}camera_database.json`;
       
       console.log('データベースパス:', dataPath);
       const response = await fetch(dataPath);
@@ -25,8 +24,7 @@ class CameraPickerAI {
       }
       
       const data = await response.json();
-      this.cameraDatabase = data.cameras;
-      this.photographerTypes = data.photographer_types;
+      this.cameraDatabase = data.cameras || [];
       console.log(`✅ カメラデータベース読み込み完了: ${this.cameraDatabase.length}台のカメラ`);
     } catch (error) {
       console.error('❌ データベース読み込みエラー:', error);
@@ -90,35 +88,7 @@ class CameraPickerAI {
         }
       ];
       
-      this.photographerTypes = {
-        portrait_artist: {
-          name: "ポートレートアーティスト",
-          description: "人物撮影に特化した美しい写真を追求するタイプ",
-          camera_preferences: ["image_quality", "color_science", "bokeh"],
-          strengths: ["構図", "ライティング", "被写体とのコミュニケーション"],
-          weaknesses: ["動体撮影", "風景写真"]
-        },
-        street_photographer: {
-          name: "ストリートフォトグラファー",
-          description: "街の瞬間を捉えることを得意とするタイプ",
-          camera_preferences: ["compact", "discrete", "quick_af"],
-          strengths: ["瞬間の判断", "街の観察力", "自然な表情の撮影"],
-          weaknesses: ["スタジオ撮影", "大規模なセットアップ"]
-        },
-        landscape_master: {
-          name: "ランドスケープマスター",
-          description: "自然の美しさを表現することを追求するタイプ",
-          camera_preferences: ["dynamic_range", "resolution", "weather_sealed"],
-          strengths: ["構図", "光の理解", "忍耐力"],
-          weaknesses: ["動体撮影", "人物撮影"]
-        }
-      };
-      
       console.log(`✅ フォールバックデータ設定完了: ${this.cameraDatabase.length}台のカメラ`);
-      console.log('📋 フォールバックデータ詳細:', {
-        cameras: this.cameraDatabase.length,
-        types: Object.keys(this.photographerTypes).length
-      });
     }
   }
 
@@ -130,14 +100,6 @@ class CameraPickerAI {
     while (!this.cameraDatabase || this.cameraDatabase.length === 0) {
       if (Date.now() - startTime > maxWaitTime) {
         console.error('❌ データベース読み込みタイムアウト');
-        console.log('🔄 フォールバックデータの設定を確認中...');
-        
-        // フォールバックデータが設定されているかチェック
-        if (this.cameraDatabase && this.cameraDatabase.length > 0) {
-          console.log('✅ フォールバックデータが利用可能です');
-          return true;
-        }
-        
         return false;
       }
       await new Promise(resolve => setTimeout(resolve, 200));
@@ -160,11 +122,6 @@ class CameraPickerAI {
       await this.waitForDatabase();
     }
 
-    console.log('📊 データベース読み込み後の状態:', {
-      hasDatabase: !!this.cameraDatabase,
-      databaseLength: this.cameraDatabase ? this.cameraDatabase.length : 0
-    });
-
     if (!this.cameraDatabase || this.cameraDatabase.length === 0) {
       console.error('❌ カメラデータベースが利用できません');
       return [];
@@ -178,22 +135,24 @@ class CameraPickerAI {
       portability_importance
     } = userPreferences;
 
-    // スコアリングシステム
+    console.log('📊 ユーザー設定:', userPreferences);
+
+    // 各カメラにスコアを付与
     const scoredCameras = this.cameraDatabase.map(camera => {
       let score = 0;
 
       // 経験レベルマッチング
-      if (camera.experience_level.includes(experience_level)) {
+      if (camera.experience_level && camera.experience_level.includes(experience_level)) {
         score += 20;
       }
 
       // 予算マッチング
       if (budget_preference === 'low' && camera.budget_friendly) {
         score += 15;
-      } else if (budget_preference === 'medium' && camera.price_range === 'medium') {
+      } else if (budget_preference === 'high' && !camera.budget_friendly) {
         score += 15;
-      } else if (budget_preference === 'high' && camera.price_range === 'high') {
-        score += 15;
+      } else if (budget_preference === 'medium') {
+        score += 10;
       }
 
       // 撮影スタイルマッチング
@@ -225,68 +184,201 @@ class CameraPickerAI {
 
   // ②のスワイプ履歴からユーザータイプを診断
   analyzeUserType(swipeHistory, userPreferences) {
-    if (!this.photographerTypes) return null;
-
     const analysis = {
       likes: swipeHistory.filter(item => item.action === 'like' || item.action === 'superlike'),
       dislikes: swipeHistory.filter(item => item.action === 'dislike'),
       superlikes: swipeHistory.filter(item => item.action === 'superlike')
     };
 
-    // 各タイプとの適合度を計算
-    const typeScores = Object.keys(this.photographerTypes).map(typeKey => {
-      const type = this.photographerTypes[typeKey];
-      let score = 0;
-
-      // 好みのカメラ特徴からスコア計算
-      analysis.likes.forEach(like => {
-        const camera = this.cameraDatabase.find(c => c.id === like.camera_id);
-        if (camera) {
-          // カメラの特徴とタイプの好みを比較
-          if (type.camera_preferences.some(pref => 
-            camera.strengths.includes(pref) || 
-            camera.features.includes(pref))) {
-            score += 5;
-          }
-        }
-      });
-
-      // ユーザー設定からスコア計算
-      if (userPreferences.shooting_style) {
-        const styleMatch = this.getStyleTypeMatch(userPreferences.shooting_style, typeKey);
-        score += styleMatch * 10;
-      }
-
-      return { typeKey, type, score };
-    });
-
-    // 最高スコアのタイプを返す
-    const bestMatch = typeScores.sort((a, b) => b.score - a.score)[0];
-    return bestMatch;
+    // ユーザーの選択からキャラクターを動的生成
+    const character = this.generateDynamicCharacter(userPreferences, analysis);
+    
+    return character;
   }
 
-  // 撮影スタイルとタイプのマッチング
-  getStyleTypeMatch(shootingStyle, typeKey) {
-    const styleTypeMap = {
-      'portrait': ['portrait_artist'],
-      'street': ['street_photographer'],
-      'landscape': ['landscape_master'],
-      'sports': ['action_hunter'],
-      'video': ['vlog_creator'],
-      'budget': ['budget_conscious']
+  // 動的キャラクター生成
+  generateDynamicCharacter(userPreferences, analysis) {
+    const traits = [];
+    const characteristics = [];
+
+    // 経験レベルから性格を推測
+    if (userPreferences.experience_level === 'beginner') {
+      traits.push('初心者');
+      characteristics.push('学習意欲旺盛');
+    } else if (userPreferences.experience_level === 'intermediate') {
+      traits.push('中級者');
+      characteristics.push('技術向上志向');
+    } else if (userPreferences.experience_level === 'advanced') {
+      traits.push('上級者');
+      characteristics.push('専門性重視');
+    }
+
+    // 予算から性格を推測
+    if (userPreferences.budget_preference === 'low') {
+      traits.push('コスト意識');
+      characteristics.push('効率重視');
+    } else if (userPreferences.budget_preference === 'high') {
+      traits.push('プレミアム志向');
+      characteristics.push('品質重視');
+    } else {
+      traits.push('バランス重視');
+      characteristics.push('実用性重視');
+    }
+
+    // 用途から性格を推測
+    if (userPreferences.shooting_style) {
+      if (userPreferences.shooting_style.includes('portrait')) {
+        traits.push('人物重視');
+        characteristics.push('表現力豊か');
+      }
+      if (userPreferences.shooting_style.includes('landscape')) {
+        traits.push('風景愛好');
+        characteristics.push('自然との調和');
+      }
+      if (userPreferences.shooting_style.includes('street')) {
+        traits.push('ストリート');
+        characteristics.push('瞬間の感性');
+      }
+      if (userPreferences.shooting_style.includes('sports')) {
+        traits.push('アクション');
+        characteristics.push('動きの追求');
+      }
+    }
+
+    // 重視項目から性格を推測
+    if (userPreferences.priorities) {
+      if (userPreferences.priorities.includes('image-quality')) {
+        traits.push('画質至上');
+        characteristics.push('完璧主義');
+      }
+      if (userPreferences.priorities.includes('lightweight')) {
+        traits.push('軽量化重視');
+        characteristics.push('機動性重視');
+      }
+      if (userPreferences.priorities.includes('waterproof')) {
+        traits.push('耐久性重視');
+        characteristics.push('冒険心');
+      }
+    }
+
+    // スワイプ履歴から性格を推測
+    if (analysis.likes.length > analysis.dislikes.length) {
+      traits.push('積極的');
+      characteristics.push('好奇心旺盛');
+    } else {
+      traits.push('慎重');
+      characteristics.push('選択眼が高い');
+    }
+
+    // キャラクター名を生成
+    const characterName = this.generateCharacterName(traits);
+    const characterDescription = this.generateCharacterDescription(characteristics);
+
+    return {
+      name: characterName,
+      description: characterDescription,
+      traits: traits,
+      characteristics: characteristics,
+      experience_level: userPreferences.experience_level
+    };
+  }
+
+  // キャラクター名生成
+  generateCharacterName(traits) {
+    const nameTemplates = {
+      '初心者': ['カジュアルフォトグラファー', '写真探検家', '撮影初心者'],
+      '中級者': ['技術向上者', '写真愛好家', 'カメラマニア'],
+      '上級者': ['プロフォトグラファー', 'カメラマスター', '写真職人'],
+      'コスト意識': ['賢い選択者', 'コストパフォーマンス重視者', '効率追求者'],
+      'プレミアム志向': ['プレミアムフォトグラファー', '品質追求者', '高級機愛好家'],
+      '人物重視': ['ポートレートアーティスト', '人物写真家', '表情の探求者'],
+      '風景愛好': ['ランドスケープマスター', '自然写真家', '風景の詩人'],
+      'ストリート': ['ストリートフォトグラファー', '街の観察者', '瞬間の記録者'],
+      'アクション': ['アクションハンター', '動きの追求者', 'スポーツ写真家'],
+      '画質至上': ['画質マニア', '高解像度追求者', '完璧主義者'],
+      '軽量化重視': ['軽量機愛好家', '機動性重視者', 'コンパクト派'],
+      '耐久性重視': ['冒険写真家', '耐久性重視者', 'アウトドア派'],
+      '積極的': ['積極的探検家', '好奇心旺盛者', 'チャレンジャー'],
+      '慎重': ['慎重な選択者', '選択眼の高い人', 'じっくり派']
     };
 
-    let match = 0;
-    shootingStyle.forEach(style => {
-      if (styleTypeMap[style] && styleTypeMap[style].includes(typeKey)) {
-        match += 1;
-      }
-    });
-
-    return match;
+    // 最も特徴的なトレイトを選択
+    const primaryTrait = traits[0] || 'カジュアルフォトグラファー';
+    const templates = nameTemplates[primaryTrait] || ['カメラ愛好家'];
+    
+    // ランダムに選択
+    return templates[Math.floor(Math.random() * templates.length)];
   }
 
-  // 診断結果の生成（ハイブリッド方式）
+  // キャラクター説明生成
+  generateCharacterDescription(characteristics) {
+    const descriptions = {
+      '学習意欲旺盛': '新しい技術や知識を積極的に吸収し、写真の世界を探求するタイプです。',
+      '技術向上志向': '常に技術の向上を目指し、より良い写真を撮るための努力を惜しまないタイプです。',
+      '専門性重視': '特定の分野に特化し、専門的な知識と技術を追求するタイプです。',
+      '効率重視': 'コストパフォーマンスを重視し、効率的な機材選びをするタイプです。',
+      '品質重視': '最高品質を追求し、妥協のない機材選びをするタイプです。',
+      '実用性重視': 'バランスの取れた選択をし、実用的な機材を選ぶタイプです。',
+      '表現力豊か': '被写体の魅力を引き出し、豊かな表現力で写真を撮るタイプです。',
+      '自然との調和': '自然の美しさを大切にし、風景との調和を重視するタイプです。',
+      '瞬間の感性': '街の瞬間を捉え、感性豊かに写真を撮るタイプです。',
+      '動きの追求': '動きのある被写体を捉え、躍動感のある写真を撮るタイプです。',
+      '完璧主義': '最高品質を追求し、完璧な写真を目指すタイプです。',
+      '機動性重視': '軽量で機動性の高い機材を好み、自由な撮影を楽しむタイプです。',
+      '冒険心': 'アウトドアでの撮影を好み、冒険心旺盛なタイプです。',
+      '好奇心旺盛': '新しいことに挑戦し、好奇心旺盛に写真を撮るタイプです。',
+      '選択眼が高い': '慎重に機材を選び、高い選択眼を持つタイプです。'
+    };
+
+    // 主要な特徴から説明を生成
+    const primaryCharacteristic = characteristics[0] || 'カメラ愛好家';
+    return descriptions[primaryCharacteristic] || 'カメラを通じて世界を記録し、表現することを楽しむタイプです。';
+  }
+
+  // レベル別アドバイス生成
+  generateLevelAdvice(experienceLevel, traits) {
+    const advice = {
+      immediate: [],
+      long_term: []
+    };
+
+    // 経験レベル別の基本アドバイス
+    if (experienceLevel === 'beginner') {
+      advice.immediate.push('基本の露出（絞り・シャッタースピード・ISO）を理解しましょう');
+      advice.immediate.push('構図の基本（三分割法）を練習しましょう');
+      advice.long_term.push('撮影技術を向上させるために、定期的に練習を重ねましょう');
+    } else if (experienceLevel === 'intermediate') {
+      advice.immediate.push('レンズの特性を理解して、表現の幅を広げましょう');
+      advice.immediate.push('新しいジャンルに挑戦して、技術を向上させましょう');
+      advice.long_term.push('レンズ沼にハマって、より深い知識を身につけましょう');
+    } else if (experienceLevel === 'advanced') {
+      advice.immediate.push('変態的な機材に手を出して、新しい表現を追求しましょう');
+      advice.immediate.push('説得力のある写真で、人を感動させましょう');
+      advice.long_term.push('プロとしての技術と感性を磨き続けましょう');
+    }
+
+    // トレイト別の追加アドバイス
+    if (traits.includes('人物重視')) {
+      advice.immediate.push('自然光を活用したポートレート撮影を練習しましょう');
+    }
+    if (traits.includes('風景愛好')) {
+      advice.immediate.push('光の質を観察して、ベストなタイミングを狙ってください');
+    }
+    if (traits.includes('ストリート')) {
+      advice.immediate.push('街の光と影を意識して撮影しましょう');
+    }
+    if (traits.includes('画質至上')) {
+      advice.immediate.push('構図の勉強を深めて、より芸術的な写真を目指しましょう');
+    }
+
+    // アドバイス数を制限（即座に実践できるアドバイス2個、長期的アドバイス1個）
+    advice.immediate = advice.immediate.slice(0, 2);
+    advice.long_term = advice.long_term.slice(0, 1);
+
+    return advice;
+  }
+
+  // 診断結果の生成
   async generateDiagnosisResult(userType, swipeHistory, userPreferences) {
     const analysis = {
       likes: swipeHistory.filter(item => item.action === 'like' || item.action === 'superlike'),
@@ -310,32 +402,17 @@ class CameraPickerAI {
     // おすすめ機材を選定
     const recommendations = this.generateRecommendations(userType, scores, userPreferences);
 
-    // 基本診断データを構築
-    const diagnosisData = {
+    // レベル別アドバイスを生成
+    const advice = this.generateLevelAdvice(userType.experience_level, userType.traits);
+
+    return {
       photographerType: userType,
       scores,
       likedFeatures,
       dislikedFeatures,
       recommendations,
+      advice,
       userPreferences
-    };
-
-    // GPT APIで詳細なアドバイスを生成
-    let advice;
-    if (window.gptClient) {
-      try {
-        advice = await window.gptClient.generateAdvice(diagnosisData);
-      } catch (error) {
-        console.warn('GPT APIでのアドバイス生成に失敗、フォールバックを使用:', error);
-        advice = this.generateAdvice(userType, scores, userPreferences);
-      }
-    } else {
-      advice = this.generateAdvice(userType, scores, userPreferences);
-    }
-
-    return {
-      ...diagnosisData,
-      advice
     };
   }
 
@@ -430,8 +507,7 @@ class CameraPickerAI {
     const primaryCandidates = this.cameraDatabase
       .filter(camera => {
         // ユーザータイプに合致
-        const typeMatch = userType.type.camera_preferences.some(pref => 
-          camera.strengths.includes(pref) || camera.features.includes(pref));
+        const typeMatch = this.checkUserTypeMatch(camera, userType);
         
         // スコアに合致
         const scoreMatch = this.checkScoreMatch(camera, scores);
@@ -450,6 +526,30 @@ class CameraPickerAI {
     recommendations.accessories = this.recommendAccessories(userType, scores);
 
     return recommendations;
+  }
+
+  // ユーザータイプマッチングチェック
+  checkUserTypeMatch(camera, userType) {
+    // 経験レベルマッチング
+    if (camera.experience_level && !camera.experience_level.includes(userType.experience_level)) {
+      return false;
+    }
+
+    // トレイトマッチング
+    if (userType.traits.includes('人物重視') && camera.best_for.includes('portrait')) {
+      return true;
+    }
+    if (userType.traits.includes('風景愛好') && camera.best_for.includes('landscape')) {
+      return true;
+    }
+    if (userType.traits.includes('ストリート') && camera.best_for.includes('street')) {
+      return true;
+    }
+    if (userType.traits.includes('アクション') && camera.best_for.includes('sports')) {
+      return true;
+    }
+
+    return true; // デフォルトでマッチ
   }
 
   // スコアマッチングチェック
@@ -477,68 +577,30 @@ class CameraPickerAI {
     const accessories = [];
 
     // レンズ推奨
-    if (userType.typeKey === 'portrait_artist') {
+    if (userType.traits.includes('人物重視')) {
       accessories.push('85mm f/1.4 ポートレートレンズ');
-    } else if (userType.typeKey === 'landscape_master') {
+    } else if (userType.traits.includes('風景愛好')) {
       accessories.push('広角ズームレンズ (16-35mm)');
-    } else if (userType.typeKey === 'action_hunter') {
+    } else if (userType.traits.includes('アクション')) {
       accessories.push('望遠ズームレンズ (70-200mm)');
     }
 
     // 三脚
-    if (userType.typeKey === 'landscape_master' || scores.image_quality > 80) {
+    if (userType.traits.includes('風景愛好') || scores.image_quality > 80) {
       accessories.push('軽量三脚');
     }
 
     // ストロボ
-    if (userType.typeKey === 'portrait_artist') {
+    if (userType.traits.includes('人物重視')) {
       accessories.push('外付けストロボ');
     }
 
     // フィルター
-    if (userType.typeKey === 'landscape_master') {
+    if (userType.traits.includes('風景愛好')) {
       accessories.push('NDフィルター・PLフィルター');
     }
 
     return accessories;
-  }
-
-  // アドバイス生成
-  generateAdvice(userType, scores, userPreferences) {
-    const advice = {
-      immediate: [],
-      long_term: []
-    };
-
-    // 即座に実践できるアドバイス（最大2個）
-    if (userType.typeKey === 'portrait_artist') {
-      advice.immediate.push('自然光を活用したポートレート撮影を練習しましょう');
-      advice.immediate.push('被写体との距離感を意識して撮影してください');
-    } else if (userType.typeKey === 'street_photographer') {
-      advice.immediate.push('街の光と影を意識して撮影しましょう');
-      advice.immediate.push('瞬間を捉える練習を重ねてください');
-    } else if (userType.typeKey === 'landscape_master') {
-      advice.immediate.push('構図の基本（三分割法）を意識して撮影しましょう');
-      advice.immediate.push('光の質を観察して、ベストなタイミングを狙ってください');
-    } else {
-      advice.immediate.push('基本の露出（絞り・シャッタースピード・ISO）を理解しましょう');
-      advice.immediate.push('構図の基本を練習してください');
-    }
-
-    // 長期的な成長アドバイス（最大1個）
-    if (scores.image_quality > 80) {
-      advice.long_term.push('構図の勉強を深めて、より芸術的な写真を目指しましょう');
-    } else if (scores.video_capability > 70) {
-      advice.long_term.push('動画編集スキルを身につけて、ストーリーテリングを向上させましょう');
-    } else {
-      advice.long_term.push('撮影技術を向上させるために、定期的に練習を重ねましょう');
-    }
-
-    // アドバイス数を厳格に制限（合計3個まで）
-    advice.immediate = advice.immediate.slice(0, 2);
-    advice.long_term = advice.long_term.slice(0, 1);
-
-    return advice;
   }
 }
 

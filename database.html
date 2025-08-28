@@ -20,25 +20,25 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 2rem;
+      padding: 1.5rem;
     }
     
     .header {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 2rem;
     }
     
     .header h1 {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 700;
       color: var(--color-gray-900);
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
     
     .header p {
-      font-size: 1.125rem;
+      font-size: 1rem;
       color: var(--color-gray-600);
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
     
     .stats-grid {
@@ -259,17 +259,75 @@
         padding: 1rem;
       }
       
-      .camera-grid {
-        grid-template-columns: 1fr;
+      .header h1 {
+        font-size: 1.75rem;
+      }
+      
+      .header p {
+        font-size: 0.875rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      
+      .stat-number {
+        font-size: 1.5rem;
       }
       
       .controls {
         flex-direction: column;
         align-items: stretch;
+        gap: 0.75rem;
       }
       
       .search-box {
         min-width: auto;
+        font-size: 0.875rem;
+        padding: 0.75rem;
+      }
+      
+      .filter-select {
+        font-size: 0.875rem;
+        padding: 0.75rem;
+      }
+      
+      .camera-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .camera-card {
+        padding: 1rem;
+      }
+      
+      .camera-name {
+        font-size: 1rem;
+      }
+      
+      .camera-specs {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 0.75rem;
+      }
+      
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .camera-card {
+        padding: 0.75rem;
       }
     }
   </style>

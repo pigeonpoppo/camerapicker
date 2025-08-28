@@ -459,28 +459,80 @@
       }
       
       .article-title {
-        font-size: 2.5rem;
+        font-size: 2rem;
+      }
+      
+      .article-subtitle {
+        font-size: 1rem;
       }
       
       .section-title {
-        font-size: 1.875rem;
+        font-size: 1.5rem;
       }
       
       .personality-card {
-        padding: 2rem;
+        padding: 1.5rem;
+      }
+      
+      .personality-emoji {
+        font-size: 2.5rem;
+      }
+      
+      .personality-type {
+        font-size: 1.5rem;
       }
       
       .recommendations-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .recommendation-card {
+        padding: 1rem;
       }
       
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+      
+      .stat-number {
+        font-size: 1.5rem;
       }
       
       .action-buttons {
         flex-direction: column;
         align-items: center;
+        gap: 0.75rem;
+      }
+      
+      .action-button {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        min-height: 48px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 0.75rem;
+      }
+      
+      .article-title {
+        font-size: 1.75rem;
+      }
+      
+      .personality-card {
+        padding: 1rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .recommendation-card {
+        padding: 0.75rem;
       }
     }
     
@@ -534,19 +586,19 @@
         <div class="article-meta">Camera Picker 診断結果</div>
         <h1 class="article-title">
           <span class="line-break">あなたは</span>
-          <span class="personality-type">「探究型フォトグラファー」</span>
+          <span class="personality-type" id="dynamic-personality-type">「カメラ愛好家」</span>
         </h1>
         <p class="article-subtitle">
-          新しい機材への好奇心が旺盛で、様々な可能性を探求することを楽しむタイプです。機材選びにも積極的で、幅広いジャンルの撮影に興味を持っています。
+          カメラを通じて世界を記録し、表現することを楽しむタイプです。
         </p>
       </header>
 
       <div class="personality-card animate-in">
-        <div class="personality-emoji">🔍</div>
-        <h2 class="personality-type">探究型フォトグラファー</h2>
-        <p class="personality-tagline">「新しい表現を求めて、機材と共に成長し続ける」</p>
+        <div class="personality-emoji">📸</div>
+        <h2 class="personality-type" id="dynamic-personality-type-card">カメラ愛好家</h2>
+        <p class="personality-tagline">「世界を記録する表現者」</p>
         <p class="personality-description">
-          あなたは常に新しい撮影技法や機材に興味を示し、クリエイティブな表現を追求するタイプです。一つのスタイルに固執せず、多様な被写体や環境での撮影を楽しみます。機材選びでは性能と汎用性を重視し、成長に合わせてアップグレードしていくことを楽しみます。
+          カメラを通じて世界を記録し、表現することを楽しむタイプです。様々な被写体に興味を持ち、新しい技術や表現方法を積極的に取り入れながら、自分なりの写真スタイルを追求します。
         </p>
       </div>
 
@@ -669,16 +721,31 @@
         
         // フォトグラファータイプ表示
         if (photographerType) {
-          document.querySelector('.personality-type').textContent = photographerType.type.name;
-          document.querySelector('.personality-description').textContent = photographerType.type.description;
+          // 動的キャラクター名を表示
+          const personalityTypeElements = document.querySelectorAll('.personality-type');
+          personalityTypeElements.forEach(element => {
+            element.textContent = photographerType.name;
+          });
+          
+          // 動的キャラクター説明を表示
+          const personalityDescriptionElement = document.querySelector('.personality-description');
+          if (personalityDescriptionElement) {
+            personalityDescriptionElement.textContent = photographerType.description;
+          }
           
           // タイトルも更新
           const titleElement = document.querySelector('.article-title');
           if (titleElement) {
             titleElement.innerHTML = `
               <span class="line-break">あなたは</span>
-              <span class="personality-type">「${photographerType.type.name}」</span>
+              <span class="personality-type">「${photographerType.name}」</span>
             `;
+          }
+          
+          // サブタイトルも更新
+          const subtitleElement = document.querySelector('.article-subtitle');
+          if (subtitleElement) {
+            subtitleElement.textContent = photographerType.description;
           }
         }
         
@@ -823,7 +890,7 @@
     function shareResults() {
       const results = JSON.parse(localStorage.getItem('cameraPickerResults') || '{}');
       const diagnosisResult = results.diagnosisResult;
-      const photographerType = diagnosisResult?.photographerType?.type?.name || '探究型フォトグラファー';
+      const photographerType = diagnosisResult?.photographerType?.name || 'カメラ愛好家';
       
       const title = "私の撮影スタイル診断結果";
       const text = `Camera Pickerで診断したところ「${photographerType}」でした！`;
@@ -857,8 +924,11 @@
      }
     
     function saveResults() {
+      const diagnosisResult = JSON.parse(localStorage.getItem('cameraPickerResults') || '{}');
+      const photographerType = diagnosisResult.diagnosisResult?.photographerType;
+      
       const results = {
-        personalityType: '探究型フォトグラファー',
+        personalityType: photographerType?.name || 'カメラ愛好家',
         timestamp: new Date().toISOString(),
         recommendations: [
           'Sony α7 IV',
@@ -900,10 +970,36 @@
       elements.forEach(el => observer.observe(el));
     }
     
+    // 動的にラベリングを更新する関数
+    function updatePersonalityType() {
+      try {
+        const results = JSON.parse(localStorage.getItem('cameraPickerResults') || '{}');
+        const diagnosisResult = results.diagnosisResult;
+        const photographerType = diagnosisResult?.photographerType?.name || 'カメラ愛好家';
+        
+        // タイトルのラベリングを更新
+        const titleElement = document.getElementById('dynamic-personality-type');
+        if (titleElement) {
+          titleElement.textContent = `「${photographerType}」`;
+        }
+        
+        // カードのラベリングを更新
+        const cardElement = document.getElementById('dynamic-personality-type-card');
+        if (cardElement) {
+          cardElement.textContent = photographerType;
+        }
+        
+        console.log('✅ ラベリング更新完了:', photographerType);
+      } catch (error) {
+        console.error('❌ ラベリング更新エラー:', error);
+      }
+    }
+    
     // Initialize animations when page loads
     document.addEventListener('DOMContentLoaded', () => {
       animateOnScroll();
       displayAIDiagnosis(); // AI診断結果を表示
+      updatePersonalityType(); // ラベリングを動的に更新
     });
     
     // Add smooth scrolling for anchor links
