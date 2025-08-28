@@ -792,6 +792,42 @@
     let currentX = 0;
     let currentCard = null;
     
+    // 発売日順でカメラを取得する関数
+    async function getCamerasByReleaseDate() {
+      try {
+        // GitHub Pages対応のパス構築
+        const basePath = window.location.pathname.includes('/camerapicker/') 
+          ? '/camerapicker/' 
+          : '/';
+        
+        // カメラデータベースを読み込み
+        const response = await fetch(`${basePath}camera_database.json`);
+        const data = await response.json();
+        
+        if (!data.cameras || data.cameras.length === 0) {
+          console.error('❌ カメラデータが取得できません');
+          return [];
+        }
+        
+        // 発売年でソート（新しい順）
+        const sortedCameras = data.cameras
+          .filter(camera => camera['発売年']) // 発売年が存在するもののみ
+          .sort((a, b) => {
+            const yearA = parseInt(a['発売年']) || 0;
+            const yearB = parseInt(b['発売年']) || 0;
+            return yearB - yearA; // 新しい順
+          })
+          .slice(0, 20); // 上位20台を取得
+        
+        console.log(`✅ 発売日順でカメラを取得: ${sortedCameras.length}台`);
+        return sortedCameras;
+        
+      } catch (error) {
+        console.error('❌ 発売日順カメラ取得エラー:', error);
+        return [];
+      }
+    }
+    
                                        async function initializeApp() {
         // ローディング状態を開始
         document.body.classList.add('loading');
@@ -811,11 +847,20 @@
           streak: 0
         };
         
+        // 条件入力のスキップ状態をチェック
+        const conditions = JSON.parse(localStorage.getItem('cameraPickerConditions') || '{}');
+        const isSkipped = conditions.skipped === true;
+        
         // AIからカメラデータを取得
         if (window.cameraPickerAI) {
           try {
-            sampleData = await window.cameraPickerAI.selectCamerasForUser(userPreferences);
-
+            if (isSkipped) {
+              // スキップ時は発売日が新しい順に表示
+              sampleData = await getCamerasByReleaseDate();
+            } else {
+              // 条件入力時はユーザー設定に基づいて選択
+              sampleData = await window.cameraPickerAI.selectCamerasForUser(userPreferences);
+            }
           } catch (error) {
             console.error('❌ カメラデータ取得エラー:', error);
             sampleData = [];

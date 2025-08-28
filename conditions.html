@@ -270,6 +270,28 @@
       cursor: not-allowed;
     }
     
+    .skip-section {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: var(--color-gray-50);
+      border-radius: 0.75rem;
+      border: 1px solid var(--color-gray-200);
+    }
+    
+    .skip-btn {
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+      border: 1px solid var(--color-gray-300);
+      font-size: 0.875rem;
+      padding: 0.75rem 1.5rem;
+    }
+    
+    .skip-btn:hover {
+      background: var(--color-gray-200);
+      border-color: var(--color-gray-400);
+    }
+    
     .skip-notice {
       text-align: center;
       margin-top: 1.5rem;
@@ -344,6 +366,16 @@
         font-size: 0.875rem;
         padding: 0.25rem 0.5rem;
       }
+      
+      .skip-section {
+        margin-bottom: 1.5rem;
+        padding: 0.75rem;
+      }
+      
+      .skip-btn {
+        font-size: 0.8rem;
+        padding: 0.75rem 1rem;
+      }
     }
     
     /* タブレット最適化 */
@@ -367,6 +399,13 @@
     <div class="header">
       <h1>📋 条件を設定</h1>
       <p>あなたの用途や重視する項目を教えてください</p>
+    </div>
+    
+    <!-- スキップボタン（ページトップ） -->
+    <div class="skip-section">
+      <button class="btn btn-secondary skip-btn" onclick="skipConditions()">
+        ⏭️ 条件をスキップしてすぐマッチング
+      </button>
     </div>
     
     <div class="progress-bar">
@@ -512,9 +551,6 @@
     </div>
     
     <div class="buttons">
-      <button class="btn btn-secondary" onclick="skipConditions()">
-        ⏭️ 条件をスキップ
-      </button>
       <button class="btn btn-primary" id="next-button" onclick="saveConditions()">
         🎯 マッチング開始
       </button>
@@ -594,6 +630,12 @@
     // 条件をスキップ
     function skipConditions() {
       if (confirm('条件をスキップしてマッチングを開始しますか？')) {
+        // スキップフラグを設定
+        const skipData = {
+          skipped: true,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('cameraPickerConditions', JSON.stringify(skipData));
         window.location.href = 'pick.html';
       }
     }
