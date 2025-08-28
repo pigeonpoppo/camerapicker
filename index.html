@@ -500,7 +500,7 @@
       }
     }
     
-                       function startDiagnosis() {
+    function startDiagnosis() {
       if (!selectedLevel || !selectedMode) {
         return;
       }
@@ -511,23 +511,7 @@
       
       // 条件入力ページに遷移
       window.location.href = 'conditions.html';
-          shooting_style: [],
-          portability_importance: 'medium'
-        };
-        
-        // URLパラメータを構築
-        const params = new URLSearchParams({
-          mode: selectedMode,
-          level: selectedLevel,
-          budget: userPreferences.budget_preference,
-          portability: userPreferences.portability_importance
-        });
-        
-                const url = `pick.html?${params.toString()}`;
-        
-        // 遷移
-        window.location.href = url;
-      }
+    }
     
     // 統計情報を読み込む
     async function loadStats() {
