@@ -951,7 +951,7 @@
       
       // データベースフィールド名に合わせてマッピング
       const cameraData = {
-        image: item['画像URL'] || '/images/cameras/default-camera.svg',
+        image: item['画像URL'] || 'images/cameras/default-camera.svg',
         name: item['カメラ名'] || 'カメラ名不明',
         brand: item['メーカー'] || 'メーカー不明',
         price: item['新品価格'] || item['中古価格'] || null,
@@ -969,7 +969,7 @@
       };
       
       card.innerHTML = `
-        <img src="${cameraData.image}" alt="${cameraData.name}" class="card-image" loading="lazy" onerror="this.src='/images/cameras/default-camera.svg'">
+        <img src="${cameraData.image}" alt="${cameraData.name}" class="card-image" loading="lazy">
         <div class="card-content">
           <div class="card-header">
             <div class="card-brand">${cameraData.brand}</div>

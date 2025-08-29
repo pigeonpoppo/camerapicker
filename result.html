@@ -874,20 +874,20 @@
           brand: 'Sony',
           name: 'α7 IV',
           price: 298000,
-          image: '/images/cameras/default-camera.svg'
+          image: 'images/cameras/default-camera.svg'
         },
         alternatives: [
           {
             brand: 'Canon',
             name: 'EOS R6 Mark II',
             price: 348000,
-            image: '/images/cameras/default-camera.svg'
+            image: 'images/cameras/default-camera.svg'
           },
           {
             brand: 'Fujifilm',
             name: 'X-T5',
             price: 248000,
-            image: '/images/cameras/default-camera.svg'
+            image: 'images/cameras/default-camera.svg'
           }
         ]
       };
@@ -941,11 +941,12 @@
         // 画像の安全な処理
         const image = card.querySelector('img');
         if (image) {
-          image.src = primary.image || '/images/cameras/default-camera.svg';
+          image.src = primary.image || 'images/cameras/default-camera.svg';
           image.alt = primary.name || 'カメラ画像';
-          image.onerror = function() {
-            this.src = '/images/cameras/default-camera.svg';
-          };
+          // フォールバック処理を一時的に無効化
+          // image.onerror = function() {
+          //   this.src = 'images/cameras/default-camera.svg';
+          // };
         }
       }
       
@@ -969,11 +970,12 @@
             // 画像の安全な処理
             const image = card.querySelector('img');
             if (image) {
-              image.src = alt.image || '/images/cameras/default-camera.svg';
+              image.src = alt.image || 'images/cameras/default-camera.svg';
               image.alt = alt.name || 'カメラ画像';
-              image.onerror = function() {
-                this.src = '/images/cameras/default-camera.svg';
-              };
+              // フォールバック処理を一時的に無効化
+              // image.onerror = function() {
+              //   this.src = 'images/cameras/default-camera.svg';
+              // };
             }
           }
         });
