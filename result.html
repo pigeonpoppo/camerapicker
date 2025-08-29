@@ -638,17 +638,16 @@
       <header class="article-header">
         <div class="article-meta">Camera Picker 診断結果</div>
         <h1 class="article-title">
-          <span class="line-break">あなたは</span>
-          <span class="personality-type" id="dynamic-personality-type">「カメラ愛好家」</span>
+          あなたの撮影スタイル診断結果
         </h1>
       </header>
 
       <div class="personality-card animate-in">
         <div class="personality-emoji">📸</div>
-        <h2 class="personality-type" id="dynamic-personality-type-card">カメラ愛好家</h2>
-        <p class="personality-tagline">「世界を記録する表現者」</p>
+        <h2 class="personality-type" id="dynamic-personality-type-card">オシャレ探検家</h2>
+        <p class="personality-tagline">「新しい表現を求めて、機材と共に成長し続ける」</p>
         <p class="personality-description">
-          カメラを通じて世界を記録し、表現することを楽しむタイプです。様々な被写体に興味を持ち、新しい技術や表現方法を積極的に取り入れながら、自分なりの写真スタイルを追求します。
+          新しい機材への好奇心が旺盛で、様々な可能性を探求することを楽しむタイプです。機材選びにも積極的で、幅広いジャンルの撮影に興味を持っています。
         </p>
       </div>
 
@@ -784,31 +783,16 @@
         
         // フォトグラファータイプ表示
         if (photographerType) {
-          // 動的キャラクター名を表示
-          const personalityTypeElements = document.querySelectorAll('.personality-type');
-          personalityTypeElements.forEach(element => {
-            element.textContent = photographerType.name;
-          });
+          // 動的キャラクター名を表示（カード内のみ）
+          const personalityTypeElement = document.querySelector('#dynamic-personality-type-card');
+          if (personalityTypeElement) {
+            personalityTypeElement.textContent = photographerType.name;
+          }
           
           // 動的キャラクター説明を表示
           const personalityDescriptionElement = document.querySelector('.personality-description');
           if (personalityDescriptionElement) {
             personalityDescriptionElement.textContent = photographerType.description;
-          }
-          
-          // タイトルも更新
-          const titleElement = document.querySelector('.article-title');
-          if (titleElement) {
-            titleElement.innerHTML = `
-              <span class="line-break">あなたは</span>
-              <span class="personality-type">「${photographerType.name}」</span>
-            `;
-          }
-          
-          // サブタイトルも更新
-          const subtitleElement = document.querySelector('.article-subtitle');
-          if (subtitleElement) {
-            subtitleElement.textContent = photographerType.description;
           }
         }
         
@@ -850,8 +834,8 @@
       
       // デフォルトのフォトグラファータイプ
       const defaultType = {
-        name: 'カメラ愛好家',
-        description: '写真を楽しむことを大切にするタイプです。'
+        name: 'オシャレ探検家',
+        description: '新しい機材への好奇心が旺盛で、様々な可能性を探求することを楽しむタイプです。機材選びにも積極的で、幅広いジャンルの撮影に興味を持っています。'
       };
       
       // デフォルトのアドバイス
@@ -860,11 +844,11 @@
         long_term: ['撮影技術を向上させるために、定期的に練習を重ねましょう']
       };
       
-      // 表示を更新
-      const personalityTypeElements = document.querySelectorAll('.personality-type');
-      personalityTypeElements.forEach(element => {
-        element.textContent = defaultType.name;
-      });
+      // 表示を更新（カード内のみ）
+      const personalityTypeElement = document.querySelector('#dynamic-personality-type-card');
+      if (personalityTypeElement) {
+        personalityTypeElement.textContent = defaultType.name;
+      }
       
       const personalityDescriptionElement = document.querySelector('.personality-description');
       if (personalityDescriptionElement) {
@@ -1144,12 +1128,6 @@
         const results = JSON.parse(localStorage.getItem('cameraPickerResults') || '{}');
         const diagnosisResult = results.diagnosisResult;
         const photographerType = diagnosisResult?.photographerType?.name || 'カメラ愛好家';
-        
-        // タイトルのラベリングを更新
-        const titleElement = document.getElementById('dynamic-personality-type');
-        if (titleElement) {
-          titleElement.textContent = `「${photographerType}」`;
-        }
         
         // カードのラベリングを更新
         const cardElement = document.getElementById('dynamic-personality-type-card');
