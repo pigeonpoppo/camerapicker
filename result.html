@@ -255,9 +255,18 @@
     /* Stats Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 2rem;
       margin: 3rem 0;
+    }
+    
+    /* モバイル対応 */
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 2rem 0;
+      }
     }
     
     .stat-card {
@@ -629,9 +638,6 @@
           <span class="line-break">あなたは</span>
           <span class="personality-type" id="dynamic-personality-type">「カメラ愛好家」</span>
         </h1>
-        <p class="article-subtitle">
-          カメラを通じて世界を記録し、表現することを楽しむタイプです。
-        </p>
       </header>
 
       <div class="personality-card animate-in">
@@ -655,19 +661,19 @@
         <div class="stats-grid">
           <div class="stat-card">
             <span class="stat-number">87</span>
-            <span class="stat-label">探究心スコア</span>
+            <span class="stat-label">画質重視度</span>
           </div>
           <div class="stat-card">
             <span class="stat-number">73</span>
-            <span class="stat-label">技術志向度</span>
+            <span class="stat-label">オートフォーカス重視度</span>
           </div>
           <div class="stat-card">
             <span class="stat-number">91</span>
-            <span class="stat-label">汎用性重視</span>
+            <span class="stat-label">動画性能重視度</span>
           </div>
           <div class="stat-card">
             <span class="stat-number">68</span>
-            <span class="stat-label">予算柔軟性</span>
+            <span class="stat-label">携帯性重視度</span>
           </div>
         </div>
 
@@ -847,7 +853,7 @@
       
       // デフォルトのアドバイス
       const defaultAdvice = {
-        immediate: ['基本の露出（絞り・シャッタースピード・ISO）を理解しましょう', '構図の基本（三分割法）を練習しましょう'],
+        immediate: ['基本の露出（絞り・シャッタースピード・ISO）を理解しましょう'],
         long_term: ['撮影技術を向上させるために、定期的に練習を重ねましょう']
       };
       
@@ -915,6 +921,8 @@
       if (scoreElements.portability) {
         scoreElements.portability.textContent = scores.portability || 68;
       }
+      
+      console.log('📊 スコア表示完了:', scores);
     }
     
     function displayRecommendations(recommendations) {
@@ -987,40 +995,33 @@
       if (!adviceContainer) return;
       
       let adviceHTML = '';
-      let adviceNumber = 1;
       
-      // 即座に実践できるアドバイス（最大2個）
+      // 即座に実践できるアドバイス（1個のみ）
       if (advice.immediate && advice.immediate.length > 0) {
-        const immediateAdvice = advice.immediate.slice(0, 2);
-        immediateAdvice.forEach((item) => {
-          adviceHTML += `
-            <li class="feature-item">
-              <div class="feature-icon">${adviceNumber}</div>
-              <div class="feature-content">
-                <h4>即座に実践できるアドバイス</h4>
-                <p>${item}</p>
-              </div>
-            </li>
-          `;
-          adviceNumber++;
-        });
+        const immediateAdvice = advice.immediate[0]; // 最初の1個のみ
+        adviceHTML += `
+          <li class="feature-item">
+            <div class="feature-icon">1</div>
+            <div class="feature-content">
+              <h4>即座に実践できるアドバイス</h4>
+              <p>${immediateAdvice}</p>
+            </div>
+          </li>
+        `;
       }
       
-      // 長期的な成長アドバイス（最大1個）
+      // 長期的な成長アドバイス（1個のみ）
       if (advice.long_term && advice.long_term.length > 0) {
-        const longTermAdvice = advice.long_term.slice(0, 1);
-        longTermAdvice.forEach((item) => {
-          adviceHTML += `
-            <li class="feature-item">
-              <div class="feature-icon">${adviceNumber}</div>
-              <div class="feature-content">
-                <h4>長期的な成長アドバイス</h4>
-                <p>${item}</p>
-              </div>
-            </li>
-          `;
-          adviceNumber++;
-        });
+        const longTermAdvice = advice.long_term[0]; // 最初の1個のみ
+        adviceHTML += `
+          <li class="feature-item">
+            <div class="feature-icon">2</div>
+            <div class="feature-content">
+              <h4>長期的な成長アドバイス</h4>
+              <p>${longTermAdvice}</p>
+            </div>
+          </li>
+        `;
       }
       
       // アドバイスがない場合はデフォルトを表示
@@ -1035,13 +1036,6 @@
           </li>
           <li class="feature-item">
             <div class="feature-icon">2</div>
-            <div class="feature-content">
-              <h4>即座に実践できるアドバイス</h4>
-              <p>構図の基本を練習してください</p>
-            </div>
-          </li>
-          <li class="feature-item">
-            <div class="feature-icon">3</div>
             <div class="feature-content">
               <h4>長期的な成長アドバイス</h4>
               <p>撮影技術を向上させるために、定期的に練習を重ねましょう</p>
