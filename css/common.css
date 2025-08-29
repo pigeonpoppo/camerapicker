@@ -57,6 +57,9 @@ body {
   word-break: keep-all;
   overflow-wrap: break-word;
   word-wrap: break-word;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  hyphens: none;
 }
 
 /* 日本語テキストの改行制御 */
@@ -64,14 +67,50 @@ h1, h2, h3, h4, h5, h6, p, span, div, button, a {
   word-break: keep-all;
   overflow-wrap: break-word;
   word-wrap: break-word;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  hyphens: none;
 }
 
 /* カード内のテキスト改行制御 */
-.card-name, .card-brand, .recommendation-name, .recommendation-brand {
+.card-name, .card-brand, .recommendation-name, .recommendation-brand,
+.personality-type, .personality-description, .section-title, .section-description {
   word-break: keep-all;
   overflow-wrap: break-word;
   word-wrap: break-word;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
   hyphens: none;
+  white-space: normal;
+}
+
+/* モバイルでの文字サイズ最適化 */
+@media (max-width: 768px) {
+  h1, h2, h3, h4, h5, h6 {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    line-height: 1.4;
+  }
+  
+  p, span, div {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    line-height: 1.5;
+  }
+  
+  .card-name, .recommendation-name {
+    font-size: 1.1rem;
+    line-height: 1.3;
+    word-break: keep-all;
+  }
+  
+  .card-brand, .recommendation-brand {
+    font-size: 0.9rem;
+    line-height: 1.2;
+    word-break: keep-all;
+  }
 }
 
 /* Common Container */

@@ -754,11 +754,24 @@
   <script>
     // AI診断結果を表示する関数
     function displayAIDiagnosis() {
+      console.log('🔍 displayAIDiagnosis開始');
+      
       const results = JSON.parse(localStorage.getItem('cameraPickerResults') || '{}');
+      console.log('📊 localStorage結果:', results);
+      
       const diagnosisResult = results.diagnosisResult;
+      console.log('🎯 診断結果:', diagnosisResult);
       
       if (diagnosisResult) {
         const { photographerType, scores, likedFeatures, dislikedFeatures, recommendations, advice } = diagnosisResult;
+        console.log('📋 診断結果詳細:', {
+          photographerType,
+          scores,
+          likedFeatures,
+          dislikedFeatures,
+          recommendations,
+          advice
+        });
         
         // フォトグラファータイプ表示
         if (photographerType) {
@@ -803,8 +816,49 @@
         // アドバイス表示
         if (advice) {
           displayAdvice(advice);
+        } else {
+          console.log('⚠️ アドバイスが生成されていません。フォールバックを使用します。');
+          // フォールバックアドバイスを表示
+          displayAdvice({
+            immediate: ['基本の露出（絞り・シャッタースピード・ISO）を理解しましょう', '構図の基本（三分割法）を練習しましょう'],
+            long_term: ['撮影技術を向上させるために、定期的に練習を重ねましょう']
+          });
         }
+      } else {
+        console.log('❌ 診断結果がありません。デフォルト表示を使用します。');
+        // デフォルトの診断結果を表示
+        displayDefaultResults();
       }
+    }
+    
+    // デフォルト結果表示
+    function displayDefaultResults() {
+      console.log('📋 デフォルト結果を表示');
+      
+      // デフォルトのフォトグラファータイプ
+      const defaultType = {
+        name: 'カメラ愛好家',
+        description: '写真を楽しむことを大切にするタイプです。'
+      };
+      
+      // デフォルトのアドバイス
+      const defaultAdvice = {
+        immediate: ['基本の露出（絞り・シャッタースピード・ISO）を理解しましょう', '構図の基本（三分割法）を練習しましょう'],
+        long_term: ['撮影技術を向上させるために、定期的に練習を重ねましょう']
+      };
+      
+      // 表示を更新
+      const personalityTypeElements = document.querySelectorAll('.personality-type');
+      personalityTypeElements.forEach(element => {
+        element.textContent = defaultType.name;
+      });
+      
+      const personalityDescriptionElement = document.querySelector('.personality-description');
+      if (personalityDescriptionElement) {
+        personalityDescriptionElement.textContent = defaultType.description;
+      }
+      
+      displayAdvice(defaultAdvice);
     }
     
     function displayScores(scores) {
@@ -1038,6 +1092,15 @@
     
     // Initialize animations when page loads
     document.addEventListener('DOMContentLoaded', () => {
+      console.log('🚀 result.html DOM読み込み完了');
+      
+      // AI診断システムの読み込み確認
+      if (window.cameraPickerAI) {
+        console.log('✅ AI診断システム読み込み済み');
+      } else {
+        console.log('❌ AI診断システム未読み込み');
+      }
+      
       animateOnScroll();
       displayAIDiagnosis(); // AI診断結果を表示
       updatePersonalityType(); // ラベリングを動的に更新
