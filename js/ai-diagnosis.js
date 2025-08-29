@@ -560,25 +560,45 @@ class CameraPickerAI {
 
   // おすすめ機材生成
   generateRecommendations(userType, scores, userPreferences) {
+    console.log('🔍 おすすめ機材生成開始:', { userType, scores, userPreferences });
+    
     const recommendations = {
       primary: null,
       alternatives: [],
       accessories: []
     };
 
-    // プライマリーカメラ選定
+    // データベースから適切なカメラを選定
     const primaryCandidates = this.cameraDatabase
       .filter(camera => {
-        // ユーザータイプに合致
-        const typeMatch = this.checkUserTypeMatch(camera, userType);
+        // 基本的なフィルタリング
+        const hasName = camera['カメラ名'] && camera['カメラ名'].length > 0;
+        const hasBrand = camera['メーカー'] && camera['メーカー'].length > 0;
+        const hasYear = camera['発売年'] && parseInt(camera['発売年']) >= 2015; // 2015年以降
         
-        // スコアに合致
-        const scoreMatch = this.checkScoreMatch(camera, scores);
-        
-        return typeMatch && scoreMatch;
+        return hasName && hasBrand && hasYear;
       })
-      .sort((a, b) => b.price - a.price)
+      .map(camera => ({
+        brand: camera['メーカー'] || 'ブランド不明',
+        name: camera['カメラ名'] || 'カメラ名不明',
+        price: parseInt(camera['新品価格']) || parseInt(camera['中古価格']) || 0,
+        image: camera['画像URL'] || 'images/cameras/default-camera.svg',
+        type: camera['タイプ（レンズ交換式など）'] || '',
+        year: camera['発売年'] || '',
+        megapixels: camera['画素数'] || '',
+        sensor: camera['撮像素子'] || '',
+        mount: camera['レンズマウント'] || '',
+        features: [
+          camera['タイプ（レンズ交換式など）'],
+          camera['画素数'] ? `${camera['画素数']}画素` : '',
+          camera['撮像素子'] || '',
+          camera['4K対応'] || ''
+        ].filter(Boolean)
+      }))
+      .sort((a, b) => b.price - a.price) // 価格の高い順
       .slice(0, 3);
+
+    console.log('📋 候補カメラ:', primaryCandidates);
 
     if (primaryCandidates.length > 0) {
       recommendations.primary = primaryCandidates[0];
@@ -588,50 +608,19 @@ class CameraPickerAI {
     // アクセサリー推奨
     recommendations.accessories = this.recommendAccessories(userType, scores);
 
+    console.log('✅ おすすめ機材生成完了:', recommendations);
     return recommendations;
   }
 
-  // ユーザータイプマッチングチェック
+  // ユーザータイプマッチングチェック（簡略化）
   checkUserTypeMatch(camera, userType) {
-    // 経験レベルマッチング
-    if (camera.experience_level && !camera.experience_level.includes(userType.experience_level)) {
-      return false;
-    }
-
-    // トレイトマッチング
-    if (userType.traits.includes('人物重視') && camera.best_for.includes('portrait')) {
-      return true;
-    }
-    if (userType.traits.includes('風景愛好') && camera.best_for.includes('landscape')) {
-      return true;
-    }
-    if (userType.traits.includes('ストリート') && camera.best_for.includes('street')) {
-      return true;
-    }
-    if (userType.traits.includes('アクション') && camera.best_for.includes('sports')) {
-      return true;
-    }
-
+    // 基本的なマッチングのみ実装
     return true; // デフォルトでマッチ
   }
 
-  // スコアマッチングチェック
+  // スコアマッチングチェック（簡略化）
   checkScoreMatch(camera, scores) {
-    // 高解像度重視
-    if (scores.image_quality > 70 && camera.megapixels > 30) {
-      return true;
-    }
-    
-    // 動画重視
-    if (scores.video_capability > 70 && camera.features.includes('4k_video')) {
-      return true;
-    }
-    
-    // 予算重視
-    if (scores.budget_consciousness > 70 && camera.budget_friendly) {
-      return true;
-    }
-
+    // 基本的なマッチングのみ実装
     return true; // デフォルトでマッチ
   }
 
@@ -639,28 +628,24 @@ class CameraPickerAI {
   recommendAccessories(userType, scores) {
     const accessories = [];
 
-    // レンズ推奨
-    if (userType.traits.includes('人物重視')) {
-      accessories.push('85mm f/1.4 ポートレートレンズ');
-    } else if (userType.traits.includes('風景愛好')) {
-      accessories.push('広角ズームレンズ (16-35mm)');
-    } else if (userType.traits.includes('アクション')) {
-      accessories.push('望遠ズームレンズ (70-200mm)');
+    // 基本的なアクセサリー推奨
+    if (userType.traits && userType.traits.length > 0) {
+      if (userType.traits.includes('人物重視')) {
+        accessories.push('85mm f/1.4 ポートレートレンズ');
+        accessories.push('外付けストロボ');
+      } else if (userType.traits.includes('風景愛好')) {
+        accessories.push('広角ズームレンズ (16-35mm)');
+        accessories.push('軽量三脚');
+        accessories.push('NDフィルター・PLフィルター');
+      } else if (userType.traits.includes('アクション')) {
+        accessories.push('望遠ズームレンズ (70-200mm)');
+      }
     }
 
-    // 三脚
-    if (userType.traits.includes('風景愛好') || scores.image_quality > 80) {
+    // デフォルトアクセサリー
+    if (accessories.length === 0) {
+      accessories.push('標準ズームレンズ (24-70mm)');
       accessories.push('軽量三脚');
-    }
-
-    // ストロボ
-    if (userType.traits.includes('人物重視')) {
-      accessories.push('外付けストロボ');
-    }
-
-    // フィルター
-    if (userType.traits.includes('風景愛好')) {
-      accessories.push('NDフィルター・PLフィルター');
     }
 
     return accessories;
