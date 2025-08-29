@@ -6,6 +6,9 @@
   <link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>あなたの撮影スタイル診断結果</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@300;400;500;600;700;800;900&display=swap');
@@ -991,8 +994,12 @@
     }
     
     function displayAdvice(advice) {
+      console.log('💡 アドバイス表示開始:', advice);
       const adviceContainer = document.querySelector('.feature-list');
-      if (!adviceContainer) return;
+      if (!adviceContainer) {
+        console.log('❌ アドバイスコンテナが見つかりません');
+        return;
+      }
       
       let adviceHTML = '';
       
@@ -1045,6 +1052,7 @@
       }
       
       adviceContainer.innerHTML = adviceHTML;
+      console.log('✅ アドバイス表示完了:', adviceHTML);
     }
     
     function shareResults() {
@@ -1166,9 +1174,23 @@
         console.log('❌ AI診断システム未読み込み');
       }
       
+      // キャッシュバスティング用のタイムスタンプ
+      console.log('🕒 ページ読み込み時刻:', new Date().toISOString());
+      
       animateOnScroll();
       displayAIDiagnosis(); // AI診断結果を表示
       updatePersonalityType(); // ラベリングを動的に更新
+      
+      // 強制的にCSSを再適用
+      setTimeout(() => {
+        console.log('🔄 CSS再適用');
+        const statsGrid = document.querySelector('.stats-grid');
+        if (statsGrid) {
+          statsGrid.style.display = 'grid';
+          statsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+          console.log('✅ 2×2グリッド強制適用');
+        }
+      }, 100);
     });
     
     // Add smooth scrolling for anchor links
