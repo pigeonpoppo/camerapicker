@@ -52,6 +52,28 @@ body {
   scroll-behavior: smooth;
 }
 
+/* 改行制御 - 単語の途中での改行を防ぐ */
+* {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* 日本語テキストの改行制御 */
+h1, h2, h3, h4, h5, h6, p, span, div, button, a {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* カード内のテキスト改行制御 */
+.card-name, .card-brand, .recommendation-name, .recommendation-brand {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: none;
+}
+
 /* Common Container */
 .container {
   max-width: 1200px;

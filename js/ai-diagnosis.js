@@ -421,6 +421,14 @@ class CameraPickerAI {
 
     // レベル別アドバイスを生成
     const advice = this.generateLevelAdvice(userType.experience_level || 'intermediate', userType.traits || []);
+    
+    console.log('🔍 AI診断結果生成:', {
+      userType,
+      advice,
+      scores,
+      likedFeatures,
+      dislikedFeatures
+    });
 
     return {
       photographerType: userType,
@@ -438,11 +446,22 @@ class CameraPickerAI {
     const featureCounts = {};
     
     likes.forEach(like => {
-      const camera = this.cameraDatabase.find(c => c.id === like.camera_id);
+      const camera = this.cameraDatabase.find(c => c['カメラ名'] === like.camera_name);
       if (camera) {
-        camera.strengths.forEach(strength => {
-          featureCounts[strength] = (featureCounts[strength] || 0) + 1;
-        });
+        // カメラタイプから特徴を推測
+        const cameraType = camera['タイプ（レンズ交換式など）'] || '';
+        if (cameraType.includes('一眼レフ')) {
+          featureCounts['高画質'] = (featureCounts['高画質'] || 0) + 1;
+        }
+        if (cameraType.includes('ミラーレス')) {
+          featureCounts['軽量'] = (featureCounts['軽量'] || 0) + 1;
+        }
+        if (cameraType.includes('コンパクト')) {
+          featureCounts['携帯性'] = (featureCounts['携帯性'] || 0) + 1;
+        }
+        if (camera['4K対応']) {
+          featureCounts['動画性能'] = (featureCounts['動画性能'] || 0) + 1;
+        }
       }
     });
 
@@ -457,11 +476,19 @@ class CameraPickerAI {
     const featureCounts = {};
     
     dislikes.forEach(dislike => {
-      const camera = this.cameraDatabase.find(c => c.id === dislike.camera_id);
+      const camera = this.cameraDatabase.find(c => c['カメラ名'] === dislike.camera_name);
       if (camera) {
-        camera.weaknesses.forEach(weakness => {
-          featureCounts[weakness] = (featureCounts[weakness] || 0) + 1;
-        });
+        // カメラタイプから弱点を推測
+        const cameraType = camera['タイプ（レンズ交換式など）'] || '';
+        if (cameraType.includes('一眼レフ')) {
+          featureCounts['重い'] = (featureCounts['重い'] || 0) + 1;
+        }
+        if (cameraType.includes('コンパクト')) {
+          featureCounts['画質制限'] = (featureCounts['画質制限'] || 0) + 1;
+        }
+        if (!camera['4K対応']) {
+          featureCounts['動画性能不足'] = (featureCounts['動画性能不足'] || 0) + 1;
+        }
       }
     });
 
@@ -476,16 +503,32 @@ class CameraPickerAI {
     let score = 50; // ベーススコア
 
     analysis.likes.forEach(like => {
-      const camera = this.cameraDatabase.find(c => c.id === like.camera_id);
-      if (camera && camera.strengths.includes(feature)) {
-        score += 10;
+      const camera = this.cameraDatabase.find(c => c['カメラ名'] === like.camera_name);
+      if (camera) {
+        const cameraType = camera['タイプ（レンズ交換式など）'] || '';
+        
+        if (feature === 'image_quality' && cameraType.includes('一眼レフ')) {
+          score += 10;
+        } else if (feature === 'compact' && cameraType.includes('コンパクト')) {
+          score += 10;
+        } else if (feature === 'video_quality' && camera['4K対応']) {
+          score += 10;
+        }
       }
     });
 
     analysis.dislikes.forEach(dislike => {
-      const camera = this.cameraDatabase.find(c => c.id === dislike.camera_id);
-      if (camera && camera.weaknesses.includes(feature)) {
-        score += 5;
+      const camera = this.cameraDatabase.find(c => c['カメラ名'] === dislike.camera_name);
+      if (camera) {
+        const cameraType = camera['タイプ（レンズ交換式など）'] || '';
+        
+        if (feature === 'image_quality' && cameraType.includes('コンパクト')) {
+          score += 5;
+        } else if (feature === 'compact' && cameraType.includes('一眼レフ')) {
+          score += 5;
+        } else if (feature === 'video_quality' && !camera['4K対応']) {
+          score += 5;
+        }
       }
     });
 
@@ -499,9 +542,12 @@ class CameraPickerAI {
     let totalCount = analysis.likes.length + analysis.dislikes.length;
 
     analysis.likes.forEach(like => {
-      const camera = this.cameraDatabase.find(c => c.id === like.camera_id);
-      if (camera && camera.budget_friendly) {
-        budgetCount++;
+      const camera = this.cameraDatabase.find(c => c['カメラ名'] === like.camera_name);
+      if (camera) {
+        const price = parseInt(camera['新品価格']) || parseInt(camera['中古価格']) || 0;
+        if (price <= 100000) { // 10万円以下を予算重視とみなす
+          budgetCount++;
+        }
       }
     });
 
