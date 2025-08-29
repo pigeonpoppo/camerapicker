@@ -811,6 +811,10 @@
         // おすすめ機材表示
         if (recommendations && recommendations.primary) {
           displayRecommendations(recommendations);
+        } else {
+          console.log('⚠️ おすすめ機材が生成されていません。デフォルト表示を使用します。');
+          // デフォルトのおすすめ機材を表示
+          displayDefaultRecommendations();
         }
         
         // アドバイス表示
@@ -861,6 +865,36 @@
       displayAdvice(defaultAdvice);
     }
     
+    // デフォルトおすすめ機材表示
+    function displayDefaultRecommendations() {
+      console.log('📋 デフォルトおすすめ機材を表示');
+      
+      const defaultRecommendations = {
+        primary: {
+          brand: 'Sony',
+          name: 'α7 IV',
+          price: 298000,
+          image: '/images/cameras/default-camera.svg'
+        },
+        alternatives: [
+          {
+            brand: 'Canon',
+            name: 'EOS R6 Mark II',
+            price: 348000,
+            image: '/images/cameras/default-camera.svg'
+          },
+          {
+            brand: 'Fujifilm',
+            name: 'X-T5',
+            price: 248000,
+            image: '/images/cameras/default-camera.svg'
+          }
+        ]
+      };
+      
+      displayRecommendations(defaultRecommendations);
+    }
+    
     function displayScores(scores) {
       const scoreElements = {
         'image_quality': document.querySelector('.stat-card:nth-child(1) .stat-number'),
@@ -884,28 +918,63 @@
     }
     
     function displayRecommendations(recommendations) {
+      console.log('📋 おすすめ機材表示:', recommendations);
       const recommendationCards = document.querySelectorAll('.recommendation-card');
       
       if (recommendations.primary && recommendationCards[0]) {
         const primary = recommendations.primary;
         const card = recommendationCards[0];
         
-        card.querySelector('.recommendation-brand').textContent = primary.brand;
-        card.querySelector('.recommendation-name').textContent = primary.name;
-        card.querySelector('.recommendation-price').textContent = `¥${primary.price.toLocaleString()}`;
-        card.querySelector('img').src = primary.image;
-        card.querySelector('img').alt = primary.name;
+        card.querySelector('.recommendation-brand').textContent = primary.brand || 'ブランド不明';
+        card.querySelector('.recommendation-name').textContent = primary.name || 'カメラ名不明';
+        
+        // 価格表示の安全な処理
+        const price = primary.price;
+        if (price && typeof price === 'number') {
+          card.querySelector('.recommendation-price').textContent = `¥${price.toLocaleString()}`;
+        } else if (price && typeof price === 'string') {
+          card.querySelector('.recommendation-price').textContent = `¥${price}`;
+        } else {
+          card.querySelector('.recommendation-price').textContent = '価格未定';
+        }
+        
+        // 画像の安全な処理
+        const image = card.querySelector('img');
+        if (image) {
+          image.src = primary.image || '/images/cameras/default-camera.svg';
+          image.alt = primary.name || 'カメラ画像';
+          image.onerror = function() {
+            this.src = '/images/cameras/default-camera.svg';
+          };
+        }
       }
       
       if (recommendations.alternatives && recommendations.alternatives.length > 0) {
         recommendations.alternatives.forEach((alt, index) => {
           if (recommendationCards[index + 1]) {
             const card = recommendationCards[index + 1];
-            card.querySelector('.recommendation-brand').textContent = alt.brand;
-            card.querySelector('.recommendation-name').textContent = alt.name;
-            card.querySelector('.recommendation-price').textContent = `¥${alt.price.toLocaleString()}`;
-            card.querySelector('img').src = alt.image;
-            card.querySelector('img').alt = alt.name;
+            card.querySelector('.recommendation-brand').textContent = alt.brand || 'ブランド不明';
+            card.querySelector('.recommendation-name').textContent = alt.name || 'カメラ名不明';
+            
+            // 価格表示の安全な処理
+            const price = alt.price;
+            if (price && typeof price === 'number') {
+              card.querySelector('.recommendation-price').textContent = `¥${price.toLocaleString()}`;
+            } else if (price && typeof price === 'string') {
+              card.querySelector('.recommendation-price').textContent = `¥${price}`;
+            } else {
+              card.querySelector('.recommendation-price').textContent = '価格未定';
+            }
+            
+            // 画像の安全な処理
+            const image = card.querySelector('img');
+            if (image) {
+              image.src = alt.image || '/images/cameras/default-camera.svg';
+              image.alt = alt.name || 'カメラ画像';
+              image.onerror = function() {
+                this.src = '/images/cameras/default-camera.svg';
+              };
+            }
           }
         });
       }
